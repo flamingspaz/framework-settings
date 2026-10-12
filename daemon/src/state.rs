@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //! Settings the hardware can't report back (write-only HID reports, charge
-//! current limit). We remember what was last set so the UI can show it and
-//! so we can re-apply it when the daemon starts.
+//! current limit) or forgets on reboot (charge limit). We remember what was
+//! last set so the UI can show it and so we can re-apply it when the daemon
+//! starts.
 
 use std::path::PathBuf;
 
@@ -10,6 +11,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct State {
+    /// Charge limit in percent; the BIOS resets the EC's copy on every boot
+    pub charge_limit: Option<u8>,
     /// Charge rate limit in C (1.0 = no limit)
     pub charge_rate_limit: Option<f64>,
     /// Battery state of charge above which the rate limit applies
