@@ -111,6 +111,7 @@ namespace {
 #ifdef FRAMEWORK_STANDALONE
 FrameworkKcm::FrameworkKcm(QObject *parent) : QObject(parent) {
 
+
 #else
 FrameworkKcm::FrameworkKcm(QObject *parent, const KPluginMetaData &data) : KQuickConfigModule(parent, data) {
 #endif
