@@ -16,4 +16,5 @@ Checks: >-
   -readability-identifier-length
 WarningsAsErrors: '*'
 HeaderFilterRegex: '.*'
+ExcludeHeaderFilterRegex: '.*_autogen/.*'
 FormatStyle: file

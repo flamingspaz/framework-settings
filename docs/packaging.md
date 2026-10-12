@@ -91,7 +91,7 @@ meta-package and the `framework-gui`, `framework-kcm`,
 local files together:
 
 ```sh
-sudo apt install ./framework-*.deb
+sudo apt install ./framework-*.deb ./frameworkd_*.deb
 ```
 
 Alternatively, install the meta-package from a configured repository.

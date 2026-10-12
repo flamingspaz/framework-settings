@@ -209,6 +209,8 @@ private:
 
     void refreshLive();
 
+    void loadPowerInfo();
+
     void loadSettings();
 
     void loadFixture();

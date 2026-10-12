@@ -2,14 +2,17 @@
 
 Framework settings includes a KDE/Qt 6 System Settings module, a standalone
 Qt Quick application, and a Rust system service. By default all three are
-built. The standalone application has no KDE build or runtime dependency.
+built. The standalone application does not depend on the KCM or Plasma, but
+uses ECM at build time and KDE Frameworks I18n at build and runtime for shared
+translations.
 
 ## Requirements
 
 - CMake 3.22 or newer and a C++20 compiler
 - Qt 6.6 or newer (Core, DBus, Qml and Quick) for either UI; add Quick
   Controls 2 for the standalone application
-- Extra CMake Modules and KF6 (CoreAddons, I18n and KCMUtils) for the KCM
+- Extra CMake Modules (ECM) and KF6 I18n for either UI; KF6 CoreAddons and
+  KCMUtils are additionally required for the KCM
 - Rust and Cargo (the service is built with `cargo build --release --locked`)
 - The native development libraries used by `framework_lib` (including hidapi,
   libusb and systemd)
@@ -84,19 +87,66 @@ the plugin at `/usr/lib64/qt6/plugins/plasma/kcms/systemsettings/kcm_framework.s
 For UI-only work, configure with `-DBUILD_DAEMON=OFF`; that build will not
 produce or install `frameworkd`, so skip the service commands above.
 
-To build just the standalone Qt application on a system without KDE
-libraries, turn off the KCM explicitly:
+To build just the standalone Qt application on a system without KDE Plasma or
+KCM libraries, turn off the KCM explicitly:
 
 ```sh
 cmake -S . -B build-qt \
   -DBUILD_KCM=OFF -DBUILD_GUI=ON -DBUILD_DAEMON=OFF
 cmake --build build-qt --target framework-settings
-./build-qt/gui/framework-settings
+./build-qt/bin/framework-settings
 ```
 
 The app uses the same `frameworkd` system service as the KCM, so that
 service must be installed and running for hardware controls to work. With
 `BUILD_KCM=OFF`, CPack names the standalone package `framework-gui`.
+
+## Development shortcuts with just
+
+The top-level `justfile` wraps the UI-only builds above for day-to-day work.
+Run `just` to list the recipes:
+
+- `just format` formats all tracked and untracked (non-ignored) `*.cpp`,
+  `*.h` and `*.hpp` files with the repository's `.clang-format`;
+  `just format-check` checks them without changing anything, as CI does. CI
+  uses clang-format 22, so `clang-format-22` is used when installed; set
+  `CLANG_FORMAT` to override.
+- `just configure-kcm`, `just build-kcm`, `just run-kcm` and
+  `just install-kcm` work on the KCM alone (`-DBUILD_KCM=ON -DBUILD_GUI=OFF
+  -DBUILD_DAEMON=OFF`) in `build-kcm/`. `run-kcm` puts `build-kcm/bin` first in
+  `QT_PLUGIN_PATH`, so `kcmshell6` loads the freshly built plugin even if
+  another copy is installed.
+- `just configure-gui`, `just build-gui`, `just run-gui` and
+  `just install-gui` do the same for the standalone application
+  (`-DBUILD_KCM=OFF -DBUILD_GUI=ON -DBUILD_DAEMON=OFF`) in `build-gui/`.
+- `just release X.Y.Z` runs `scripts/release.sh X.Y.Z` to bump the version;
+  see [releasing.md](releasing.md).
+
+Build recipes configure first and run recipes build first. The run recipes
+set `FRAMEWORK_KCM_FIXTURE=1`, so no daemon or hardware is needed, and take
+an optional fixture model for `FRAMEWORK_KCM_FIXTURE_MODEL`, for example
+`just run-gui framework-12`.
+
+The builds default to `CMAKE_BUILD_TYPE=Debug` and
+`CMAKE_INSTALL_PREFIX=/usr` with `CMAKE_EXPORT_COMPILE_COMMANDS=ON`; set the
+`CMAKE_BUILD_TYPE` or `CMAKE_INSTALL_PREFIX` environment variables to change
+them, for example `CMAKE_INSTALL_PREFIX="$HOME/.local" just install-gui`.
+`KDE_INSTALL_USE_QT_SYS_PATHS` is left for ECM to choose on every configure:
+it is on only when the prefix is Qt's own prefix (`/usr` on most
+distributions), so the KCM plugin goes to Qt's system plugin directory, such
+as `/usr/lib64/qt6/plugins`. With any other prefix every file, including the
+plugin, stays under that prefix. Add the prefix's plugin directory (for
+example `$HOME/.local/lib64/plugins`) to `QT_PLUGIN_PATH` to load a KCM
+installed there.
+
+The install recipes run `cmake --install`. They use `sudo` only if one of the
+real install destinations (under `DESTDIR`, if set) is not writable; a
+directory that does not exist yet is judged by its nearest existing parent,
+so a new prefix in your home directory does not need `sudo`. A relative
+`DESTDIR` is resolved from the directory `just` was run in, for example
+`DESTDIR=stage just install-gui` stages into `./stage`.
+With `BUILD_DAEMON=OFF` they still install the service's D-Bus, polkit and
+systemd files, but not `frameworkd` itself.
 
 ## With Docker
 
@@ -116,8 +166,10 @@ intended for distribution.
 
 ## Useful options
 
-- `-DBUILD_KCM=OFF`: omit the KDE System Settings module and configure without
-  ECM or KF6; use with `-DBUILD_GUI=ON` for a Qt-only desktop app build.
+- `-DBUILD_KCM=OFF`: omit the KDE System Settings module; the standalone GUI
+  still requires ECM at build time and KF6 I18n at build and runtime for shared
+  translations. Use with `-DBUILD_GUI=ON` to build the desktop app without the
+  KCM or Plasma libraries.
 - `-DBUILD_GUI=OFF`: omit the standalone Qt desktop application.
 - `-DBUILD_DAEMON=OFF`: do not build the system service, for example while
   working on either UI.

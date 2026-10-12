@@ -14,9 +14,21 @@ ApplicationWindow {
     title: i18n("Framework Settings")
     property bool allowClose: false
 
+    CloseGuard {
+        id: closeGuard
+        busy: kcm.busy
+        settingsDirty: kcm.needsSave
+        scheduleDirty: schedulePage.hasUnsavedChanges
+        allowClose: window.allowClose
+    }
+
     onClosing: function (close) {
-        if (kcm.needsSave && !allowClose) {
+        if (closeGuard.shouldBlockClose) {
             close.accepted = false
+            if (kcm.busy) {
+                // A previously approved discard must not bypass a now-busy operation.
+                window.allowClose = false
+            }
             discardDialog.open()
         }
     }
@@ -166,7 +178,7 @@ ApplicationWindow {
                                 }
                                 Label {
                                     Layout.fillWidth: true
-                                    text: kcm.chargeLimit > 0 ? i18n("Charge limit: %1%").arg(kcm.chargeLimit)
+                                    text: kcm.chargeLimit > 0 ? i18n("Charge limit: %1%", kcm.chargeLimit)
                                         : i18n("Charge limit unavailable")
                                     wrapMode: Text.Wrap
                                 }
@@ -284,6 +296,7 @@ ApplicationWindow {
             }
 
             SchedulePage {
+                id: schedulePage
             }
 
             ScrollView {
@@ -331,7 +344,10 @@ ApplicationWindow {
                                 model: kcm.fans
                                 delegate: Label {
                                     required property var modelData
-                                    text: i18n("%1: %2 RPM", kcm.fanDisplayName(modelData.position, modelData.name || i18n("Fan")), modelData.rpm)
+                                    objectName: "fanReading"
+                                    text: modelData.stalled
+                                        ? i18n("%1: %2", kcm.fanDisplayName(modelData.position, modelData.name || i18n("Fan")), i18n("Stalled"))
+                                        : i18n("%1: %2 RPM", kcm.fanDisplayName(modelData.position, modelData.name || i18n("Fan")), modelData.rpm)
                                 }
                             }
                             RowLayout {
@@ -371,7 +387,7 @@ ApplicationWindow {
                                     to: 8000; stepSize: 100
                                     value: kcm.fanRpm
                                     onValueModified: kcm.fanRpm = value
-                                    textFromValue: value => i18n("%1 RPM").arg(value)
+                                    textFromValue: value => i18n("%1 RPM", value)
                                 }
                             }
                             Label {
@@ -428,10 +444,11 @@ ApplicationWindow {
                                     Layout.fillWidth: true; text: i18n("Feedback intensity")
                                 }
                                 ComboBox {
-                                    model: [i18n("Not set"), i18n("Off"), i18nc("percent", "%1%", 25), i18nc("percent", "%1%", 50), i18nc("percent", "%1%", 75), i18nc("percent", "%1%", 100)]
-                                    currentIndex: [-1, 0, 25, 50, 75, 100].indexOf(kcm.hapticIntensity)
+                                    objectName: "hapticIntensitySelector"
+                                    model: [i18n("Off"), i18nc("percent", "%1%", 25), i18nc("percent", "%1%", 50), i18nc("percent", "%1%", 75), i18nc("percent", "%1%", 100)]
+                                    currentIndex: [0, 25, 50, 75, 100].indexOf(kcm.hapticIntensity)
                                     displayText: currentIndex < 0 ? i18n("Not set") : currentText
-                                    onActivated: kcm.hapticIntensity = [-1, 0, 25, 50, 75, 100][currentIndex]
+                                    onActivated: kcm.hapticIntensity = [0, 25, 50, 75, 100][currentIndex]
                                 }
                             }
                             RowLayout {
@@ -439,10 +456,11 @@ ApplicationWindow {
                                     Layout.fillWidth: true; text: i18n("Click force")
                                 }
                                 ComboBox {
-                                    model: [i18n("Not set"), i18nc("touchpad click force", "Light"), i18nc("touchpad click force", "Medium"), i18nc("touchpad click force", "Firm")]
-                                    currentIndex: ["", "low", "medium", "high"].indexOf(kcm.clickForce)
+                                    objectName: "clickForceSelector"
+                                    model: [i18nc("touchpad click force", "Light"), i18nc("touchpad click force", "Medium"), i18nc("touchpad click force", "Firm")]
+                                    currentIndex: ["low", "medium", "high"].indexOf(kcm.clickForce)
                                     displayText: currentIndex < 0 ? i18n("Not set") : currentText
-                                    onActivated: kcm.clickForce = ["", "low", "medium", "high"][currentIndex]
+                                    onActivated: kcm.clickForce = ["low", "medium", "high"][currentIndex]
                                 }
                             }
                             Label {
@@ -526,6 +544,7 @@ ApplicationWindow {
                                         Layout.fillWidth: true; text: modelData.position || i18n("Port")
                                     }
                                     Label {
+                                        objectName: "portStatus"
                                         Layout.fillWidth: true
                                         horizontalAlignment: Text.AlignRight
                                         text: {
@@ -533,7 +552,11 @@ ApplicationWindow {
                                             if (!p.ok) return i18n("Unavailable");
                                             if (p.role === "disconnected") return i18n("Nothing connected");
                                             if (p.role === "source") return i18n("Powering a device");
-                                            if (p.role === "sink" || p.role === "sink-not-charging") return i18n("%1 W, %2 V").arg(Math.round(p.maxPower / 1e6)).arg((p.voltageNow / 1000).toFixed(1));
+                                            if (p.role === "sink" || p.role === "sink-not-charging") {
+                                                const watts = Number(p.maxPower / 1e6).toLocaleString(Qt.locale(), "f", 0);
+                                                const volts = Number(p.voltageNow / 1000).toLocaleString(Qt.locale(), "f", 1);
+                                                return i18n("%1 W, %2 V", watts, volts);
+                                            }
                                             return i18n("Unknown");
                                         }
                                     }
@@ -558,6 +581,12 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 color: palette.text
                 text: kcm.busy ? i18n("Applying settings…") : kcm.needsSave ? i18n("Changes not applied") : ""
+            }
+            Label {
+                Layout.fillWidth: true
+                visible: schedulePage.hasUnsavedChanges
+                color: palette.text
+                text: i18n("Schedule changes need saving")
             }
             Button {
                 text: i18n("Defaults")
@@ -588,7 +617,7 @@ ApplicationWindow {
         contentItem: Label {
             text: kcm.busy
                 ? i18n("Settings are being applied. Wait for the operation to finish before closing.")
-                : i18n("You have changes that have not been applied. Discard them and close?")
+                : i18n("You have unsaved settings or schedule changes. Discard them and close?")
             wrapMode: Text.Wrap
         }
 
@@ -604,6 +633,13 @@ ApplicationWindow {
                 visible: !kcm.busy
                 text: i18n("Discard and close")
                 onClicked: {
+                    // Recheck here as well as in onClosing: the operation can start
+                    // while this dialog is already open.
+                    if (kcm.busy) {
+                        window.allowClose = false
+                        return
+                    }
+                    schedulePage.discardChanges()
                     window.allowClose = true
                     discardDialog.close()
                     window.close()

@@ -38,8 +38,9 @@ interface, so most features should work there too, but they haven't been
 tested.
 
 The System Settings module requires KDE Plasma 6. A separate desktop app,
-`framework-settings`, is also provided for other desktop environments; it is
-built with Qt Quick Controls and has no KDE runtime dependency.
+`framework-settings`, is also provided for other desktop environments. It uses
+Qt Quick Controls and KDE Frameworks I18n for translations, but does not depend
+on the KCM or Plasma libraries.
 It follows Qt Quick Controls' configured style (including KDE's); on Linux
 with no style configured, Qt defaults to the desktop-oriented Fusion style.
 
@@ -78,18 +79,20 @@ and using the provided NixOS module. Below is a basic `flake.nix` example:
 }
 ```
 
-If you wish to only install the the GUI application or KCM, you can override
-the framework-settings package in a system module:
+To install only the standalone GUI without the KCM, add a module function to
+the Flake example's `modules` list and override the package with
+`withKcm = false`:
 
 ```nix
+{ pkgs, ... }:
 let
   packages = framework-settings.packages.${pkgs.stdenv.hostPlatform.system};
 in
 {
   programs.framework-settings.package = packages.framework-settings.override {
     withGui = true;
-    withKcm = true;
-  }
+    withKcm = false;
+  };
 }
 ```
 
@@ -119,20 +122,21 @@ in
 }
 ```
 
-If you wish to only install the the GUI application or KCM, you can override
-the framework-settings package in your `configuration.nix`:
+To install only the standalone GUI without the KCM, override the
+`framework-settings` package in your `configuration.nix` with
+`withKcm = false`:
 
 ```nix
 programs.framework-settings.package = framework-settings.packages.framework-settings.override {
   withGui = true;
-  withKcm = true;
+  withKcm = false;
 };
 ```
 
 ### Arch Linux
 
 ```sh
-sudo pacman -U framework-*.pkg.tar.zst
+sudo pacman -U framework-*.pkg.tar.zst frameworkd-*.pkg.tar.zst
 sudo systemctl enable --now frameworkd
 ```
 
@@ -144,7 +148,7 @@ For a non-KDE desktop, install `framework-gui` instead; it brings in
 ### Ubuntu 26.04
 
 ```sh
-sudo apt install ./framework-*.deb
+sudo apt install ./framework-*.deb ./frameworkd_*.deb
 ```
 
 This installs the `framework-settings` meta-package and its GUI, KCM, shared
@@ -172,13 +176,23 @@ page. Enabling it also starts it at boot, so settings the hardware forgets
 (touchpad feedback, click force, charge speed) are applied again after a
 restart.
 
-To uninstall the full suite, remove the `framework-settings` meta-package. If
-installed separately, remove the packages you chose (`framework-gui`,
-`framework-kcm`, `framework-settings-translations`, and/or `frameworkd`).
-On Arch,
-`sudo pacman -Rns framework-settings` also removes unneeded subpackages; on
-Debian-based systems, use `sudo apt remove framework-settings` and optionally
-`sudo apt autoremove`.
+For a repository-managed installation, remove only the package you
+explicitly installed (`framework-settings` for the full suite, or
+`framework-gui` for a standalone GUI). Let the package manager remove
+unneeded dependencies with `sudo pacman -Rns <package>` on Arch or
+`sudo apt remove <package> && sudo apt autoremove` on Debian-based systems.
+
+When installing the release files directly with `pacman -U` or from local
+`.deb` files using `apt install`, all five packages may be marked as explicitly
+installed. Remove all of them to uninstall the full suite:
+
+```sh
+# Arch Linux
+sudo pacman -Rns framework-settings framework-gui framework-kcm framework-settings-translations frameworkd
+
+# Debian-based systems
+sudo apt remove framework-settings framework-gui framework-kcm framework-settings-translations frameworkd
+```
 
 ## Fixture mode
 
@@ -188,7 +202,7 @@ and scheduling does not create systemd units:
 
 ```sh
 FRAMEWORK_KCM_FIXTURE=1 kcmshell6 kcm_framework
-FRAMEWORK_KCM_FIXTURE=1 ./build-qt/gui/framework-settings
+FRAMEWORK_KCM_FIXTURE=1 ./build-qt/bin/framework-settings
 ```
 
 The Overview tab lets you choose a hardware profile for testing model-specific
@@ -235,10 +249,10 @@ for an administrator password.
 
 ## Languages
 
-The KCM follows your System Settings language and is available in English,
-Dutch, German, Spanish and French. The standalone `framework-settings` app is
-English-only for now. The non-English KCM translations were machine-generated
-and haven't been reviewed by native speakers yet, so corrections are welcome.
+The KCM and standalone `framework-settings` app use the same KI18n catalogs,
+so their UI follows your language and is available in English, Dutch, German,
+Spanish and French. The non-English translations were machine-generated and
+haven't been reviewed by native speakers yet, so corrections are welcome.
 See [docs/translations.md](docs/translations.md).
 
 ## Documentation

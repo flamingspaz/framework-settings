@@ -67,7 +67,7 @@ ColumnLayout {
                 && nextTime.getDate() === tomorrow.getDate()) {
                 relativeTime = i18n("tomorrow at %1", time);
             } else {
-                relativeTime = i18n("%1 at %2", Qt.formatDateTime(nextTime, "dddd"), time);
+                relativeTime = i18n("%1 at %2", nextTime.toLocaleString(Qt.locale(), "dddd"), time);
             }
         }
         return i18n("Next scheduled change: %1% %2", nextLimit, relativeTime);

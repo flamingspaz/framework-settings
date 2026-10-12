@@ -32,9 +32,13 @@ BuildRequires:  terra-appstream-helper
 BuildRequires:  cargo-rpm-macros
 BuildRequires:  anda-srpm-macros
 
-Suggests:       framework-gui%{?_isa} = %{evr}
-Suggests:       framework-kcm%{?_isa} = %{evr}
-Recommends:     frameworkd%{?_isa} = %{evr}
+# Installing the meta-package guarantees both interfaces, their shared
+# translations, and the service. Subpackages do not depend back on this
+# package, so installing the standalone GUI does not pull in the KCM.
+Requires:       framework-gui%{?_isa} = %{evr}
+Requires:       framework-kcm%{?_isa} = %{evr}
+Requires:       framework-settings-translations = %{evr}
+Requires:       frameworkd%{?_isa} = %{evr}
 
 Packager:       Cypress Reed <cypress@fyralabs.com>
 
@@ -51,7 +55,6 @@ Translation catalogs shared by the standalone GUI and KDE settings module.
 %package -n framework-gui
 Summary:        Standalone Qt settings application for Framework laptops
 Requires:       framework-settings-translations = %{evr}
-Requires:       framework-settings%{?_isa} = %{evr}
 Requires:       frameworkd%{?_isa} = %{evr}
 Requires:       hicolor-icon-theme
 Requires:       qt6-qtdeclarative
@@ -59,12 +62,11 @@ Requires:       qt6-qtdeclarative
 %description -n framework-gui
 Standalone Qt application for configuring Framework laptop battery charging,
 fans, touchpad, LEDs, firmware information, and USB-C ports. It does not
-require KDE.
+require the KCM or Plasma; it uses KDE Frameworks I18n for translations.
 
 %package -n framework-kcm
 Summary:        KDE System Settings module for Framework laptops
 Requires:       framework-settings-translations = %{evr}
-Requires:       framework-settings%{?_isa} = %{evr}
 Requires:       frameworkd%{?_isa} = %{evr}
 Requires:       plasma-systemsettings
 Requires:       kf6-kcmutils
@@ -78,7 +80,6 @@ fans, touchpad, LEDs, firmware information, and USB-C ports.
 
 %package -n frameworkd
 Summary:        System service for Framework laptop hardware settings
-Requires:       framework-settings%{?_isa} = %{evr}
 Provides:       framework-kcmd = %{evr}
 Obsoletes:      framework-kcmd <= %{evr}
 Requires:       dbus
@@ -138,24 +139,30 @@ fi
 %postun -n frameworkd
 %systemd_postun_with_restart frameworkd.service
 
+# INSTALL_PACKAGE_DOCS=OFF keeps CMake from staging duplicate docs; this
+# package owns the project license and documentation through RPM macros.
 %files
 %license LICENSE
 %doc README.md docs/*.md
 
 %files -n framework-gui
+%license LICENSE
 %{_bindir}/framework-settings
 %{_appsdir}/io.github.frameworkkcm.desktop
 %{_scalableiconsdir}/framework-gui.svg
 %{_metainfodir}/%{appid}.metainfo.xml
 
 %files -n framework-settings-translations -f kcm_framework.lang
+%license LICENSE
 
 %files -n framework-kcm
+%license LICENSE
 %{_kf6_qtplugindir}/plasma/kcms/systemsettings/kcm_framework.so
 %{_appsdir}/kcm_framework.desktop
 %{_scalableiconsdir}/framework-kcm.svg
 
 %files -n frameworkd
+%license LICENSE
 %license LICENSE.dependencies
 %{_datadir}/dbus-1/system.d/io.github.frameworkkcm.Daemon1.conf
 %{_datadir}/dbus-1/system-services/io.github.frameworkkcm.Daemon1.service

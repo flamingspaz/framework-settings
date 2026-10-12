@@ -69,7 +69,7 @@ configure_file(data/io.github.frameworkkcm.Daemon1.service.in
 configure_file(data/frameworkd.service.in
                ${CMAKE_CURRENT_BINARY_DIR}/frameworkd.service @ONLY)
 
-if(BUILD_KCM OR BUILD_DAEMON)
+if(BUILD_KCM OR BUILD_GUI OR BUILD_DAEMON)
   install(FILES data/io.github.frameworkkcm.Daemon1.conf DESTINATION ${KDE_INSTALL_DBUSDIR}/system.d COMPONENT frameworkd)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/io.github.frameworkkcm.Daemon1.service
           DESTINATION ${KDE_INSTALL_DBUSSYSTEMSERVICEDIR} COMPONENT frameworkd)
@@ -92,6 +92,25 @@ endif()
 if(INSTALL_PACKAGE_DOCS)
   install(FILES LICENSE README.md
           DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/doc/framework-settings COMPONENT meta)
+
+  if(BUILD_GUI)
+    install(FILES LICENSE
+            DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/doc/framework-gui COMPONENT gui)
+  endif()
+  if(BUILD_KCM)
+    install(FILES LICENSE
+            DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/doc/framework-kcm COMPONENT kcm)
+  endif()
+  if(BUILD_GUI OR BUILD_KCM)
+    install(FILES LICENSE
+            DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/doc/framework-settings-translations COMPONENT translations)
+  endif()
+  # The frameworkd component also contains D-Bus, polkit, and service-unit
+  # integration when the daemon itself is supplied externally.
+  if(BUILD_DAEMON OR BUILD_GUI OR BUILD_KCM)
+    install(FILES LICENSE
+            DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/doc/frameworkd COMPONENT frameworkd)
+  endif()
 endif()
 
 if(BUILD_KCM)

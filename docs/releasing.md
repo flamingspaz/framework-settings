@@ -9,7 +9,33 @@ request. It also warns if `po/` is out of date with the source.
 
 ## Cutting a release
 
-1. Run `scripts/release.sh <version>` (for example, `scripts/release.sh 0.2.0`) to update the project and packaging versions and refresh `daemon/Cargo.lock`; review the changes and commit.
+1. Run `scripts/release.sh <version>` (for example, `scripts/release.sh 0.2.0`),
+   or the equivalent `just release <version>` (`just release 0.2.0`).
+   It needs `appstreamcli` and `cargo`. Before changing anything, it checks
+   that the version is greater than the current one, that every declaration
+   it edits is present exactly once, and that the metainfo file has no entry
+   for the version yet. It then updates:
+
+   - `CMakeLists.txt` (`project(framework-kcm VERSION …)`) and
+     `daemon/Cargo.toml`, the two versions CI checks against the tag;
+   - `packaging/fedora/framework-settings.spec` (`Version:`), resetting
+     `Release:` to `1`;
+   - `packaging/fedora/framework-settings-git.spec` (`%global _version`);
+   - `packaging/arch/PKGBUILD` (`pkgver`), resetting `pkgrel` to `1`;
+   - `packaging/nix/packages/default.nix` (`version`);
+   - `data/com.github.framework-settings.metainfo.xml`, adding
+     `<release version="…" date="…" />` with today's date as the first entry
+     in `<releases>`, then checking the file with
+     `appstreamcli validate --no-net`;
+   - `daemon/Cargo.lock`, through `cargo update --workspace`.
+
+   The Debian packages take their version from CMake. The script backs up
+   every file first, so if any step fails or you interrupt it, it restores
+   them and leaves the files unchanged.
+
+   The script doesn't write release notes. If you want release notes in
+   software centres, add a `<description>` inside the new metainfo
+   `<release>` entry by hand. Review the changes and commit.
 2. Tag the commit and push the tag:
 
    ```sh

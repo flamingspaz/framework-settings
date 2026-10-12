@@ -10,6 +10,8 @@ ScrollView {
     contentWidth: availableWidth
 
     property double clock: Date.now()
+    // Injectable for runtime tests; the application provides kcm as the backend.
+    property var backend: typeof kcm !== "undefined" ? kcm : null
 
     Timer {
         interval: 60000
@@ -19,7 +21,7 @@ ScrollView {
     }
 
     function nextScheduleSummary() {
-        if (!kcm.scheduleEnabled) {
+        if (!backend.scheduleEnabled) {
             return "";
         }
 
@@ -27,8 +29,8 @@ ScrollView {
         const weekdayNumber = {Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 0};
         let nextTime = null;
         let nextLimit = 0;
-        for (let i = 0; i < kcm.schedules.length; ++i) {
-            const entry = kcm.schedules[i];
+        for (let i = 0; i < backend.schedules.length; ++i) {
+            const entry = backend.schedules[i];
             const match = /^(?:([01]\d|2[0-3])):([0-5]\d)$/.exec(entry.time);
             if (!match) {
                 continue;
@@ -58,18 +60,18 @@ ScrollView {
         if (nextTime.getFullYear() === now.getFullYear()
             && nextTime.getMonth() === now.getMonth()
             && nextTime.getDate() === now.getDate()) {
-            relativeTime = i18n("at %1").arg(time);
+            relativeTime = i18n("at %1", time);
         } else {
             const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
             if (nextTime.getFullYear() === tomorrow.getFullYear()
                 && nextTime.getMonth() === tomorrow.getMonth()
                 && nextTime.getDate() === tomorrow.getDate()) {
-                relativeTime = i18n("tomorrow at %1").arg(time);
+                relativeTime = i18n("tomorrow at %1", time);
             } else {
-                relativeTime = i18n("%1 at %2").arg(Qt.formatDateTime(nextTime, "dddd")).arg(time);
+                relativeTime = i18n("%1 at %2", nextTime.toLocaleString(Qt.locale(), "dddd"), time);
             }
         }
-        return i18n("Next scheduled change: %1% %2").arg(nextLimit).arg(relativeTime);
+        return i18n("Next scheduled change: %1% %2", nextLimit, relativeTime);
     }
 
     ColumnLayout {
@@ -78,7 +80,7 @@ ScrollView {
 
         Label {
             Layout.fillWidth: true
-            visible: kcm.fixtureMode
+            visible: backend.fixtureMode
             wrapMode: Text.Wrap
             color: palette.text
             text: i18n("Fixture mode is active. Readings are simulated, changes stay in memory, and no hardware service is contacted.")
@@ -90,7 +92,7 @@ ScrollView {
 
             GroupBox {
                 Layout.fillWidth: true
-                visible: kcm.fixtureMode
+                visible: backend.fixtureMode
                 title: i18n("Test hardware profile")
                 ColumnLayout {
                     anchors.fill: parent
@@ -103,18 +105,19 @@ ScrollView {
                         Layout.fillWidth: true
                         textRole: "name"
                         valueRole: "id"
-                        model: kcm.fixtureModels
-                        Component.onCompleted: currentIndex = indexOfValue(kcm.fixtureModel)
-                        onActivated: kcm.setFixtureModel(currentValue)
+                        model: backend.fixtureModels
+                        Component.onCompleted: currentIndex = indexOfValue(backend.fixtureModel)
+                        onActivated: backend.setFixtureModel(currentValue)
                     }
                     Label {
                         Layout.fillWidth: true
-                        text: i18n("Keyboard backlight: %1 · Fingerprint LED: %2 · Input deck: %3 · Touchscreen: %4 · Tablet mode: %5")
-                            .arg(kcm.supportsKeyboardBacklight ? i18n("Yes") : i18n("No"))
-                            .arg(kcm.fpLedSupported ? i18n("Yes") : i18n("No"))
-                            .arg(kcm.supportsInputDeck ? i18n("Yes") : i18n("No"))
-                            .arg(kcm.supportsTouchscreen ? i18n("Yes") : i18n("No"))
-                            .arg(kcm.supportsTabletMode ? i18n("Yes") : i18n("No"))
+                        objectName: "overviewFixtureCapabilities"
+                        text: i18n("Keyboard backlight: %1 · Fingerprint LED: %2 · Input deck: %3 · Touchscreen: %4 · Tablet mode: %5",
+                            backend.supportsKeyboardBacklight ? i18n("Yes") : i18n("No"),
+                            backend.fpLedSupported ? i18n("Yes") : i18n("No"),
+                            backend.supportsInputDeck ? i18n("Yes") : i18n("No"),
+                            backend.supportsTouchscreen ? i18n("Yes") : i18n("No"),
+                            backend.supportsTabletMode ? i18n("Yes") : i18n("No"))
                         wrapMode: Text.Wrap
                         color: palette.text
                     }
@@ -129,7 +132,7 @@ ScrollView {
                     Label {
                         Layout.fillWidth: true
                         text: {
-                            const power = kcm.powerInfo;
+                            const power = backend.powerInfo;
                             if (!power.batteryPresent) return i18n("Battery status unavailable");
                             if (power.charging) return i18n("Charging");
                             if (power.discharging) return i18n("Discharging");
@@ -139,28 +142,31 @@ ScrollView {
                     }
                     Label {
                         Layout.fillWidth: true
-                        text: kcm.powerInfo.batteryPresent && kcm.powerInfo.percentage >= 0
-                            ? i18n("%1% · %2").arg(kcm.powerInfo.percentage)
-                                .arg(kcm.powerInfo.acPresent ? i18n("AC power connected") : i18n("Running on battery"))
+                        objectName: "overviewBatterySummary"
+                        text: backend.powerInfo.batteryPresent && backend.powerInfo.percentage >= 0
+                            ? i18n("%1% · %2", backend.powerInfo.percentage,
+                                backend.powerInfo.acPresent ? i18n("AC power connected") : i18n("Running on battery"))
                             : i18n("Battery readings unavailable")
                         wrapMode: Text.Wrap
                     }
                     ProgressBar {
                         Layout.fillWidth: true
-                        visible: kcm.powerInfo.batteryPresent && kcm.powerInfo.percentage >= 0
+                        visible: backend.powerInfo.batteryPresent && backend.powerInfo.percentage >= 0
                         from: 0
                         to: 100
-                        value: kcm.powerInfo.percentage ?? 0
+                        value: backend.powerInfo.percentage ?? 0
                     }
                     Label {
                         Layout.fillWidth: true
-                        text: kcm.chargeLimit > 0 ? i18n("Charge limit: %1%").arg(kcm.chargeLimit)
+                        objectName: "overviewChargeLimit"
+                        text: backend.chargeLimit > 0 ? i18n("Charge limit: %1%", backend.chargeLimit)
                             : i18n("Charge limit unavailable")
                         color: palette.text
                         wrapMode: Text.Wrap
                     }
                     Label {
                         Layout.fillWidth: true
+                        objectName: "overviewNextScheduleSummary"
                         visible: root.nextScheduleSummary().length > 0
                         text: root.nextScheduleSummary()
                         color: palette.text
@@ -176,17 +182,20 @@ ScrollView {
                     anchors.fill: parent
                     Label {
                         Layout.fillWidth: true
-                        text: kcm.sensors.length > 0
-                            ? kcm.sensors.filter(sensor => sensor.status === "ok")
-                                .map(sensor => i18n("%1: %2 °C", kcm.sensorDisplayName(sensor.location, sensor.name || i18n("Sensor")), sensor.temp))
+                        text: backend.sensors.length > 0
+                            ? backend.sensors.filter(sensor => sensor.status === "ok")
+                                .map(sensor => i18n("%1: %2 °C", backend.sensorDisplayName(sensor.location, sensor.name || i18n("Sensor")), sensor.temp))
                                 .join(" · ")
                             : i18n("Temperature readings unavailable")
                         wrapMode: Text.Wrap
                     }
                     Label {
+                        objectName: "overviewFanSummary"
                         Layout.fillWidth: true
-                        text: kcm.fans.length > 0
-                            ? kcm.fans.map(fan => i18n("%1: %2 RPM", kcm.fanDisplayName(fan.position, fan.name || i18n("Fan")), fan.rpm)).join(" · ")
+                        text: backend.fans.length > 0
+                            ? backend.fans.map(fan => fan.stalled
+                                ? i18n("%1: %2", backend.fanDisplayName(fan.position, fan.name || i18n("Fan")), i18n("Stalled"))
+                                : i18n("%1: %2 RPM", backend.fanDisplayName(fan.position, fan.name || i18n("Fan")), fan.rpm)).join(" · ")
                             : i18n("Fan readings unavailable")
                         color: palette.text
                         wrapMode: Text.Wrap
@@ -194,7 +203,7 @@ ScrollView {
                     Label {
                         Layout.fillWidth: true
                         text: {
-                            const t = kcm.throttle;
+                            const t = backend.throttle;
                             if (!t.known) return i18n("Throttling: unknown");
                             if (t.hard) return i18n("Throttling: yes (PROCHOT)");
                             return t.soft ? i18n("Throttling: yes (soft limit)") : i18n("Not throttling");
@@ -215,19 +224,19 @@ ScrollView {
                         text: i18n("Model"); color: palette.text
                     }
                     Label {
-                        Layout.fillWidth: true; text: kcm.systemInfo.product || i18n("Unknown"); wrapMode: Text.Wrap
+                        Layout.fillWidth: true; text: backend.systemInfo.product || i18n("Unknown"); wrapMode: Text.Wrap
                     }
                     Label {
                         text: i18n("BIOS"); color: palette.text
                     }
                     Label {
-                        Layout.fillWidth: true; text: kcm.systemInfo.biosVersion || i18n("Unknown"); wrapMode: Text.Wrap
+                        Layout.fillWidth: true; text: backend.systemInfo.biosVersion || i18n("Unknown"); wrapMode: Text.Wrap
                     }
                     Label {
                         text: i18n("EC"); color: palette.text
                     }
                     Label {
-                        Layout.fillWidth: true; text: kcm.systemInfo.ecVersion || i18n("Unknown"); wrapMode: Text.Wrap
+                        Layout.fillWidth: true; text: backend.systemInfo.ecVersion || i18n("Unknown"); wrapMode: Text.Wrap
                     }
                 }
             }

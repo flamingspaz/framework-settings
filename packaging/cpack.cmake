@@ -64,6 +64,10 @@ set(CPACK_DEBIAN_TRANSLATIONS_PACKAGE_ARCHITECTURE "all")
 set(CPACK_DEBIAN_TRANSLATIONS_PACKAGE_SECTION "localization")
 set(CPACK_DEBIAN_TRANSLATIONS_DESCRIPTION
     "Shared translations for the Framework Settings standalone GUI and KDE module.")
+# The pre-split framework-kcm package owned these catalogs. Permit upgrades
+# from that monolithic package while the new translations package takes over.
+set(CPACK_DEBIAN_TRANSLATIONS_PACKAGE_BREAKS "framework-kcm (<< 0.1.2-1)")
+set(CPACK_DEBIAN_TRANSLATIONS_PACKAGE_REPLACES "framework-kcm (<< 0.1.2-1)")
 
 set(CPACK_DEBIAN_FRAMEWORKD_PACKAGE_NAME "frameworkd")
 set(CPACK_DEBIAN_FRAMEWORKD_PACKAGE_SECTION "admin")
