@@ -42,7 +42,11 @@ ColumnLayout {
         const entries = [];
         for (let i = 0; i < schedules.count; ++i) {
             const entry = schedules.get(i);
-            entries.push({days: entry.days.length > 0 ? entry.days.split(",") : [], time: entry.time, limit: entry.limit});
+            entries.push({
+                days: entry.days.length > 0 ? entry.days.split(",") : [],
+                time: entry.time,
+                limit: entry.limit
+            });
         }
         if (kcm.configureSchedule(root.scheduleEnabled, entries)) {
             root.changesSaved = true;

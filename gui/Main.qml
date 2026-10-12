@@ -67,12 +67,24 @@ ApplicationWindow {
             id: tabs
             Layout.fillWidth: true
             Layout.preferredWidth: parent.width
-            SettingsTabButton { width: (window.width - 48) / 6; text: i18n("Overview") }
-            SettingsTabButton { width: (window.width - 48) / 6; text: i18n("Battery") }
-            SettingsTabButton { width: (window.width - 48) / 6; text: i18n("Schedule") }
-            SettingsTabButton { width: (window.width - 48) / 6; text: i18n("Thermals") }
-            SettingsTabButton { width: (window.width - 48) / 6; text: i18n("Input") }
-            SettingsTabButton { width: (window.width - 48) / 6; text: i18n("System") }
+            SettingsTabButton {
+                width: (window.width - 48) / 6; text: i18n("Overview")
+            }
+            SettingsTabButton {
+                width: (window.width - 48) / 6; text: i18n("Battery")
+            }
+            SettingsTabButton {
+                width: (window.width - 48) / 6; text: i18n("Schedule")
+            }
+            SettingsTabButton {
+                width: (window.width - 48) / 6; text: i18n("Thermals")
+            }
+            SettingsTabButton {
+                width: (window.width - 48) / 6; text: i18n("Input")
+            }
+            SettingsTabButton {
+                width: (window.width - 48) / 6; text: i18n("System")
+            }
         }
 
         StackLayout {
@@ -81,7 +93,8 @@ ApplicationWindow {
             currentIndex: tabs.currentIndex
             enabled: (kcm.daemonAvailable || kcm.fixtureMode) && !kcm.busy
 
-            OverviewPage { }
+            OverviewPage {
+            }
 
             ScrollView {
                 clip: true
@@ -119,7 +132,7 @@ ApplicationWindow {
                                     Label {
                                         anchors.centerIn: parent
                                         text: kcm.powerInfo.batteryPresent && (kcm.powerInfo.percentage ?? -1) >= 0
-                                              ? i18nc("percent", "%1%", kcm.powerInfo.percentage) : "--"
+                                            ? i18nc("percent", "%1%", kcm.powerInfo.percentage) : "--"
                                         font.weight: Font.DemiBold
                                     }
                                 }
@@ -146,15 +159,15 @@ ApplicationWindow {
                                 Label {
                                     Layout.fillWidth: true
                                     text: kcm.powerInfo.acPresent === undefined
-                                          ? i18n("Power status unavailable")
-                                          : kcm.powerInfo.acPresent ? i18n("AC power connected") : i18n("Running on battery")
+                                        ? i18n("Power status unavailable")
+                                        : kcm.powerInfo.acPresent ? i18n("AC power connected") : i18n("Running on battery")
                                     color: palette.text
                                     wrapMode: Text.Wrap
                                 }
                                 Label {
                                     Layout.fillWidth: true
                                     text: kcm.chargeLimit > 0 ? i18n("Charge limit: %1%").arg(kcm.chargeLimit)
-                                                              : i18n("Charge limit unavailable")
+                                        : i18n("Charge limit unavailable")
                                     wrapMode: Text.Wrap
                                 }
                             }
@@ -238,8 +251,8 @@ ApplicationWindow {
                                 Label {
                                     readonly property real hours: Math.round(10 / chargeRateSlider.value) / 10
                                     text: i18nc("charge speed multiplier, hours to charge from empty", "%1× (about %2 h from empty)",
-                                                Number(chargeRateSlider.value).toLocaleString(Qt.locale(), "f", 1),
-                                                Number(hours).toLocaleString(Qt.locale(), "f", Number.isInteger(hours) ? 0 : 1))
+                                        Number(chargeRateSlider.value).toLocaleString(Qt.locale(), "f", 1),
+                                        Number(hours).toLocaleString(Qt.locale(), "f", Number.isInteger(hours) ? 0 : 1))
                                 }
                             }
                             RowLayout {
@@ -270,7 +283,8 @@ ApplicationWindow {
                 }
             }
 
-            SchedulePage { }
+            SchedulePage {
+            }
 
             ScrollView {
                 clip: true
@@ -542,7 +556,7 @@ ApplicationWindow {
             Layout.fillWidth: true
             Label {
                 Layout.fillWidth: true
-            color: palette.text
+                color: palette.text
                 text: kcm.busy ? i18n("Applying settings…") : kcm.needsSave ? i18n("Changes not applied") : ""
             }
             Button {

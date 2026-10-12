@@ -41,7 +41,7 @@ ColumnLayout {
                 }
                 const daysUntil = (dayNumber - now.getDay() + 7) % 7;
                 const candidate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysUntil,
-                                           Number(match[1]), Number(match[2]), 0, 0);
+                    Number(match[1]), Number(match[2]), 0, 0);
                 if (candidate <= now) {
                     candidate.setDate(candidate.getDate() + 7);
                 }

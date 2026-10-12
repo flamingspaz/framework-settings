@@ -77,7 +77,8 @@ ColumnLayout {
             // Count, not the list: a list model rebuilds every row whenever any value
             // changes, and FormLayout trips over the destroyed rows
             model: kcm.fans.length
-            delegate: QQC2.Label {
+            delegate: QQC2.Label
+            {
                 required property int index
                 readonly property var modelData: kcm.fans[index] ?? ({})
                 Kirigami.FormData.label: i18nc("fan name", "%1:", kcm.fanDisplayName(modelData.position, modelData.name))
@@ -89,9 +90,9 @@ ColumnLayout {
             Kirigami.FormData.label: i18n("Fan control:")
             setting: "fanMode"
             model: [
-                { text: i18n("Automatic"), value: "auto" },
-                { text: i18n("Fixed duty cycle"), value: "duty" },
-                { text: i18n("Fixed speed"), value: "rpm" },
+                {text: i18n("Automatic"), value: "auto"},
+                {text: i18n("Fixed duty cycle"), value: "duty"},
+                {text: i18n("Fixed speed"), value: "rpm"},
             ]
         }
 

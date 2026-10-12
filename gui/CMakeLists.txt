@@ -16,9 +16,9 @@ target_link_libraries(framework-settings PRIVATE
 )
 
 qt_add_qml_module(framework-settings
-    URI Framework.Settings
-    VERSION 1.0
-    QML_FILES
+        URI Framework.Settings
+        VERSION 1.0
+        QML_FILES
         Main.qml
         OverviewPage.qml
         SchedulePage.qml

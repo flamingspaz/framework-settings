@@ -41,7 +41,11 @@ ScrollView {
         const entries = [];
         for (let i = 0; i < schedules.count; ++i) {
             const entry = schedules.get(i);
-            entries.push({days: entry.days.length > 0 ? entry.days.split(",") : [], time: entry.time, limit: entry.limit});
+            entries.push({
+                days: entry.days.length > 0 ? entry.days.split(",") : [],
+                time: entry.time,
+                limit: entry.limit
+            });
         }
         if (kcm.configureSchedule(root.scheduleEnabled, entries)) {
             root.changesSaved = true;
@@ -65,7 +69,9 @@ ScrollView {
         ColumnLayout {
             Layout.fillWidth: true
             spacing: 2
-            Label { text: i18n("Charge schedule"); font.pixelSize: 24; font.weight: Font.DemiBold }
+            Label {
+                text: i18n("Charge schedule"); font.pixelSize: 24; font.weight: Font.DemiBold
+            }
             Label {
                 Layout.fillWidth: true
                 text: i18n("Create entries that automatically apply a charge limit on selected weekdays.")
@@ -121,7 +127,9 @@ ScrollView {
                         }
                     }
 
-                    Label { text: i18n("Days"); font.weight: Font.DemiBold }
+                    Label {
+                        text: i18n("Days"); font.weight: Font.DemiBold
+                    }
                     Flow {
                         Layout.fillWidth: true
                         spacing: 4
@@ -139,7 +147,9 @@ ScrollView {
 
                     RowLayout {
                         Layout.fillWidth: true
-                        Label { text: i18n("Time") }
+                        Label {
+                            text: i18n("Time")
+                        }
                         TextField {
                             Layout.fillWidth: true
                             enabled: root.scheduleEnabled
@@ -147,7 +157,9 @@ ScrollView {
                             placeholderText: "HH:MM"
                             onEditingFinished: schedules.setProperty(scheduleCard.index, "time", text)
                         }
-                        Label { text: i18n("Charge limit") }
+                        Label {
+                            text: i18n("Charge limit")
+                        }
                         SpinBox {
                             enabled: root.scheduleEnabled
                             from: 25
@@ -168,7 +180,9 @@ ScrollView {
                 text: i18n("Add schedule")
                 onClicked: schedules.append({days: "Mon,Tue,Wed,Thu,Fri", time: "08:00", limit: 80})
             }
-            Item { Layout.fillWidth: true }
+            Item {
+                Layout.fillWidth: true
+            }
             Button {
                 text: i18n("Save schedule")
                 highlighted: true
@@ -185,5 +199,7 @@ ScrollView {
         }
     }
 
-    ListModel { id: schedules }
+    ListModel {
+        id: schedules
+    }
 }

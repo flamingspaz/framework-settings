@@ -45,38 +45,38 @@ namespace {
 
         const auto arg = value.value<QDBusArgument>();
         switch (arg.currentType()) {
-        case QDBusArgument::MapType: {
-            QVariantMap map;
-            arg.beginMap();
-            while (!arg.atEnd()) {
-                arg.beginMapEntry();
-                const QString key = demarshall(arg.asVariant()).toString();
-                map.insert(key, demarshall(arg.asVariant()));
-                arg.endMapEntry();
+            case QDBusArgument::MapType: {
+                QVariantMap map;
+                arg.beginMap();
+                while (!arg.atEnd()) {
+                    arg.beginMapEntry();
+                    const QString key = demarshall(arg.asVariant()).toString();
+                    map.insert(key, demarshall(arg.asVariant()));
+                    arg.endMapEntry();
+                }
+                arg.endMap();
+                return map;
             }
-            arg.endMap();
-            return map;
-        }
-        case QDBusArgument::ArrayType: {
-            QVariantList list;
-            arg.beginArray();
-            while (!arg.atEnd()) {
-                list.append(demarshall(arg.asVariant()));
+            case QDBusArgument::ArrayType: {
+                QVariantList list;
+                arg.beginArray();
+                while (!arg.atEnd()) {
+                    list.append(demarshall(arg.asVariant()));
+                }
+                arg.endArray();
+                return list;
             }
-            arg.endArray();
-            return list;
-        }
-        case QDBusArgument::StructureType: {
-            QVariantList list;
-            arg.beginStructure();
-            while (!arg.atEnd()) {
-                list.append(demarshall(arg.asVariant()));
+            case QDBusArgument::StructureType: {
+                QVariantList list;
+                arg.beginStructure();
+                while (!arg.atEnd()) {
+                    list.append(demarshall(arg.asVariant()));
+                }
+                arg.endStructure();
+                return list;
             }
-            arg.endStructure();
-            return list;
-        }
-        default:
-            return demarshall(arg.asVariant());
+            default:
+                return demarshall(arg.asVariant());
         }
     }
 
@@ -97,19 +97,20 @@ namespace {
 
     bool isServiceMissing(const QDBusError &error) {
         switch (error.type()) {
-        case QDBusError::ServiceUnknown:
-        case QDBusError::NoReply:
-        case QDBusError::Disconnected:
-        case QDBusError::NoServer:
-            return true;
-        default:
-            return error.name().startsWith(u"org.freedesktop.DBus.Error.Spawn"_s);
+            case QDBusError::ServiceUnknown:
+            case QDBusError::NoReply:
+            case QDBusError::Disconnected:
+            case QDBusError::NoServer:
+                return true;
+            default:
+                return error.name().startsWith(u"org.freedesktop.DBus.Error.Spawn"_s);
         }
     }
 } // namespace
 
 #ifdef FRAMEWORK_STANDALONE
 FrameworkKcm::FrameworkKcm(QObject *parent) : QObject(parent) {
+
 #else
 FrameworkKcm::FrameworkKcm(QObject *parent, const KPluginMetaData &data) : KQuickConfigModule(parent, data) {
 #endif
@@ -138,9 +139,13 @@ FrameworkKcm::FrameworkKcm(QObject *parent, const KPluginMetaData &data) : KQuic
         })) {
         m_fixtureModel = u"framework-13-pro"_s;
     }
-    m_schedules = {QVariantMap{{u"days"_s, QStringList{u"Mon"_s, u"Tue"_s, u"Wed"_s, u"Thu"_s, u"Fri"_s}},
-                               {u"time"_s, u"08:00"_s},
-                               {u"limit"_s, 80}}};
+    m_schedules = {
+        QVariantMap{
+            {u"days"_s, QStringList{u"Mon"_s, u"Tue"_s, u"Wed"_s, u"Thu"_s, u"Fri"_s}},
+            {u"time"_s, u"08:00"_s},
+            {u"limit"_s, 80}
+        }
+    };
     loadSchedule();
     if (m_fixtureMode) {
         m_current.chargeLimit = 80;
@@ -304,44 +309,57 @@ void FrameworkKcm::updateFixtureProfile() {
         product = i18n("Framework Laptop 13 Pro");
     }
 
-    m_systemInfo = {{u"product"_s, product},
-                    {u"platform"_s, m_fixtureModel},
-                    {u"isFramework"_s, true},
-                    {u"biosVersion"_s, u"Fixture BIOS 1.0"_s},
-                    {u"biosDate"_s, u"2026-01-01"_s},
-                    {u"ecVersion"_s, u"Fixture EC 1.0"_s},
-                    {u"ecRoVersion"_s, u"Fixture RO 1.0"_s},
-                    {u"ecRwVersion"_s, u"Fixture RW 1.0"_s},
-                    {u"ecCurrentImage"_s, u"rw"_s},
-                    {u"pdVersions"_s, QVariantList{}},
-                    {u"micEnabled"_s, true},
-                    {u"cameraEnabled"_s, true},
-                    {u"privacyKnown"_s, true},
-                    {u"daemonVersion"_s, u"fixture"_s}};
-    m_powerInfo = {{u"acPresent"_s, true},    {u"batteryPresent"_s, true},
-                   {u"percentage"_s, 67},     {u"charging"_s, true},
-                   {u"discharging"_s, false}, {u"critical"_s, false},
-                   {u"cycleCount"_s, 42},     {u"manufacturer"_s, u"Fixture Battery"_s}};
+    m_systemInfo = {
+        {u"product"_s, product},
+        {u"platform"_s, m_fixtureModel},
+        {u"isFramework"_s, true},
+        {u"biosVersion"_s, u"Fixture BIOS 1.0"_s},
+        {u"biosDate"_s, u"2026-01-01"_s},
+        {u"ecVersion"_s, u"Fixture EC 1.0"_s},
+        {u"ecRoVersion"_s, u"Fixture RO 1.0"_s},
+        {u"ecRwVersion"_s, u"Fixture RW 1.0"_s},
+        {u"ecCurrentImage"_s, u"rw"_s},
+        {u"pdVersions"_s, QVariantList{}},
+        {u"micEnabled"_s, true},
+        {u"cameraEnabled"_s, true},
+        {u"privacyKnown"_s, true},
+        {u"daemonVersion"_s, u"fixture"_s}
+    };
+    m_powerInfo = {
+        {u"acPresent"_s, true}, {u"batteryPresent"_s, true},
+        {u"percentage"_s, 67}, {u"charging"_s, true},
+        {u"discharging"_s, false}, {u"critical"_s, false},
+        {u"cycleCount"_s, 42}, {u"manufacturer"_s, u"Fixture Battery"_s}
+    };
     m_sensors = {
         QVariantMap{
-            {u"index"_s, 0}, {u"location"_s, u"cpu"_s}, {u"name"_s, u"CPU"_s}, {u"temp"_s, 48}, {u"status"_s, u"ok"_s}},
-        QVariantMap{{u"index"_s, 1},
-                    {u"location"_s, u"battery"_s},
-                    {u"name"_s, u"Battery"_s},
-                    {u"temp"_s, 31},
-                    {u"status"_s, u"ok"_s}}};
+            {u"index"_s, 0}, {u"location"_s, u"cpu"_s}, {u"name"_s, u"CPU"_s}, {u"temp"_s, 48}, {u"status"_s, u"ok"_s}
+        },
+        QVariantMap{
+            {u"index"_s, 1},
+            {u"location"_s, u"battery"_s},
+            {u"name"_s, u"Battery"_s},
+            {u"temp"_s, 31},
+            {u"status"_s, u"ok"_s}
+        }
+    };
     m_fans = {
-        QVariantMap{{u"position"_s, u"apu"_s}, {u"name"_s, u"CPU fan"_s}, {u"rpm"_s, 1800}, {u"stalled"_s, false}}};
+        QVariantMap{{u"position"_s, u"apu"_s}, {u"name"_s, u"CPU fan"_s}, {u"rpm"_s, 1800}, {u"stalled"_s, false}}
+    };
     m_throttle = {{u"known"_s, true}, {u"hard"_s, false}, {u"soft"_s, false}};
-    m_ports = {QVariantMap{{u"position"_s, u"right-back"_s},
-                           {u"ok"_s, true},
-                           {u"role"_s, u"sink"_s},
-                           {u"chargingType"_s, u"pd"_s},
-                           {u"maxPower"_s, 65000000},
-                           {u"voltageNow"_s, 20000}},
-               QVariantMap{{u"position"_s, u"right-front"_s}, {u"ok"_s, true}, {u"role"_s, u"disconnected"_s}},
-               QVariantMap{{u"position"_s, u"left-front"_s}, {u"ok"_s, true}, {u"role"_s, u"disconnected"_s}},
-               QVariantMap{{u"position"_s, u"left-back"_s}, {u"ok"_s, true}, {u"role"_s, u"disconnected"_s}}};
+    m_ports = {
+        QVariantMap{
+            {u"position"_s, u"right-back"_s},
+            {u"ok"_s, true},
+            {u"role"_s, u"sink"_s},
+            {u"chargingType"_s, u"pd"_s},
+            {u"maxPower"_s, 65000000},
+            {u"voltageNow"_s, 20000}
+        },
+        QVariantMap{{u"position"_s, u"right-front"_s}, {u"ok"_s, true}, {u"role"_s, u"disconnected"_s}},
+        QVariantMap{{u"position"_s, u"left-front"_s}, {u"ok"_s, true}, {u"role"_s, u"disconnected"_s}},
+        QVariantMap{{u"position"_s, u"left-back"_s}, {u"ok"_s, true}, {u"role"_s, u"disconnected"_s}}
+    };
     Q_EMIT fixtureChanged();
     Q_EMIT supportChanged();
     Q_EMIT systemInfoChanged();
@@ -644,7 +662,7 @@ void FrameworkKcm::updateNeedsSave(bool needsSave) {
 
 void FrameworkKcm::loadSchedule() {
     const auto path =
-        QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + u"/framework-kcm/schedule.json"_s;
+            QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + u"/framework-kcm/schedule.json"_s;
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly)) {
         return;
@@ -661,9 +679,11 @@ void FrameworkKcm::loadSchedule() {
         for (const auto &day: entry.value(u"days"_s).toArray()) {
             days.append(day.toString());
         }
-        loaded.append(QVariantMap{{u"days"_s, days},
-                                  {u"time"_s, entry.value(u"time"_s).toString()},
-                                  {u"limit"_s, entry.value(u"limit"_s).toInt(80)}});
+        loaded.append(QVariantMap{
+            {u"days"_s, days},
+            {u"time"_s, entry.value(u"time"_s).toString()},
+            {u"limit"_s, entry.value(u"limit"_s).toInt(80)}
+        });
     }
     if (!loaded.isEmpty()) {
         m_schedules = loaded;
@@ -706,7 +726,8 @@ bool FrameworkKcm::configureSchedule(const bool enabled, const QVariantList &sch
             }
         }
         normalized.append(QVariantMap{
-            {u"days"_s, days}, {u"time"_s, time}, {u"limit"_s, std::clamp(entry.value(u"limit"_s).toInt(), 25, 100)}});
+            {u"days"_s, days}, {u"time"_s, time}, {u"limit"_s, std::clamp(entry.value(u"limit"_s).toInt(), 25, 100)}
+        });
     }
 
     if (!m_fixtureMode && !applyScheduleUnits(enabled, normalized)) {
@@ -714,7 +735,7 @@ bool FrameworkKcm::configureSchedule(const bool enabled, const QVariantList &sch
     }
     if (!m_fixtureMode) {
         const auto path =
-            QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + u"/framework-kcm/schedule.json"_s;
+                QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + u"/framework-kcm/schedule.json"_s;
         QSaveFile file(path);
         if (!QDir().mkpath(QFileInfo(path).absolutePath()) || !file.open(QIODevice::WriteOnly)) {
             setError(i18n("Could not save the charge schedule configuration."));
@@ -727,9 +748,11 @@ bool FrameworkKcm::configureSchedule(const bool enabled, const QVariantList &sch
             for (const auto &day: entry.value(u"days"_s).toStringList()) {
                 days.append(day);
             }
-            entries.append(QJsonObject{{u"days"_s, days},
-                                       {u"time"_s, entry.value(u"time"_s).toString()},
-                                       {u"limit"_s, entry.value(u"limit"_s).toInt()}});
+            entries.append(QJsonObject{
+                {u"days"_s, days},
+                {u"time"_s, entry.value(u"time"_s).toString()},
+                {u"limit"_s, entry.value(u"limit"_s).toInt()}
+            });
         }
         const QJsonObject object{{u"enabled"_s, enabled}, {u"schedules"_s, entries}};
         file.write(QJsonDocument(object).toJson(QJsonDocument::Indented));
@@ -780,7 +803,8 @@ bool FrameworkKcm::applyScheduleUnits(const bool enabled, const QVariantList &sc
             }
         }
         if (tool.isEmpty()) {
-            setError(i18n("The Framework System command-line tools were not found. Install framework-system to use charge schedules."));
+            setError(i18n(
+                "The Framework System command-line tools were not found. Install framework-system to use charge schedules."));
             return false;
         }
     }
@@ -816,7 +840,7 @@ bool FrameworkKcm::applyScheduleUnits(const bool enabled, const QVariantList &sc
             return false;
         }
         const auto serviceText =
-            u"[Unit]\nDescription=Apply Framework battery charge limit\n\n[Service]\nType=oneshot\nExecStart=%1 --charge-limit %2\n"_s
+                u"[Unit]\nDescription=Apply Framework battery charge limit\n\n[Service]\nType=oneshot\nExecStart=%1 --charge-limit %2\n"_s
                 .arg(escapedTool, QString::number(entry.value(u"limit"_s).toInt()));
         auto timerText = u"[Unit]\nDescription=Framework battery charge limit schedule\n\n[Timer]\n"_s;
         for (const auto &day: entry.value(u"days"_s).toStringList()) {

@@ -12,9 +12,15 @@ Item {
     TabBar {
         id: tabs
         width: parent.width
-        SettingsTabButton { text: "Overview" }
-        SettingsTabButton { text: "Battery" }
-        SettingsTabButton { text: "Schedule" }
+        SettingsTabButton {
+            text: "Overview"
+        }
+        SettingsTabButton {
+            text: "Battery"
+        }
+        SettingsTabButton {
+            text: "Schedule"
+        }
     }
 
     TestCase {

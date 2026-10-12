@@ -40,7 +40,7 @@ ScrollView {
                 }
                 const daysUntil = (dayNumber - now.getDay() + 7) % 7;
                 const candidate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysUntil,
-                                           Number(match[1]), Number(match[2]), 0, 0);
+                    Number(match[1]), Number(match[2]), 0, 0);
                 if (candidate <= now) {
                     candidate.setDate(candidate.getDate() + 7);
                 }
@@ -110,11 +110,11 @@ ScrollView {
                     Label {
                         Layout.fillWidth: true
                         text: i18n("Keyboard backlight: %1 · Fingerprint LED: %2 · Input deck: %3 · Touchscreen: %4 · Tablet mode: %5")
-                              .arg(kcm.supportsKeyboardBacklight ? i18n("Yes") : i18n("No"))
-                              .arg(kcm.fpLedSupported ? i18n("Yes") : i18n("No"))
-                              .arg(kcm.supportsInputDeck ? i18n("Yes") : i18n("No"))
-                              .arg(kcm.supportsTouchscreen ? i18n("Yes") : i18n("No"))
-                              .arg(kcm.supportsTabletMode ? i18n("Yes") : i18n("No"))
+                            .arg(kcm.supportsKeyboardBacklight ? i18n("Yes") : i18n("No"))
+                            .arg(kcm.fpLedSupported ? i18n("Yes") : i18n("No"))
+                            .arg(kcm.supportsInputDeck ? i18n("Yes") : i18n("No"))
+                            .arg(kcm.supportsTouchscreen ? i18n("Yes") : i18n("No"))
+                            .arg(kcm.supportsTabletMode ? i18n("Yes") : i18n("No"))
                         wrapMode: Text.Wrap
                         color: palette.text
                     }
@@ -140,9 +140,9 @@ ScrollView {
                     Label {
                         Layout.fillWidth: true
                         text: kcm.powerInfo.batteryPresent && kcm.powerInfo.percentage >= 0
-                              ? i18n("%1% · %2").arg(kcm.powerInfo.percentage)
-                                    .arg(kcm.powerInfo.acPresent ? i18n("AC power connected") : i18n("Running on battery"))
-                              : i18n("Battery readings unavailable")
+                            ? i18n("%1% · %2").arg(kcm.powerInfo.percentage)
+                                .arg(kcm.powerInfo.acPresent ? i18n("AC power connected") : i18n("Running on battery"))
+                            : i18n("Battery readings unavailable")
                         wrapMode: Text.Wrap
                     }
                     ProgressBar {
@@ -155,7 +155,7 @@ ScrollView {
                     Label {
                         Layout.fillWidth: true
                         text: kcm.chargeLimit > 0 ? i18n("Charge limit: %1%").arg(kcm.chargeLimit)
-                                                  : i18n("Charge limit unavailable")
+                            : i18n("Charge limit unavailable")
                         color: palette.text
                         wrapMode: Text.Wrap
                     }
@@ -177,17 +177,17 @@ ScrollView {
                     Label {
                         Layout.fillWidth: true
                         text: kcm.sensors.length > 0
-                              ? kcm.sensors.filter(sensor => sensor.status === "ok")
-                                    .map(sensor => i18n("%1: %2 °C", kcm.sensorDisplayName(sensor.location, sensor.name || i18n("Sensor")), sensor.temp))
-                                    .join(" · ")
-                              : i18n("Temperature readings unavailable")
+                            ? kcm.sensors.filter(sensor => sensor.status === "ok")
+                                .map(sensor => i18n("%1: %2 °C", kcm.sensorDisplayName(sensor.location, sensor.name || i18n("Sensor")), sensor.temp))
+                                .join(" · ")
+                            : i18n("Temperature readings unavailable")
                         wrapMode: Text.Wrap
                     }
                     Label {
                         Layout.fillWidth: true
                         text: kcm.fans.length > 0
-                              ? kcm.fans.map(fan => i18n("%1: %2 RPM", kcm.fanDisplayName(fan.position, fan.name || i18n("Fan")), fan.rpm)).join(" · ")
-                              : i18n("Fan readings unavailable")
+                            ? kcm.fans.map(fan => i18n("%1: %2 RPM", kcm.fanDisplayName(fan.position, fan.name || i18n("Fan")), fan.rpm)).join(" · ")
+                            : i18n("Fan readings unavailable")
                         color: palette.text
                         wrapMode: Text.Wrap
                     }
@@ -211,12 +211,24 @@ ScrollView {
                     columns: 2
                     columnSpacing: 16
                     rowSpacing: 6
-                    Label { text: i18n("Model"); color: palette.text }
-                    Label { Layout.fillWidth: true; text: kcm.systemInfo.product || i18n("Unknown"); wrapMode: Text.Wrap }
-                    Label { text: i18n("BIOS"); color: palette.text }
-                    Label { Layout.fillWidth: true; text: kcm.systemInfo.biosVersion || i18n("Unknown"); wrapMode: Text.Wrap }
-                    Label { text: i18n("EC"); color: palette.text }
-                    Label { Layout.fillWidth: true; text: kcm.systemInfo.ecVersion || i18n("Unknown"); wrapMode: Text.Wrap }
+                    Label {
+                        text: i18n("Model"); color: palette.text
+                    }
+                    Label {
+                        Layout.fillWidth: true; text: kcm.systemInfo.product || i18n("Unknown"); wrapMode: Text.Wrap
+                    }
+                    Label {
+                        text: i18n("BIOS"); color: palette.text
+                    }
+                    Label {
+                        Layout.fillWidth: true; text: kcm.systemInfo.biosVersion || i18n("Unknown"); wrapMode: Text.Wrap
+                    }
+                    Label {
+                        text: i18n("EC"); color: palette.text
+                    }
+                    Label {
+                        Layout.fillWidth: true; text: kcm.systemInfo.ecVersion || i18n("Unknown"); wrapMode: Text.Wrap
+                    }
                 }
             }
         }

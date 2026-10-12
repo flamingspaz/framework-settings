@@ -7,7 +7,7 @@ TabButton {
     id: control
 
     readonly property bool selected: TabBar.tabBar !== null
-                                     && TabBar.tabBar.currentIndex === TabBar.index
+        && TabBar.tabBar.currentIndex === TabBar.index
 
     background: Rectangle {
         implicitWidth: 100
