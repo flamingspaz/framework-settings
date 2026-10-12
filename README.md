@@ -18,8 +18,8 @@ firmware and USB-C port information.
   Limit_ (the limit comes back after the next restart), and slow down
   charging to reduce heat and battery wear.
 - **Schedule:** apply different charge limits on selected weekdays and times
-  using user systemd timers. Scheduling requires `framework_tool` from
-  `framework-system`.
+  using user systemd timers. Scheduling requires the Framework System
+  command-line tools.
 - **Fans & Thermals:** live temperatures, fan speed and throttling status.
   Leave the fans on automatic, or fix their speed.
 - **Touchpad & LED:** fingerprint reader LED brightness, and haptic touchpad
@@ -136,7 +136,8 @@ sudo pacman -U framework-*.pkg.tar.zst
 sudo systemctl enable --now frameworkd
 ```
 
-The Arch `framework-settings` meta-package installs the GUI, KCM, and service.
+The Arch `framework-settings` meta-package installs the GUI, KCM, shared
+translations, and service.
 For a non-KDE desktop, install `framework-gui` instead; it brings in
 `frameworkd` without the KCM.
 
@@ -146,9 +147,9 @@ For a non-KDE desktop, install `framework-gui` instead; it brings in
 sudo apt install ./framework-*.deb
 ```
 
-This installs the `framework-settings` meta-package and its GUI, KCM, and
-service packages. From a repository, install `framework-gui` alone for a
-non-KDE setup; it pulls in the daemon but not the KCM. The daemon package
+This installs the `framework-settings` meta-package and its GUI, KCM, shared
+translation, and service packages. From a repository, install `framework-gui`
+alone for a non-KDE setup; it pulls in the daemon but not the KCM. The daemon package
 configures and enables the background service.
 
 ### Fedora
@@ -173,7 +174,8 @@ restart.
 
 To uninstall the full suite, remove the `framework-settings` meta-package. If
 installed separately, remove the packages you chose (`framework-gui`,
-`framework-kcm`, and/or `frameworkd`). On Arch,
+`framework-kcm`, `framework-settings-translations`, and/or `frameworkd`).
+On Arch,
 `sudo pacman -Rns framework-settings` also removes unneeded subpackages; on
 Debian-based systems, use `sudo apt remove framework-settings` and optionally
 `sudo apt autoremove`.

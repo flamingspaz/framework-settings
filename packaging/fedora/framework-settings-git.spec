@@ -42,8 +42,15 @@ Packager:       Cypress Reed <cypress@fyralabs.com>
 Meta-package for Framework laptop settings. Installs the standalone Qt
 application, the KDE System Settings module, and the hardware service.
 
+%package -n framework-settings-translations
+Summary:        Shared translations for Framework laptop settings
+
+%description -n framework-settings-translations
+Translation catalogs shared by the standalone GUI and KDE settings module.
+
 %package -n framework-gui
 Summary:        Standalone Qt settings application for Framework laptops
+Requires:       framework-settings-translations = %{evr}
 Requires:       framework-settings%{?_isa} = %{evr}
 Requires:       frameworkd%{?_isa} = %{evr}
 Requires:       hicolor-icon-theme
@@ -56,6 +63,7 @@ require KDE.
 
 %package -n framework-kcm
 Summary:        KDE System Settings module for Framework laptops
+Requires:       framework-settings-translations = %{evr}
 Requires:       framework-settings%{?_isa} = %{evr}
 Requires:       frameworkd%{?_isa} = %{evr}
 Requires:       plasma-systemsettings
@@ -140,7 +148,9 @@ fi
 %{_scalableiconsdir}/framework-gui.svg
 %{_metainfodir}/%{appid}.metainfo.xml
 
-%files -n framework-kcm -f kcm_framework.lang
+%files -n framework-settings-translations -f kcm_framework.lang
+
+%files -n framework-kcm
 %{_kf6_qtplugindir}/plasma/kcms/systemsettings/kcm_framework.so
 %{_appsdir}/kcm_framework.desktop
 %{_scalableiconsdir}/framework-kcm.svg

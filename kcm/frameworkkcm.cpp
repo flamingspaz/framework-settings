@@ -2,11 +2,8 @@
 
 #include "frameworkkcm.h"
 
-#ifndef FRAMEWORK_STANDALONE
 #include <KLocalizedString>
-#endif
 
-#include <QCoreApplication>
 #include <QDBusArgument>
 #include <QDBusConnection>
 #include <QDBusPendingCallWatcher>
@@ -25,21 +22,9 @@
 
 #include <algorithm>
 
-#ifdef FRAMEWORK_STANDALONE
-#define i18n(text) QCoreApplication::translate("FrameworkSettings", text)
-#endif
-
 using namespace Qt::StringLiterals;
 
 namespace {
-    QString localized(const char *text) {
-#ifdef FRAMEWORK_STANDALONE
-        return QCoreApplication::translate("FrameworkSettings", text);
-#else
-        return i18n(text);
-#endif
-    }
-
     const QString s_service = u"io.github.frameworkkcm.Daemon1"_s;
     const QString s_path = u"/io/github/frameworkkcm/Daemon1"_s;
     const QString s_interface = u"io.github.frameworkkcm.Daemon1"_s;
@@ -250,6 +235,35 @@ QVariantList FrameworkKcm::fixtureModels() const {
         QVariantMap{{u"id"_s, u"framework-13"_s}, {u"name"_s, i18n("Framework Laptop 13")}},
         QVariantMap{{u"id"_s, u"framework-13-pro"_s}, {u"name"_s, i18n("Framework Laptop 13 Pro")}},
     };
+}
+
+QString FrameworkKcm::sensorDisplayName(const QString &location, const QString &fallback) const {
+    if (location == u"cpu"_s) return i18nc("temperature sensor", "CPU");
+    if (location == u"near-cpu"_s) return i18nc("temperature sensor on the mainboard next to the CPU", "Near CPU");
+    if (location == u"memory"_s) return i18nc("temperature sensor", "Memory");
+    if (location == u"mainboard"_s) return i18nc("temperature sensor", "Mainboard");
+    if (location == u"battery"_s) return i18nc("temperature sensor", "Battery");
+    if (location == u"charger"_s) return i18nc("temperature sensor", "Charger");
+    if (location == u"chassis"_s) return i18nc("temperature sensor on the case surface", "Chassis");
+    if (location == u"ssd"_s) return i18nc("temperature sensor", "SSD");
+    if (location == u"gpu"_s) return i18nc("temperature sensor", "GPU");
+    if (location == u"wifi"_s) return i18nc("temperature sensor", "Wi-Fi");
+    return fallback;
+}
+
+QString FrameworkKcm::sensorStatusDisplayName(const QString &status) const {
+    if (status == u"not-powered"_s) return i18nc("temperature sensor state", "Off");
+    if (status == u"not-calibrated"_s) return i18nc("temperature sensor state", "Not calibrated");
+    return i18nc("temperature sensor state", "Error");
+}
+
+QString FrameworkKcm::fanDisplayName(const QString &position, const QString &fallback) const {
+    if (position == u"apu"_s) return i18nc("fan cooling the processor", "CPU fan");
+    if (position == u"left"_s) return i18n("Left fan");
+    if (position == u"right"_s) return i18n("Right fan");
+    if (position == u"front"_s) return i18n("Front fan");
+    if (position == u"third"_s) return i18n("Third fan");
+    return fallback;
 }
 
 void FrameworkKcm::setFixtureModel(const QString &model) {
@@ -569,9 +583,9 @@ void FrameworkKcm::runAction(const QString &method) {
 
 void FrameworkKcm::setWriteError(const QDBusError &error) {
     if (error.name() == u"io.github.frameworkkcm.Error.NotAuthorized"_s) {
-        setError(localized("You are not authorized to change this setting."));
+        setError(i18n("You are not authorized to change this setting."));
     } else if (isServiceMissing(error)) {
-        setError(localized("The Framework hardware service is not running."));
+        setError(i18n("The Framework hardware service is not running."));
     } else {
         setError(error.message());
     }
@@ -766,7 +780,7 @@ bool FrameworkKcm::applyScheduleUnits(const bool enabled, const QVariantList &sc
             }
         }
         if (tool.isEmpty()) {
-            setError(i18n("framework_tool was not found. Install framework-system to use charge schedules."));
+            setError(i18n("The Framework System command-line tools were not found. Install framework-system to use charge schedules."));
             return false;
         }
     }

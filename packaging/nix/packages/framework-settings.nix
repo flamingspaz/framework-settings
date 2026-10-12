@@ -25,15 +25,17 @@ stdenv.mkDerivation {
     cmake
   ]
   ++ (lib.optional withGui qt6.wrapQtAppsHook)
-  ++ (lib.optional withKcm kdePackages.extra-cmake-modules);
+  ++ (lib.optional (withGui || withKcm) kdePackages.extra-cmake-modules);
 
   buildInputs = with qt6; [
     qtbase
     qtdeclarative
   ]
+  ++ (lib.optionals (withGui || withKcm) (with kdePackages; [
+    ki18n
+  ]))
   ++ (lib.optionals withKcm (with kdePackages; [
     kcoreaddons
-    ki18n
     kcmutils
   ]));
 

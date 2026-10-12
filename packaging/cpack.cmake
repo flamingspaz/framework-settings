@@ -15,6 +15,10 @@ set(CPACK_DEB_COMPONENT_INSTALL ON)
 set(CPACK_COMPONENTS_GROUPING IGNORE)
 set(CPACK_COMPONENTS_ALL meta)
 set(_framework_meta_dependencies)
+if(BUILD_KCM OR BUILD_GUI)
+  list(APPEND CPACK_COMPONENTS_ALL translations)
+  list(APPEND _framework_meta_dependencies "framework-settings-translations (= ${PROJECT_VERSION}-${CPACK_DEBIAN_PACKAGE_RELEASE})")
+endif()
 if(BUILD_GUI)
   list(APPEND CPACK_COMPONENTS_ALL gui)
   list(APPEND _framework_meta_dependencies "framework-gui (= ${PROJECT_VERSION}-${CPACK_DEBIAN_PACKAGE_RELEASE})")
@@ -46,14 +50,20 @@ set(CPACK_DEBIAN_GUI_PACKAGE_SECTION "utils")
 set(CPACK_DEBIAN_GUI_DESCRIPTION
     "Standalone Qt application for managing Framework laptop charging, fans, touchpad, LED, and firmware settings.")
 set(CPACK_DEBIAN_GUI_PACKAGE_DEPENDS
-    "frameworkd, hicolor-icon-theme, qml6-module-qtquick-controls, qml6-module-qtquick-layouts")
+    "frameworkd, framework-settings-translations (= ${PROJECT_VERSION}-${CPACK_DEBIAN_PACKAGE_RELEASE}), hicolor-icon-theme, qml6-module-qtquick-controls, qml6-module-qtquick-layouts")
 
 set(CPACK_DEBIAN_KCM_PACKAGE_NAME "framework-kcm")
 set(CPACK_DEBIAN_KCM_PACKAGE_SECTION "kde")
 set(CPACK_DEBIAN_KCM_DESCRIPTION
     "KDE System Settings module for Framework laptop charging, fans, touchpad, LED, and firmware settings.")
 set(CPACK_DEBIAN_KCM_PACKAGE_DEPENDS
-    "frameworkd, hicolor-icon-theme, systemsettings, qml6-module-org-kde-kcmutils, qml6-module-org-kde-kirigami, qml6-module-qtquick-controls, qml6-module-qtquick-layouts")
+    "frameworkd, framework-settings-translations (= ${PROJECT_VERSION}-${CPACK_DEBIAN_PACKAGE_RELEASE}), hicolor-icon-theme, systemsettings, qml6-module-org-kde-kcmutils, qml6-module-org-kde-kirigami, qml6-module-qtquick-controls, qml6-module-qtquick-layouts")
+
+set(CPACK_DEBIAN_TRANSLATIONS_PACKAGE_NAME "framework-settings-translations")
+set(CPACK_DEBIAN_TRANSLATIONS_PACKAGE_ARCHITECTURE "all")
+set(CPACK_DEBIAN_TRANSLATIONS_PACKAGE_SECTION "localization")
+set(CPACK_DEBIAN_TRANSLATIONS_DESCRIPTION
+    "Shared translations for the Framework Settings standalone GUI and KDE module.")
 
 set(CPACK_DEBIAN_FRAMEWORKD_PACKAGE_NAME "frameworkd")
 set(CPACK_DEBIAN_FRAMEWORKD_PACKAGE_SECTION "admin")

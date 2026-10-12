@@ -116,13 +116,13 @@ ColumnLayout {
             if (kcm.sensors.length === 0) {
                 return i18n("Temperature readings unavailable");
             }
-            return kcm.sensors.filter(sensor => sensor.status === "ok").map(sensor => i18n("%1: %2 °C", sensor.name, sensor.temp)).join(" · ");
+            return kcm.sensors.filter(sensor => sensor.status === "ok").map(sensor => i18n("%1: %2 °C", kcm.sensorDisplayName(sensor.location, sensor.name), sensor.temp)).join(" · ");
         }
         secondary: {
             if (kcm.fans.length === 0) {
                 return i18n("Fan readings unavailable");
             }
-            return kcm.fans.map(fan => i18n("%1: %2 RPM", fan.name, fan.rpm)).join(" · ");
+            return kcm.fans.map(fan => i18n("%1: %2 RPM", kcm.fanDisplayName(fan.position, fan.name), fan.rpm)).join(" · ");
         }
     }
 

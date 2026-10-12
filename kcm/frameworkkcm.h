@@ -140,6 +140,9 @@ public:
     Q_INVOKABLE void clearError();
     Q_INVOKABLE void retryService();
     Q_INVOKABLE void setFixtureModel(const QString &model);
+    Q_INVOKABLE QString sensorDisplayName(const QString &location, const QString &fallback) const;
+    Q_INVOKABLE QString sensorStatusDisplayName(const QString &status) const;
+    Q_INVOKABLE QString fanDisplayName(const QString &position, const QString &fallback) const;
     Q_INVOKABLE bool configureSchedule(bool enabled, const QVariantList &schedules);
     // Charge to 100% until the next boot; applied immediately, not on Apply
     Q_INVOKABLE void overrideChargeLimit();

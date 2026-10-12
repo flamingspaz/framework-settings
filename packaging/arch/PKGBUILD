@@ -4,7 +4,7 @@
 # (see .github/workflows/build.yml). CI also fills in pkgver and url.
 
 pkgbase=framework-settings
-pkgname=('framework-settings' 'framework-gui' 'framework-kcm' 'frameworkd')
+pkgname=('framework-settings' 'framework-gui' 'framework-kcm' 'framework-settings-translations' 'frameworkd')
 pkgdesc='Framework laptop settings packages'
 pkgver=0.1.2
 pkgrel=1
@@ -44,23 +44,29 @@ build() {
 
 package_framework-settings() {
   pkgdesc='Meta package for Framework laptop settings'
-  depends=('framework-gui' 'framework-kcm' 'frameworkd')
+  depends=('framework-gui' 'framework-kcm' 'framework-settings-translations' 'frameworkd')
   DESTDIR="$pkgdir" cmake --install build --component meta
   install -Dm644 "$pkgbase-$pkgver/LICENSE" "$pkgdir/usr/share/licenses/framework-settings/LICENSE"
 }
 
 package_framework-gui() {
   pkgdesc='Standalone Qt settings application for Framework laptops'
-  depends=('frameworkd' 'hicolor-icon-theme' 'qt6-base' 'qt6-declarative')
+  depends=('framework-settings-translations' 'frameworkd' 'hicolor-icon-theme' 'ki18n' 'qt6-base' 'qt6-declarative')
   DESTDIR="$pkgdir" cmake --install build --component gui
   install -Dm644 "$pkgbase-$pkgver/LICENSE" "$pkgdir/usr/share/licenses/framework-gui/LICENSE"
 }
 
 package_framework-kcm() {
   pkgdesc='KDE System Settings module for Framework laptops'
-  depends=('frameworkd' 'hicolor-icon-theme' 'kcmutils' 'kcoreaddons' 'ki18n' 'kirigami' 'qt6-base' 'qt6-declarative')
+  depends=('framework-settings-translations' 'frameworkd' 'hicolor-icon-theme' 'kcmutils' 'kcoreaddons' 'ki18n' 'kirigami' 'qt6-base' 'qt6-declarative')
   DESTDIR="$pkgdir" cmake --install build --component kcm
   install -Dm644 "$pkgbase-$pkgver/LICENSE" "$pkgdir/usr/share/licenses/framework-kcm/LICENSE"
+}
+
+package_framework-settings-translations() {
+  pkgdesc='Shared translations for Framework laptop settings'
+  DESTDIR="$pkgdir" cmake --install build --component translations
+  install -Dm644 "$pkgbase-$pkgver/LICENSE" "$pkgdir/usr/share/licenses/framework-settings-translations/LICENSE"
 }
 
 package_frameworkd() {

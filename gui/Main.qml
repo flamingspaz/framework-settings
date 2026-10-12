@@ -11,7 +11,7 @@ ApplicationWindow {
     minimumWidth: 600
     minimumHeight: 560
     visible: true
-    title: qsTr("Framework Settings")
+    title: i18n("Framework Settings")
     property bool allowClose: false
 
     onClosing: function (close) {
@@ -30,12 +30,12 @@ ApplicationWindow {
             Layout.fillWidth: true
             spacing: 2
             Label {
-                text: qsTr("Framework Settings")
+                text: i18n("Framework Settings")
                 font.pixelSize: 24
                 font.weight: Font.DemiBold
             }
             Label {
-                text: qsTr("Manage charging, cooling, and input hardware.")
+                text: i18n("Manage charging, cooling, and input hardware.")
                 color: palette.text
             }
         }
@@ -47,10 +47,10 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 wrapMode: Text.Wrap
                 color: palette.text
-                text: qsTr("Cannot connect to the Framework hardware service (frameworkd). It is normally started automatically by D-Bus. Check that it is installed and that D-Bus activation is available, then retry.")
+                text: i18n("Cannot connect to the Framework hardware service (frameworkd). It is normally started automatically by D-Bus. Check that it is installed and that D-Bus activation is available, then retry.")
             }
             Button {
-                text: qsTr("Retry")
+                text: i18n("Retry")
                 enabled: !kcm.busy
                 onClicked: kcm.retryService()
             }
@@ -67,12 +67,12 @@ ApplicationWindow {
             id: tabs
             Layout.fillWidth: true
             Layout.preferredWidth: parent.width
-            SettingsTabButton { width: (window.width - 48) / 6; text: qsTr("Overview") }
-            SettingsTabButton { width: (window.width - 48) / 6; text: qsTr("Battery") }
-            SettingsTabButton { width: (window.width - 48) / 6; text: qsTr("Schedule") }
-            SettingsTabButton { width: (window.width - 48) / 6; text: qsTr("Thermals") }
-            SettingsTabButton { width: (window.width - 48) / 6; text: qsTr("Input") }
-            SettingsTabButton { width: (window.width - 48) / 6; text: qsTr("System") }
+            SettingsTabButton { width: (window.width - 48) / 6; text: i18n("Overview") }
+            SettingsTabButton { width: (window.width - 48) / 6; text: i18n("Battery") }
+            SettingsTabButton { width: (window.width - 48) / 6; text: i18n("Schedule") }
+            SettingsTabButton { width: (window.width - 48) / 6; text: i18n("Thermals") }
+            SettingsTabButton { width: (window.width - 48) / 6; text: i18n("Input") }
+            SettingsTabButton { width: (window.width - 48) / 6; text: i18n("System") }
         }
 
         StackLayout {
@@ -92,7 +92,7 @@ ApplicationWindow {
                     spacing: 16
                     GroupBox {
                         Layout.fillWidth: true
-                        title: qsTr("Battery status")
+                        title: i18n("Battery status")
                         RowLayout {
                             anchors.fill: parent
                             Item {
@@ -119,7 +119,7 @@ ApplicationWindow {
                                     Label {
                                         anchors.centerIn: parent
                                         text: kcm.powerInfo.batteryPresent && (kcm.powerInfo.percentage ?? -1) >= 0
-                                              ? qsTr("%1%").arg(kcm.powerInfo.percentage) : "--"
+                                              ? i18nc("percent", "%1%", kcm.powerInfo.percentage) : "--"
                                         font.weight: Font.DemiBold
                                     }
                                 }
@@ -136,25 +136,25 @@ ApplicationWindow {
                                 Label {
                                     text: {
                                         const power = kcm.powerInfo;
-                                        if (!power.batteryPresent) return qsTr("Battery unavailable");
-                                        if (power.charging) return qsTr("Charging");
-                                        if (power.discharging) return qsTr("Discharging");
-                                        return qsTr("Not charging");
+                                        if (!power.batteryPresent) return i18n("Battery unavailable");
+                                        if (power.charging) return i18n("Charging");
+                                        if (power.discharging) return i18n("Discharging");
+                                        return i18n("Not charging");
                                     }
                                     font.weight: Font.DemiBold
                                 }
                                 Label {
                                     Layout.fillWidth: true
                                     text: kcm.powerInfo.acPresent === undefined
-                                          ? qsTr("Power status unavailable")
-                                          : kcm.powerInfo.acPresent ? qsTr("AC power connected") : qsTr("Running on battery")
+                                          ? i18n("Power status unavailable")
+                                          : kcm.powerInfo.acPresent ? i18n("AC power connected") : i18n("Running on battery")
                                     color: palette.text
                                     wrapMode: Text.Wrap
                                 }
                                 Label {
                                     Layout.fillWidth: true
-                                    text: kcm.chargeLimit > 0 ? qsTr("Charge limit: %1%").arg(kcm.chargeLimit)
-                                                              : qsTr("Charge limit unavailable")
+                                    text: kcm.chargeLimit > 0 ? i18n("Charge limit: %1%").arg(kcm.chargeLimit)
+                                                              : i18n("Charge limit unavailable")
                                     wrapMode: Text.Wrap
                                 }
                             }
@@ -162,46 +162,50 @@ ApplicationWindow {
                     }
                     GroupBox {
                         Layout.fillWidth: true
-                        title: qsTr("Charging")
+                        title: i18n("Charging")
                         ColumnLayout {
                             anchors.fill: parent
                             RowLayout {
                                 Label {
-                                    Layout.fillWidth: true; text: qsTr("Charge limit")
+                                    Layout.fillWidth: true; text: i18n("Charge limit:")
                                 }
                                 Slider {
                                     id: chargeLimitSlider
                                     Layout.fillWidth: true
+                                    enabled: !kcm.chargeLimitOverridden
                                     from: 25;
                                     to: 100; stepSize: 5; snapMode: Slider.SnapAlways
                                     value: kcm.chargeLimit
                                     onMoved: kcm.chargeLimit = value
                                 }
                                 Label {
-                                    text: qsTr("%1%").arg(chargeLimitSlider.value)
+                                    text: i18nc("percent", "%1%", chargeLimitSlider.value)
                                 }
                             }
                             Label {
                                 Layout.fillWidth: true
                                 wrapMode: Text.Wrap
-                                text: qsTr("Stops charging at this level. Keeping the battery below 100% helps it age more slowly.")
+                                text: i18n("Stops charging at this level. Keeping the battery below 100% helps it age slower. Plasma's Power Management page can set the same limit through the kernel driver; use only one of them.")
                             }
                             RowLayout {
                                 Button {
                                     visible: !kcm.chargeLimitOverridden
                                     enabled: kcm.chargeLimit < 100
-                                    text: qsTr("Override charge limit")
+                                    text: i18n("Override Charge Limit")
+                                    ToolTip.visible: hovered
+                                    ToolTip.delay: 1000
+                                    ToolTip.text: i18n("Charge to 100% once. The limit goes back to %1% the next time the computer starts.", kcm.chargeLimit)
                                     onClicked: kcm.overrideChargeLimit()
                                 }
                                 Label {
                                     Layout.fillWidth: true
                                     visible: kcm.chargeLimitOverridden
                                     wrapMode: Text.Wrap
-                                    text: qsTr("Charging to 100% until the computer restarts.")
+                                    text: i18n("Charging to 100% until the computer restarts. The limit then goes back to %1%.", kcm.chargeLimit)
                                 }
                                 Button {
                                     visible: kcm.chargeLimitOverridden
-                                    text: qsTr("Restore now")
+                                    text: i18n("Restore now")
                                     onClicked: kcm.cancelChargeLimitOverride()
                                 }
                             }
@@ -209,19 +213,19 @@ ApplicationWindow {
                     }
                     GroupBox {
                         Layout.fillWidth: true
-                        title: qsTr("Charge speed")
+                        title: i18n("Charge speed")
                         ColumnLayout {
                             anchors.fill: parent
                             CheckBox {
                                 id: chargeSpeedCheck
-                                text: qsTr("Limit charging speed")
+                                text: i18n("Limit charging speed")
                                 checked: kcm.chargeRateLimit < 1.0
                                 onToggled: kcm.chargeRateLimit = checked ? 0.5 : 1.0
                             }
                             RowLayout {
                                 visible: chargeSpeedCheck.checked
                                 Label {
-                                    text: qsTr("Speed")
+                                    text: i18n("Speed")
                                 }
                                 Slider {
                                     id: chargeRateSlider
@@ -232,14 +236,17 @@ ApplicationWindow {
                                     onMoved: kcm.chargeRateLimit = Math.round(value * 10) / 10
                                 }
                                 Label {
-                                    text: qsTr("%1×").arg(Number(chargeRateSlider.value).toFixed(1))
+                                    readonly property real hours: Math.round(10 / chargeRateSlider.value) / 10
+                                    text: i18nc("charge speed multiplier, hours to charge from empty", "%1× (about %2 h from empty)",
+                                                Number(chargeRateSlider.value).toLocaleString(Qt.locale(), "f", 1),
+                                                Number(hours).toLocaleString(Qt.locale(), "f", Number.isInteger(hours) ? 0 : 1))
                                 }
                             }
                             RowLayout {
                                 visible: chargeSpeedCheck.checked
                                 CheckBox {
                                     id: socCheck
-                                    text: qsTr("Only above battery level")
+                                    text: i18n("Only above battery level:")
                                     checked: kcm.chargeRateSoc >= 0
                                     onToggled: kcm.chargeRateSoc = checked ? 80 : -1
                                 }
@@ -249,14 +256,14 @@ ApplicationWindow {
                                     to: 100; stepSize: 5
                                     value: Math.max(0, kcm.chargeRateSoc)
                                     onValueModified: kcm.chargeRateSoc = value
-                                    textFromValue: value => qsTr("%1%").arg(value)
+                                    textFromValue: value => i18nc("percent", "%1%", value)
                                 }
                             }
                             Label {
                                 Layout.fillWidth: true
                                 visible: chargeSpeedCheck.checked
                                 wrapMode: Text.Wrap
-                                text: qsTr("Slower charging produces less heat and can reduce battery wear. The service reapplies this setting after restart.")
+                                text: i18n("Relative to full charging speed. Slower charging produces less heat and wears the battery less; times are approximate. The EC forgets this limit on reset, so the service re-applies it when it starts.")
                             }
                         }
                     }
@@ -274,7 +281,7 @@ ApplicationWindow {
                     spacing: 16
                     GroupBox {
                         Layout.fillWidth: true
-                        title: qsTr("Temperatures")
+                        title: i18n("Temperatures")
                         ColumnLayout {
                             anchors.fill: parent
                             Repeater {
@@ -283,10 +290,10 @@ ApplicationWindow {
                                     required property var modelData
                                     Layout.fillWidth: true
                                     Label {
-                                        Layout.fillWidth: true; text: modelData.name || modelData.location || qsTr("Sensor")
+                                        Layout.fillWidth: true; text: kcm.sensorDisplayName(modelData.location, modelData.name || i18n("Sensor"))
                                     }
                                     Label {
-                                        text: modelData.status === "ok" ? qsTr("%1 °C").arg(modelData.temp) : (modelData.status || qsTr("Error"))
+                                        text: modelData.status === "ok" ? i18nc("degrees celsius", "%1 °C", modelData.temp) : kcm.sensorStatusDisplayName(modelData.status)
                                     }
                                 }
                             }
@@ -294,31 +301,31 @@ ApplicationWindow {
                                 Layout.fillWidth: true
                                 text: {
                                     const t = kcm.throttle;
-                                    if (!t.known) return qsTr("Throttling: unknown");
-                                    if (t.hard) return qsTr("Throttling: yes (PROCHOT)");
-                                    return t.soft ? qsTr("Throttling: yes (soft limit)") : qsTr("Not throttling");
+                                    if (!t.known) return i18n("Throttling: unknown");
+                                    if (t.hard) return i18n("Throttling: yes (PROCHOT)");
+                                    return t.soft ? i18n("Throttling: yes (soft limit)") : i18n("Not throttling");
                                 }
                             }
                         }
                     }
                     GroupBox {
                         Layout.fillWidth: true
-                        title: qsTr("Fans")
+                        title: i18n("Fans")
                         ColumnLayout {
                             anchors.fill: parent
                             Repeater {
                                 model: kcm.fans
                                 delegate: Label {
                                     required property var modelData
-                                    text: qsTr("%1: %2 RPM").arg(modelData.name || modelData.position || qsTr("Fan")).arg(modelData.rpm)
+                                    text: i18n("%1: %2 RPM", kcm.fanDisplayName(modelData.position, modelData.name || i18n("Fan")), modelData.rpm)
                                 }
                             }
                             RowLayout {
                                 Label {
-                                    Layout.fillWidth: true; text: qsTr("Fan control")
+                                    Layout.fillWidth: true; text: i18n("Fan control")
                                 }
                                 ComboBox {
-                                    model: [qsTr("Automatic"), qsTr("Fixed duty cycle"), qsTr("Fixed speed")]
+                                    model: [i18n("Automatic"), i18n("Fixed duty cycle"), i18n("Fixed speed")]
                                     currentIndex: kcm.fanMode === "duty" ? 1 : kcm.fanMode === "rpm" ? 2 : 0
                                     onActivated: kcm.fanMode = ["auto", "duty", "rpm"][currentIndex]
                                 }
@@ -326,7 +333,7 @@ ApplicationWindow {
                             RowLayout {
                                 visible: kcm.fanMode === "duty"
                                 Label {
-                                    Layout.fillWidth: true; text: qsTr("Fan duty")
+                                    Layout.fillWidth: true; text: i18n("Fan duty")
                                 }
                                 Slider {
                                     id: dutySlider
@@ -337,28 +344,36 @@ ApplicationWindow {
                                     onMoved: kcm.fanDuty = value
                                 }
                                 Label {
-                                    text: qsTr("%1%").arg(dutySlider.value)
+                                    text: i18nc("percent", "%1%", dutySlider.value)
                                 }
                             }
                             RowLayout {
                                 visible: kcm.fanMode === "rpm"
                                 Label {
-                                    Layout.fillWidth: true; text: qsTr("Fan speed")
+                                    Layout.fillWidth: true; text: i18n("Fan speed")
                                 }
                                 SpinBox {
                                     from: 0;
                                     to: 8000; stepSize: 100
                                     value: kcm.fanRpm
                                     onValueModified: kcm.fanRpm = value
-                                    textFromValue: value => qsTr("%1 RPM").arg(value)
+                                    textFromValue: value => i18n("%1 RPM").arg(value)
                                 }
                             }
                             Label {
                                 Layout.fillWidth: true
                                 visible: kcm.fanMode !== "auto"
                                 wrapMode: Text.Wrap
-                                color: palette.text
-                                text: qsTr("A fixed fan speed can let the system run hot and throttle. Fans return to automatic when the service stops or the laptop reboots.")
+                                color: palette.highlight
+                                font.weight: Font.DemiBold
+                                leftPadding: 8
+                                background: Rectangle {
+                                    color: palette.alternateBase
+                                    border.color: palette.highlight
+                                    border.width: 1
+                                    radius: 4
+                                }
+                                text: "⚠ " + i18n("The EC still shuts the system down if it overheats, but a fixed fan speed can let it run hot and throttle. Fans go back to automatic when the service stops or the laptop reboots.")
                             }
                         }
                     }
@@ -374,49 +389,52 @@ ApplicationWindow {
                     spacing: 16
                     GroupBox {
                         Layout.fillWidth: true
-                        title: qsTr("Fingerprint reader LED")
+                        title: i18n("Fingerprint reader LED")
                         RowLayout {
                             anchors.fill: parent
                             Label {
-                                Layout.fillWidth: true; text: qsTr("Brightness")
+                                Layout.fillWidth: true; text: i18n("Brightness")
                             }
                             ComboBox {
                                 enabled: kcm.fpLedSupported
-                                model: [qsTr("Automatic"), qsTr("High"), qsTr("Medium"), qsTr("Low"), qsTr("Ultra low")]
+                                model: [i18n("Automatic"), i18nc("fingerprint LED brightness", "High"), i18nc("fingerprint LED brightness", "Medium"), i18nc("fingerprint LED brightness", "Low"), i18nc("fingerprint LED brightness", "Ultra low")]
                                 currentIndex: ["auto", "high", "medium", "low", "ultra-low"].indexOf(kcm.fpLedLevel)
+                                displayText: currentIndex < 0 ? (kcm.fpLedLevel === "custom" ? i18n("Custom") : i18n("Unknown")) : currentText
                                 onActivated: kcm.fpLedLevel = ["auto", "high", "medium", "low", "ultra-low"][currentIndex]
                             }
                         }
                     }
                     GroupBox {
                         Layout.fillWidth: true
-                        title: qsTr("Haptic touchpad")
+                        title: i18n("Haptic touchpad")
                         ColumnLayout {
                             anchors.fill: parent
                             RowLayout {
                                 Label {
-                                    Layout.fillWidth: true; text: qsTr("Feedback intensity")
+                                    Layout.fillWidth: true; text: i18n("Feedback intensity")
                                 }
                                 ComboBox {
-                                    model: [qsTr("Not set"), qsTr("Off"), "25%", "50%", "75%", "100%"]
-                                    currentIndex: kcm.hapticIntensity < 0 ? 0 : kcm.hapticIntensity === 0 ? 1 : Math.round(kcm.hapticIntensity / 25) + 1
+                                    model: [i18n("Not set"), i18n("Off"), i18nc("percent", "%1%", 25), i18nc("percent", "%1%", 50), i18nc("percent", "%1%", 75), i18nc("percent", "%1%", 100)]
+                                    currentIndex: [-1, 0, 25, 50, 75, 100].indexOf(kcm.hapticIntensity)
+                                    displayText: currentIndex < 0 ? i18n("Not set") : currentText
                                     onActivated: kcm.hapticIntensity = [-1, 0, 25, 50, 75, 100][currentIndex]
                                 }
                             }
                             RowLayout {
                                 Label {
-                                    Layout.fillWidth: true; text: qsTr("Click force")
+                                    Layout.fillWidth: true; text: i18n("Click force")
                                 }
                                 ComboBox {
-                                    model: [qsTr("Not set"), qsTr("Light"), qsTr("Medium"), qsTr("Firm")]
+                                    model: [i18n("Not set"), i18nc("touchpad click force", "Light"), i18nc("touchpad click force", "Medium"), i18nc("touchpad click force", "Firm")]
                                     currentIndex: ["", "low", "medium", "high"].indexOf(kcm.clickForce)
+                                    displayText: currentIndex < 0 ? i18n("Not set") : currentText
                                     onActivated: kcm.clickForce = ["", "low", "medium", "high"][currentIndex]
                                 }
                             }
                             Label {
                                 Layout.fillWidth: true
                                 wrapMode: Text.Wrap
-                                text: qsTr("Only for haptic touchpads. The touchpad cannot report these settings; the service reapplies them when it starts.")
+                                text: i18n("Only for haptic touchpads. The touchpad can't report these settings back, so this shows what was last set here. The service re-applies them when it starts.")
                             }
                         }
                     }
@@ -432,57 +450,57 @@ ApplicationWindow {
                     spacing: 16
                     GroupBox {
                         Layout.fillWidth: true
-                        title: qsTr("Device and firmware")
+                        title: i18n("Device and firmware")
                         GridLayout {
                             Layout.fillWidth: true
                             columns: 2
                             columnSpacing: 24
                             rowSpacing: 12
                             Label {
-                                text: qsTr("Model"); color: palette.text
+                                text: i18n("Model"); color: palette.text
                             }
                             Label {
-                                Layout.fillWidth: true; text: kcm.systemInfo.product || qsTr("Unknown")
+                                Layout.fillWidth: true; text: kcm.systemInfo.product || i18n("Unknown")
                             }
                             Label {
-                                text: qsTr("BIOS"); color: palette.text
+                                text: i18n("BIOS"); color: palette.text
                             }
                             Label {
-                                Layout.fillWidth: true; text: kcm.systemInfo.biosVersion || qsTr("Unknown")
+                                Layout.fillWidth: true; text: kcm.systemInfo.biosVersion || i18n("Unknown")
                             }
                             Label {
-                                text: qsTr("EC"); color: palette.text
+                                text: i18n("EC"); color: palette.text
                             }
                             Label {
-                                Layout.fillWidth: true; text: kcm.systemInfo.ecVersion || qsTr("Unknown")
+                                Layout.fillWidth: true; text: kcm.systemInfo.ecVersion || i18n("Unknown")
                             }
                             Label {
-                                text: qsTr("Service"); color: palette.text
+                                text: i18n("Service"); color: palette.text
                             }
                             Label {
-                                Layout.fillWidth: true; text: kcm.systemInfo.daemonVersion || qsTr("Unknown")
+                                Layout.fillWidth: true; text: kcm.systemInfo.daemonVersion || i18n("Unknown")
                             }
                             Label {
-                                text: qsTr("Camera"); color: palette.text
-                            }
-                            Label {
-                                Layout.fillWidth: true
-                                wrapMode: Text.Wrap
-                                text: kcm.systemInfo.privacyKnown ? (kcm.systemInfo.cameraEnabled ? qsTr("Enabled") : qsTr("Disabled by privacy switch")) : qsTr("Unknown")
-                            }
-                            Label {
-                                text: qsTr("Microphone"); color: palette.text
+                                text: i18n("Camera"); color: palette.text
                             }
                             Label {
                                 Layout.fillWidth: true
                                 wrapMode: Text.Wrap
-                                text: kcm.systemInfo.privacyKnown ? (kcm.systemInfo.micEnabled ? qsTr("Enabled") : qsTr("Disabled by privacy switch")) : qsTr("Unknown")
+                                text: kcm.systemInfo.privacyKnown ? (kcm.systemInfo.cameraEnabled ? i18n("Enabled") : i18n("Disabled by privacy switch")) : i18n("Unknown")
+                            }
+                            Label {
+                                text: i18n("Microphone"); color: palette.text
+                            }
+                            Label {
+                                Layout.fillWidth: true
+                                wrapMode: Text.Wrap
+                                text: kcm.systemInfo.privacyKnown ? (kcm.systemInfo.micEnabled ? i18n("Enabled") : i18n("Disabled by privacy switch")) : i18n("Unknown")
                             }
                         }
                     }
                     GroupBox {
                         Layout.fillWidth: true
-                        title: qsTr("USB-C ports")
+                        title: i18n("USB-C ports")
                         ColumnLayout {
                             anchors.fill: parent
                             Repeater {
@@ -491,18 +509,18 @@ ApplicationWindow {
                                     required property var modelData
                                     Layout.fillWidth: true
                                     Label {
-                                        Layout.fillWidth: true; text: modelData.position || qsTr("Port")
+                                        Layout.fillWidth: true; text: modelData.position || i18n("Port")
                                     }
                                     Label {
                                         Layout.fillWidth: true
                                         horizontalAlignment: Text.AlignRight
                                         text: {
                                             const p = modelData;
-                                            if (!p.ok) return qsTr("Unavailable");
-                                            if (p.role === "disconnected") return qsTr("Nothing connected");
-                                            if (p.role === "source") return qsTr("Powering a device");
-                                            if (p.role === "sink" || p.role === "sink-not-charging") return qsTr("%1 W, %2 V").arg(Math.round(p.maxPower / 1e6)).arg((p.voltageNow / 1000).toFixed(1));
-                                            return qsTr("Unknown");
+                                            if (!p.ok) return i18n("Unavailable");
+                                            if (p.role === "disconnected") return i18n("Nothing connected");
+                                            if (p.role === "source") return i18n("Powering a device");
+                                            if (p.role === "sink" || p.role === "sink-not-charging") return i18n("%1 W, %2 V").arg(Math.round(p.maxPower / 1e6)).arg((p.voltageNow / 1000).toFixed(1));
+                                            return i18n("Unknown");
                                         }
                                     }
                                 }
@@ -525,15 +543,15 @@ ApplicationWindow {
             Label {
                 Layout.fillWidth: true
             color: palette.text
-                text: kcm.busy ? qsTr("Applying settings…") : kcm.needsSave ? qsTr("Changes not applied") : ""
+                text: kcm.busy ? i18n("Applying settings…") : kcm.needsSave ? i18n("Changes not applied") : ""
             }
             Button {
-                text: qsTr("Defaults")
+                text: i18n("Defaults")
                 enabled: !kcm.busy
                 onClicked: kcm.defaults()
             }
             Button {
-                text: qsTr("Apply")
+                text: i18n("Apply")
                 enabled: kcm.needsSave && !kcm.busy && kcm.daemonAvailable
                 highlighted: true
                 onClicked: kcm.save()
@@ -551,18 +569,18 @@ ApplicationWindow {
         id: discardDialog
         anchors.centerIn: parent
         modal: true
-        title: qsTr("Unsaved changes")
+        title: i18n("Unsaved changes")
 
         contentItem: Label {
             text: kcm.busy
-                ? qsTr("Settings are being applied. Wait for the operation to finish before closing.")
-                : qsTr("You have changes that have not been applied. Discard them and close?")
+                ? i18n("Settings are being applied. Wait for the operation to finish before closing.")
+                : i18n("You have changes that have not been applied. Discard them and close?")
             wrapMode: Text.Wrap
         }
 
         footer: RowLayout {
             Button {
-                text: qsTr("Cancel")
+                text: i18n("Cancel")
                 onClicked: discardDialog.close()
             }
             Item {
@@ -570,7 +588,7 @@ ApplicationWindow {
             }
             Button {
                 visible: !kcm.busy
-                text: qsTr("Discard and close")
+                text: i18n("Discard and close")
                 onClicked: {
                     window.allowClose = true
                     discardDialog.close()

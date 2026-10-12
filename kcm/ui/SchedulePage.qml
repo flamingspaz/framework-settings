@@ -192,7 +192,7 @@ ColumnLayout {
     QQC2.Label {
         Layout.fillWidth: true
         visible: !kcm.fixtureMode
-        text: i18n("Schedules run through your user systemd manager and require framework_tool from framework-system.")
+        text: i18n("Schedules run through your user systemd manager and require the Framework System command-line tools.")
         color: Kirigami.Theme.disabledTextColor
         wrapMode: Text.WordWrap
     }

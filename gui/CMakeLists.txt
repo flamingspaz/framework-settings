@@ -4,7 +4,7 @@ qt_add_executable(framework-settings
         ../kcm/frameworkkcm.h
 )
 
-target_compile_definitions(framework-settings PRIVATE FRAMEWORK_STANDALONE)
+target_compile_definitions(framework-settings PRIVATE FRAMEWORK_STANDALONE TRANSLATION_DOMAIN="kcm_framework")
 target_include_directories(framework-settings PRIVATE ../kcm)
 target_link_libraries(framework-settings PRIVATE
         Qt6::Core
@@ -12,6 +12,7 @@ target_link_libraries(framework-settings PRIVATE
         Qt6::Qml
         Qt6::Quick
         Qt6::QuickControls2
+        KF6::I18n
 )
 
 qt_add_qml_module(framework-settings

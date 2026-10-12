@@ -12,7 +12,7 @@ ScrollView {
     property bool scheduleEnabled: kcm.scheduleEnabled
     property bool changesSaved: false
     readonly property var dayNames: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-    readonly property var dayLabels: [qsTr("Monday"), qsTr("Tuesday"), qsTr("Wednesday"), qsTr("Thursday"), qsTr("Friday"), qsTr("Saturday"), qsTr("Sunday")]
+    readonly property var dayLabels: [i18n("Monday"), i18n("Tuesday"), i18n("Wednesday"), i18n("Thursday"), i18n("Friday"), i18n("Saturday"), i18n("Sunday")]
 
     function loadSchedules() {
         schedules.clear();
@@ -65,10 +65,10 @@ ScrollView {
         ColumnLayout {
             Layout.fillWidth: true
             spacing: 2
-            Label { text: qsTr("Charge schedule"); font.pixelSize: 24; font.weight: Font.DemiBold }
+            Label { text: i18n("Charge schedule"); font.pixelSize: 24; font.weight: Font.DemiBold }
             Label {
                 Layout.fillWidth: true
-                text: qsTr("Create entries that automatically apply a charge limit on selected weekdays.")
+                text: i18n("Create entries that automatically apply a charge limit on selected weekdays.")
                 color: palette.text
                 wrapMode: Text.Wrap
             }
@@ -77,18 +77,18 @@ ScrollView {
         Label {
             Layout.fillWidth: true
             visible: root.changesSaved
-            text: qsTr("Schedule saved.")
+            text: i18n("Schedule saved.")
         }
 
         Label {
             Layout.fillWidth: true
             visible: kcm.fixtureMode
-            text: qsTr("Fixture mode only previews schedule settings. No systemd timers are created.")
+            text: i18n("Fixture mode only previews schedule settings. No systemd timers are created.")
             wrapMode: Text.Wrap
         }
 
         CheckBox {
-            text: qsTr("Enable charge schedules")
+            text: i18n("Enable charge schedules")
             checked: root.scheduleEnabled
             onToggled: root.scheduleEnabled = checked
         }
@@ -111,17 +111,17 @@ ScrollView {
                         Layout.fillWidth: true
                         Label {
                             Layout.fillWidth: true
-                            text: qsTr("Schedule %1").arg(scheduleCard.index + 1)
+                            text: i18n("Schedule %1").arg(scheduleCard.index + 1)
                             font.weight: Font.DemiBold
                         }
                         Button {
-                            text: qsTr("Remove")
+                            text: i18n("Remove")
                             enabled: schedules.count > 1
                             onClicked: schedules.remove(scheduleCard.index)
                         }
                     }
 
-                    Label { text: qsTr("Days"); font.weight: Font.DemiBold }
+                    Label { text: i18n("Days"); font.weight: Font.DemiBold }
                     Flow {
                         Layout.fillWidth: true
                         spacing: 4
@@ -139,7 +139,7 @@ ScrollView {
 
                     RowLayout {
                         Layout.fillWidth: true
-                        Label { text: qsTr("Time") }
+                        Label { text: i18n("Time") }
                         TextField {
                             Layout.fillWidth: true
                             enabled: root.scheduleEnabled
@@ -147,14 +147,14 @@ ScrollView {
                             placeholderText: "HH:MM"
                             onEditingFinished: schedules.setProperty(scheduleCard.index, "time", text)
                         }
-                        Label { text: qsTr("Charge limit") }
+                        Label { text: i18n("Charge limit") }
                         SpinBox {
                             enabled: root.scheduleEnabled
                             from: 25
                             to: 100
                             stepSize: 5
                             value: scheduleCard.limit
-                            textFromValue: value => qsTr("%1%").arg(value)
+                            textFromValue: value => i18nc("percent", "%1%", value)
                             onValueModified: schedules.setProperty(scheduleCard.index, "limit", value)
                         }
                     }
@@ -165,12 +165,12 @@ ScrollView {
         RowLayout {
             Layout.fillWidth: true
             Button {
-                text: qsTr("Add schedule")
+                text: i18n("Add schedule")
                 onClicked: schedules.append({days: "Mon,Tue,Wed,Thu,Fri", time: "08:00", limit: 80})
             }
             Item { Layout.fillWidth: true }
             Button {
-                text: qsTr("Save schedule")
+                text: i18n("Save schedule")
                 highlighted: true
                 onClicked: root.saveSchedules()
             }
@@ -179,7 +179,7 @@ ScrollView {
         Label {
             Layout.fillWidth: true
             visible: !kcm.fixtureMode
-            text: qsTr("Schedules run through your user systemd manager and require framework_tool from framework-system.")
+            text: i18n("Schedules run through your user systemd manager and require the Framework System command-line tools.")
             color: palette.text
             wrapMode: Text.Wrap
         }
