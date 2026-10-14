@@ -41,7 +41,7 @@ ColumnLayout {
                 }
                 const daysUntil = (dayNumber - now.getDay() + 7) % 7;
                 const candidate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysUntil,
-                                           Number(match[1]), Number(match[2]), 0, 0);
+                    Number(match[1]), Number(match[2]), 0, 0);
                 if (candidate <= now) {
                     candidate.setDate(candidate.getDate() + 7);
                 }
@@ -67,7 +67,7 @@ ColumnLayout {
                 && nextTime.getDate() === tomorrow.getDate()) {
                 relativeTime = i18n("tomorrow at %1", time);
             } else {
-                relativeTime = i18n("%1 at %2", Qt.formatDateTime(nextTime, "dddd"), time);
+                relativeTime = i18n("%1 at %2", nextTime.toLocaleString(Qt.locale(), "dddd"), time);
             }
         }
         return i18n("Next scheduled change: %1% %2", nextLimit, relativeTime);
@@ -116,13 +116,13 @@ ColumnLayout {
             if (kcm.sensors.length === 0) {
                 return i18n("Temperature readings unavailable");
             }
-            return kcm.sensors.filter(sensor => sensor.status === "ok").map(sensor => i18n("%1: %2 °C", sensor.name, sensor.temp)).join(" · ");
+            return kcm.sensors.filter(sensor => sensor.status === "ok").map(sensor => i18n("%1: %2 °C", kcm.sensorDisplayName(sensor.location, sensor.name), sensor.temp)).join(" · ");
         }
         secondary: {
             if (kcm.fans.length === 0) {
                 return i18n("Fan readings unavailable");
             }
-            return kcm.fans.map(fan => i18n("%1: %2 RPM", fan.name, fan.rpm)).join(" · ");
+            return kcm.fans.map(fan => i18n("%1: %2 RPM", kcm.fanDisplayName(fan.position, fan.name), fan.rpm)).join(" · ");
         }
     }
 

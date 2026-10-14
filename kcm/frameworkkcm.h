@@ -2,7 +2,11 @@
 
 #pragma once
 
+#ifdef FRAMEWORK_STANDALONE
+#include <QObject>
+#else
 #include <KQuickConfigModule>
+#endif
 
 #include <QDBusError>
 #include <QDBusMessage>
@@ -27,9 +31,17 @@ struct FrameworkSettings {
     bool operator==(const FrameworkSettings &) const = default;
 };
 
+#ifdef FRAMEWORK_STANDALONE
+class FrameworkKcm : public QObject {
+
+#else
 class FrameworkKcm : public KQuickConfigModule {
+#endif
     Q_OBJECT
 
+#ifdef FRAMEWORK_STANDALONE
+    Q_PROPERTY(bool needsSave READ needsSave NOTIFY needsSaveChanged)
+#endif
     Q_PROPERTY(bool daemonAvailable READ daemonAvailable NOTIFY daemonAvailableChanged)
     Q_PROPERTY(bool busy READ busy NOTIFY busyChanged)
     Q_PROPERTY(QString errorMessage READ errorMessage NOTIFY errorMessageChanged)
@@ -68,18 +80,30 @@ class FrameworkKcm : public KQuickConfigModule {
     Q_PROPERTY(QString clickForce READ clickForce WRITE setClickForce NOTIFY settingsChanged)
 
 public:
+#ifdef FRAMEWORK_STANDALONE
+    explicit FrameworkKcm(QObject *parent = nullptr);
+    [[nodiscard]] bool needsSave() const { return m_needsSave; }
+    Q_INVOKABLE void load();
+    Q_INVOKABLE void save();
+    Q_INVOKABLE void defaults();
+#else
     FrameworkKcm(QObject *parent, const KPluginMetaData &data);
 
     void load() override;
+
     void save() override;
+
     void defaults() override;
+#endif
 
     [[nodiscard]] bool daemonAvailable() const { return m_daemonAvailable; }
     [[nodiscard]] bool busy() const { return m_busy; }
     [[nodiscard]] QString errorMessage() const { return m_errorMessage; }
     [[nodiscard]] bool fixtureMode() const { return m_fixtureMode; }
     [[nodiscard]] QString fixtureModel() const { return m_fixtureModel; }
+
     [[nodiscard]] QVariantList fixtureModels() const;
+
     [[nodiscard]] bool supportsKeyboardBacklight() const { return m_supportsKeyboardBacklight; }
     [[nodiscard]] bool supportsInputDeck() const { return m_supportsInputDeck; }
     [[nodiscard]] bool supportsTabletMode() const { return m_supportsTabletMode; }
@@ -88,6 +112,7 @@ public:
     [[nodiscard]] bool scheduleEnabled() const { return m_scheduleEnabled; }
     [[nodiscard]] QVariantList schedules() const { return m_schedules; }
     [[nodiscard]] QString liveData() const { return m_liveData; }
+
     void setLiveData(const QString &liveData);
 
     [[nodiscard]] QVariantMap systemInfo() const { return m_systemInfo; }
@@ -109,35 +134,70 @@ public:
     [[nodiscard]] QString clickForce() const { return m_current.clickForce; }
 
     void setChargeLimit(int value);
+
     void setChargeRateLimit(double value);
+
     void setChargeRateSoc(int value);
+
     void setFanMode(const QString &value);
+
     void setFanDuty(int value);
+
     void setFanRpm(int value);
+
     void setFpLedLevel(const QString &value);
+
     void setHapticIntensity(int value);
+
     void setClickForce(const QString &value);
 
     Q_INVOKABLE void clearError();
+
+    Q_INVOKABLE void retryService();
+
     Q_INVOKABLE void setFixtureModel(const QString &model);
+
+    Q_INVOKABLE QString sensorDisplayName(const QString &location, const QString &fallback) const;
+
+    Q_INVOKABLE QString sensorStatusDisplayName(const QString &status) const;
+
+    Q_INVOKABLE QString fanDisplayName(const QString &position, const QString &fallback) const;
+
     Q_INVOKABLE bool configureSchedule(bool enabled, const QVariantList &schedules);
+
     // Charge to 100% until the next boot; applied immediately, not on Apply
     Q_INVOKABLE void overrideChargeLimit();
+
     Q_INVOKABLE void cancelChargeLimitOverride();
 
 Q_SIGNALS:
+#ifdef FRAMEWORK_STANDALONE
+    void needsSaveChanged();
+#endif
     void daemonAvailableChanged();
+
     void busyChanged();
+
     void errorMessageChanged();
+
     void liveDataChanged();
+
     void systemInfoChanged();
+
     void thermalChanged();
+
     void portsChanged();
+
     void supportChanged();
+
     void settingsChanged();
+
     void chargeOverrideChanged();
+
     void fixtureChanged();
+
     void powerChanged();
+
     void scheduleChanged();
 
 private:
@@ -146,20 +206,38 @@ private:
 
     void call(const QString &method, const QVariantList &args, const ReplyHandler &onReply,
               const ErrorHandler &onError = {}, int timeout = -1);
+
     void refreshLive();
+
+    void loadPowerInfo();
+
     void loadSettings();
+
     void loadFixture();
+
     void loadSchedule();
+
     void updateFixtureProfile();
+
     bool applyScheduleUnits(bool enabled, const QVariantList &schedules);
+
     template<typename T>
     void syncSetting(T FrameworkSettings::*field, const T &value);
+
     void runNextWrite();
+
     void settingsEdited();
+
     void setError(const QString &message);
+
     void setWriteError(const QDBusError &error);
+
+    void updateNeedsSave(bool needsSave);
+
     void runAction(const QString &method);
+
     void setBusy(bool busy);
+
     void setDaemonAvailable(bool available);
 
     FrameworkSettings m_current;
@@ -171,9 +249,14 @@ private:
 
         bool operator==(const PendingWrite &) const = default;
     };
+
     static PendingWrite fanWrite(const FrameworkSettings &s);
+
     QList<PendingWrite> m_writeQueue;
 
+#ifdef FRAMEWORK_STANDALONE
+    bool m_needsSave = false;
+#endif
     bool m_daemonAvailable = true;
     bool m_busy = false;
     bool m_fixtureMode = false;

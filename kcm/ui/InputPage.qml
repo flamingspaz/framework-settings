@@ -16,11 +16,11 @@ Kirigami.FormLayout {
         setting: "fpLedLevel"
         unsetText: kcm.fpLedLevel === "custom" ? i18n("Custom") : i18n("Unknown")
         model: [
-            { text: i18n("Automatic"), value: "auto" },
-            { text: i18nc("fingerprint LED brightness", "High"), value: "high" },
-            { text: i18nc("fingerprint LED brightness", "Medium"), value: "medium" },
-            { text: i18nc("fingerprint LED brightness", "Low"), value: "low" },
-            { text: i18nc("fingerprint LED brightness", "Ultra low"), value: "ultra-low" },
+            {text: i18n("Automatic"), value: "auto"},
+            {text: i18nc("fingerprint LED brightness", "High"), value: "high"},
+            {text: i18nc("fingerprint LED brightness", "Medium"), value: "medium"},
+            {text: i18nc("fingerprint LED brightness", "Low"), value: "low"},
+            {text: i18nc("fingerprint LED brightness", "Ultra low"), value: "ultra-low"},
         ]
     }
 
@@ -34,11 +34,11 @@ Kirigami.FormLayout {
         setting: "hapticIntensity"
         unsetText: i18n("Not set")
         model: [
-            { text: i18n("Off"), value: 0 },
-            { text: i18nc("percent", "%1%", 25), value: 25 },
-            { text: i18nc("percent", "%1%", 50), value: 50 },
-            { text: i18nc("percent", "%1%", 75), value: 75 },
-            { text: i18nc("percent", "%1%", 100), value: 100 },
+            {text: i18n("Off"), value: 0},
+            {text: i18nc("percent", "%1%", 25), value: 25},
+            {text: i18nc("percent", "%1%", 50), value: 50},
+            {text: i18nc("percent", "%1%", 75), value: 75},
+            {text: i18nc("percent", "%1%", 100), value: 100},
         ]
     }
 
@@ -47,9 +47,9 @@ Kirigami.FormLayout {
         setting: "clickForce"
         unsetText: i18n("Not set")
         model: [
-            { text: i18nc("touchpad click force", "Light"), value: "low" },
-            { text: i18nc("touchpad click force", "Medium"), value: "medium" },
-            { text: i18nc("touchpad click force", "Firm"), value: "high" },
+            {text: i18nc("touchpad click force", "Light"), value: "low"},
+            {text: i18nc("touchpad click force", "Medium"), value: "medium"},
+            {text: i18nc("touchpad click force", "Firm"), value: "high"},
         ]
     }
 

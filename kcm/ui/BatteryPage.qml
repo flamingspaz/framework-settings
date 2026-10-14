@@ -131,7 +131,8 @@ Kirigami.FormLayout {
         visible: kcm.chargeLimitOverridden
         type: Kirigami.MessageType.Information
         text: i18n("Charging to 100% until the computer restarts. The limit then goes back to %1%.", kcm.chargeLimit)
-        actions: Kirigami.Action {
+        actions: Kirigami.Action
+        {
             icon.name: "edit-undo"
             text: i18n("Restore Now")
             onTriggered: kcm.cancelChargeLimitOverride()
@@ -164,8 +165,8 @@ Kirigami.FormLayout {
 
             // Charging current as a multiple of full speed (the battery's C-rate)
             text: i18nc("charge speed multiplier, hours to charge from empty", "%1× (about %2 h from empty)",
-                        Number(rateSlider.value).toLocaleString(Qt.locale(), "f", 1),
-                        Number(hours).toLocaleString(Qt.locale(), "f", Number.isInteger(hours) ? 0 : 1))
+                Number(rateSlider.value).toLocaleString(Qt.locale(), "f", 1),
+                Number(hours).toLocaleString(Qt.locale(), "f", Number.isInteger(hours) ? 0 : 1))
         }
     }
 
