@@ -11,25 +11,26 @@ permissions:
   contents: read
 
 env:
-  ARCH_DEPS: >-
-    base-devel git rust cmake extra-cmake-modules
-    qt6-base qt6-declarative kcoreaddons ki18n kcmutils kirigami
-    systemd-libs polkit hicolor-icon-theme
   UBUNTU_DEPS: >-
     build-essential cmake git ca-certificates pkgconf gettext dpkg-dev file
     rustc cargo extra-cmake-modules qt6-base-dev qt6-declarative-dev
     libkf6kcmutils-dev libkf6i18n-dev libkf6coreaddons-dev libudev-dev
 
 jobs:
+  # The only job that compiles anything. It runs on the oldest Qt/glibc we
+  # ship to, so every package below can reuse the same binaries.
   build:
-    name: Build (Arch Linux)
+    name: Build (Ubuntu 26.04)
     runs-on: ubuntu-latest
-    container: archlinux:latest
+    container: ubuntu:26.04
     steps:
       - name: Install dependencies
+        env:
+          DEBIAN_FRONTEND: noninteractive
         run: |
+          apt-get update
           # shellcheck disable=SC2086 # split the package list on purpose
-          pacman -Syu --noconfirm --needed $ARCH_DEPS
+          apt-get install -y --no-install-recommends $UBUNTU_DEPS
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -39,15 +40,15 @@ jobs:
           path: |
             /github/home/.cargo/registry
             /github/home/.cargo/git
-          key: cargo-arch-${{ hashFiles('daemon/Cargo.lock') }}
+          key: cargo-ubuntu-${{ hashFiles('daemon/Cargo.lock') }}
 
       - name: Build
+        # LIBEXECDIR is pinned so the daemon path baked into the unit files
+        # is the same on every distro
         run: |
-          cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr \
+            -DKDE_INSTALL_USE_QT_SYS_PATHS=ON -DKDE_INSTALL_LIBEXECDIR=lib
           cmake --build build -j"$(nproc)"
-
-      - name: Test install
-        run: DESTDIR="$PWD/stage" cmake --install build
 
       - name: Check translations are up to date
         run: |
@@ -59,6 +60,32 @@ jobs:
             git --no-pager diff --stat -- po
             echo "::warning::po/ is out of date, run po/update.sh"
           fi
+
+      - name: Build .deb
+        run: cd build && cpack -G DEB
+
+      - name: Build tarball
+        run: |
+          version=$(sed -n 's/^project(framework-kcm VERSION \([0-9.]*\)).*/\1/p' CMakeLists.txt)
+          # Stripped like the .deb, so both ship identical binaries
+          DESTDIR="$PWD/stage" cmake --install build --strip
+          # Ubuntu's multiarch plugin dir to the upstream Qt default (Arch uses it too)
+          mkdir -p stage/usr/lib/qt6
+          mv stage/usr/lib/x86_64-linux-gnu/qt6/plugins stage/usr/lib/qt6/
+          rmdir stage/usr/lib/x86_64-linux-gnu/qt6 stage/usr/lib/x86_64-linux-gnu
+          tar -C stage -czf "framework-kcm-$version-x86_64.tar.gz" --owner=0 --group=0 usr
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ubuntu-package
+          path: build/framework-kcm_*.deb
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: tarball
+          path: framework-kcm-*-x86_64.tar.gz
+          if-no-files-found: error
 
   version:
     name: Check tag matches version
@@ -81,27 +108,26 @@ jobs:
 
   arch-package:
     name: Package for Arch Linux
-    needs: [build, version]
+    needs: build
     runs-on: ubuntu-latest
     container: archlinux:latest
-    env:
-      VERSION: ${{ needs.version.outputs.version }}
     steps:
       - name: Install dependencies
-        run: |
-          # shellcheck disable=SC2086 # split the package list on purpose
-          pacman -Syu --noconfirm --needed $ARCH_DEPS
+        run: pacman -Syu --noconfirm --needed base-devel
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: tarball
+          path: /tmp/pkg
+
       - name: Prepare sources
         run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          mkdir -p /tmp/pkg
-          git archive --format=tar.gz --prefix="framework-kcm-$VERSION/" -o "/tmp/pkg/framework-kcm-$VERSION.tar.gz" HEAD
+          version=$(sed -n 's/^project(framework-kcm VERSION \([0-9.]*\)).*/\1/p' CMakeLists.txt)
           cp packaging/arch/PKGBUILD packaging/arch/framework-kcm.install /tmp/pkg/
           sed -i \
-            -e "s|^pkgver=.*|pkgver=$VERSION|" \
+            -e "s|^pkgver=.*|pkgver=$version|" \
             -e "s|^url=.*|url='$GITHUB_SERVER_URL/$GITHUB_REPOSITORY'|" \
             /tmp/pkg/PKGBUILD
 
@@ -110,50 +136,38 @@ jobs:
           # makepkg refuses to run as root
           useradd -m builder
           chown -R builder /tmp/pkg
-          su builder -c 'cd /tmp/pkg && makepkg --noconfirm'
+          su builder -c 'cd /tmp/pkg && makepkg --noconfirm --nodeps'
+
+      - name: Test install
+        run: pacman -U --noconfirm /tmp/pkg/framework-kcm-*.pkg.tar.zst
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: arch-package
-          # Leave out the -debug split package
-          path: |
-            /tmp/pkg/framework-kcm-*.pkg.tar.zst
-            !/tmp/pkg/framework-kcm-debug-*.pkg.tar.zst
+          path: /tmp/pkg/framework-kcm-*.pkg.tar.zst
           if-no-files-found: error
 
-  ubuntu-package:
-    name: Package for Ubuntu 26.04
-    needs: [build, version]
+  deb-install-test:
+    name: Test .deb install (Ubuntu 26.04)
+    needs: build
     runs-on: ubuntu-latest
     container: ubuntu:26.04
     steps:
-      - name: Install dependencies
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: ubuntu-package
+
+      - name: Install
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
           apt-get update
-          # shellcheck disable=SC2086 # split the package list on purpose
-          apt-get install -y --no-install-recommends $UBUNTU_DEPS
-
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Build
-        run: |
-          cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -DKDE_INSTALL_USE_QT_SYS_PATHS=ON
-          cmake --build build -j"$(nproc)"
-
-      - name: Build package
-        run: cd build && cpack -G DEB
-
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: ubuntu-package
-          path: build/framework-kcm_*.deb
-          if-no-files-found: error
+          apt-get install -y ./framework-kcm_*.deb
 
   release:
     name: Publish release
-    needs: [arch-package, ubuntu-package]
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [version, build, arch-package, deb-install-test]
     runs-on: ubuntu-latest
     permissions:
       contents: write

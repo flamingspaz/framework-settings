@@ -1,7 +1,8 @@
 # Maintainer: Yousef <github-viral8565@pxdmail.com>
 #
-# Built by CI from a `git archive` tarball placed next to this file
-# (see .github/workflows/build.yml). CI also fills in pkgver and url.
+# Repackages the prebuilt release tarball placed next to this file, so the
+# binaries match the .deb and tarball (see .github/workflows/build.yml).
+# CI also fills in pkgver and url.
 
 pkgname=framework-kcm
 pkgver=0.1.2
@@ -27,21 +28,12 @@ depends=(
   'qt6-declarative'
   'systemd-libs'
 )
-makedepends=('cmake' 'extra-cmake-modules' 'git' 'rust')
 install=framework-kcm.install
-# GCC LTO objects from hidapi's bundled C code can't be read by the linker cargo uses
-options=('!lto')
-source=("$pkgname-$pkgver.tar.gz")
+# Already stripped by the build
+options=('!strip' '!debug')
+source=("$pkgname-$pkgver-x86_64.tar.gz")
 sha256sums=('SKIP')
 
-build() {
-  export CARGO_HOME="$srcdir/cargo-home"
-  cmake -B build -S "$pkgname-$pkgver" \
-    -DCMAKE_BUILD_TYPE=None \
-    -DCMAKE_INSTALL_PREFIX=/usr
-  cmake --build build
-}
-
 package() {
-  DESTDIR="$pkgdir" cmake --install build
+  cp -a usr "$pkgdir"/
 }
