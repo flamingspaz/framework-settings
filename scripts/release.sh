@@ -21,9 +21,7 @@ files=(
     packaging/fedora/framework-kcm.spec
     packaging/fedora/framework-kcm-git.spec
     packaging/arch/PKGBUILD
-    packaging/nix/package.nix
-    packaging/nix/framework-kcm.nix
-    packaging/nix/frameworkd.nix
+    packaging/nix/packages/default.nix
 )
 
 patterns=(
@@ -33,8 +31,6 @@ patterns=(
     '^%global _version [0-9]+\.[0-9]+\.[0-9]+$'
     '^pkgver=[0-9]+\.[0-9]+\.[0-9]+$'
     '^  version = "[0-9]+\.[0-9]+\.[0-9]+";$'
-    '^  version [?]= "[0-9]+\.[0-9]+\.[0-9]+",$'
-    '^[{] pkgs [?]= import <nixpkgs> [{] [}], version [?]= "[0-9]+\.[0-9]+\.[0-9]+" [}]:$'
 )
 
 replacements=(
@@ -44,8 +40,6 @@ replacements=(
     "%global _version $version"
     "pkgver=$version"
     "  version = \"$version\";"
-    "  version ?= \"$version\","
-    "{ pkgs ?= import <nixpkgs> { }, version ?= \"$version\" }:"
 )
 
 # Validate every expected declaration before changing any file.
