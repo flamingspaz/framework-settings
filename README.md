@@ -47,14 +47,16 @@ Download the package for your distribution from the
 ### NixOS (Flakes)
 
 This project can be used by adding this repository as a flakes input
-and using the provided NixOS module. Below is a basic `flake.nix` example:
+and using the provided NixOS module. The `stable` branch tracks the latest
+release; use `main` instead for development builds. Below is a basic
+`flake.nix` example:
 
 ```nix
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     framework-settings = {
-      url = "github:flamingspaz/framework-settings/main";
+      url = "github:flamingspaz/framework-settings/stable";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -77,7 +79,7 @@ and using the provided NixOS module. Below is a basic `flake.nix` example:
 For non-Flake configs, you can add this repository as a channel on your system.
 
 ```bash
-$ sudo nix-channel --add https://github.com/flamingspaz/framework-settings/archive/main.tar.gz framework-settings
+$ sudo nix-channel --add https://github.com/flamingspaz/framework-settings/archive/stable.tar.gz framework-settings
 $ sudo nix-channel --update
 ```
 
