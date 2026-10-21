@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> { } }:
 
 let
-  version = "0.1.2";
+  version = "0.2.0";
 in
 rec {
   frameworkd = pkgs.callPackage ./frameworkd.nix { inherit version; };

@@ -95,6 +95,7 @@ impl Daemon {
         let state = lock(&self.0.state).clone();
         if let Some(o) = state
             .charge_limit_override
+            .as_ref()
             .filter(|o| o.boot_id != state::boot_id())
         {
             let max = o.restore_max as i32;
@@ -106,7 +107,20 @@ impl Daemon {
             .await
             {
                 log::info!("Charge limit override ended, restored limit to {max}%");
-                self.update_state(|s| s.charge_limit_override = None);
+                self.update_state(|s| {
+                    s.charge_limit = Some(o.restore_max);
+                    s.charge_limit_override = None;
+                });
+            }
+        } else if state.charge_limit_override.is_none() {
+            // An override from this boot keeps the EC at 100% until reboot
+            if let Some(max) = state.charge_limit {
+                let max = max as i32;
+                restore(
+                    "charge limit",
+                    self.with_ec(move |ec| ec::set_charge_limit(ec, max)),
+                )
+                .await;
             }
         }
         if let Some(rate) = state.charge_rate_limit.filter(|r| *r < 1.0) {
@@ -245,9 +259,10 @@ impl Daemon {
         self.with_ec(move |ec| ec::set_charge_limit(ec, max))
             .await?;
         // An explicitly chosen limit replaces any pending override
-        if lock(&self.0.state).charge_limit_override.is_some() {
-            self.update_state(|s| s.charge_limit_override = None);
-        }
+        self.update_state(|s| {
+            s.charge_limit = Some(max as u8);
+            s.charge_limit_override = None;
+        });
         Ok(())
     }
 
@@ -288,7 +303,10 @@ impl Daemon {
         let max = o.restore_max as i32;
         self.with_ec(move |ec| ec::set_charge_limit(ec, max))
             .await?;
-        self.update_state(|s| s.charge_limit_override = None);
+        self.update_state(|s| {
+            s.charge_limit = Some(o.restore_max);
+            s.charge_limit_override = None;
+        });
         Ok(())
     }
 

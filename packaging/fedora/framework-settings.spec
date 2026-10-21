@@ -1,8 +1,8 @@
 %global appid com.github.framework-settings
 
 Name:           framework-settings
-Version:        0.1.2
-Release:        2%{?dist}
+Version:        0.2.0
+Release:        1%{?dist}
 Summary:        Framework laptop settings and hardware service
 
 License:        GPL-3.0-or-later

@@ -49,17 +49,43 @@ with no style configured, Qt defaults to the desktop-oriented Fusion style.
 Download the package for your distribution from the
 [latest release](https://github.com/flamingspaz/framework-settings/releases/latest).
 
+### Tarball (other distributions)
+
+For distributions without a package, each release also has a
+`framework-kcm-<version>-x86_64.tar.gz` holding a prebuilt `usr/` tree. It
+needs glibc 2.39 or newer, Qt 6.10 or newer, KF6 (KCMUtils, Kirigami,
+CoreAddons, I18n), polkit, D-Bus and systemd.
+
+```bash
+$ sudo tar -C / --no-same-owner -xzf framework-kcm-<version>-x86_64.tar.gz
+$ sudo systemctl daemon-reload
+```
+
+The KCM is installed to `/usr/lib/qt6/plugins`. If
+`qtpaths6 --query QT_INSTALL_PLUGINS` prints a different directory (for
+example `/usr/lib64/qt6/plugins`), move `plasma/kcms/systemsettings/kcm_framework.so`
+there.
+
+To uninstall, stop the service and remove the files the tarball installed:
+
+```bash
+$ sudo systemctl disable --now frameworkd
+$ tar -tzf framework-kcm-<version>-x86_64.tar.gz | grep -v '/$' | sed 's|^|/|' | sudo xargs rm -f
+```
+
 ### NixOS (Flakes)
 
 This project can be used by adding this repository as a flakes input
-and using the provided NixOS module. Below is a basic `flake.nix` example:
+and using the provided NixOS module. The `stable` branch tracks the latest
+release; use `main` instead for development builds. Below is a basic
+`flake.nix` example:
 
 ```nix
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     framework-settings = {
-      url = "github:flamingspaz/framework-settings/main";
+      url = "github:flamingspaz/framework-settings/stable";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -101,7 +127,7 @@ in
 For non-Flake configs, you can add this repository as a channel on your system.
 
 ```bash
-$ sudo nix-channel --add https://github.com/flamingspaz/framework-settings/archive/main.tar.gz framework-settings
+$ sudo nix-channel --add https://github.com/flamingspaz/framework-settings/archive/stable.tar.gz framework-settings
 $ sudo nix-channel --update
 ```
 

@@ -6,8 +6,8 @@
 pkgbase=framework-settings
 pkgname=('framework-settings' 'framework-gui' 'framework-kcm' 'framework-settings-translations' 'frameworkd')
 pkgdesc='Framework laptop settings packages'
-pkgver=0.1.2
-pkgrel=2
+pkgver=0.2.0
+pkgrel=1
 arch=('x86_64')
 url='https://github.com/OWNER/framework-kcm'
 license=('GPL-3.0-or-later')

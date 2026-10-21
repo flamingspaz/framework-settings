@@ -33,9 +33,14 @@ Anyone can call the read methods. Every write first checks with polkit
 ## Remembered settings
 
 Some settings can't be read back from the hardware: touchpad haptic
-intensity, click force and the charge rate limit. The daemon saves the last
-value it set in `/var/lib/frameworkd/state.json` and applies it again
-when it starts. That's why the systemd unit is worth enabling at boot.
+intensity, click force and the charge rate limit. The charge limit can be
+read back, but the BIOS resets it to its own setting (100% by default) on
+every boot. The daemon saves the last value it set for each of these in
+`/var/lib/frameworkd/state.json` and applies it again when it starts.
+That's why the systemd unit is worth enabling at boot.
+
+While an override from the current boot is active, the saved charge limit
+isn't applied, so the EC stays at 100%.
 
 Fan mode is only kept in memory. When the daemon exits, it hands the fans
 back to automatic control.

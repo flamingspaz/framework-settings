@@ -21,15 +21,20 @@ env:
     libkf6kcmutils-dev libkf6i18n-dev libkf6coreaddons-dev libudev-dev
 
 jobs:
+  # Builds the .deb packages and the release tarball from one compile. It runs
+  # on the oldest Qt/glibc we ship to, so the tarball works on newer distros too.
   build:
-    name: Build (Arch Linux)
+    name: Build (Ubuntu 26.04)
     runs-on: ubuntu-latest
-    container: archlinux:latest
+    container: ubuntu:26.04
     steps:
       - name: Install dependencies
+        env:
+          DEBIAN_FRONTEND: noninteractive
         run: |
+          apt-get update
           # shellcheck disable=SC2086 # split the package list on purpose
-          pacman -Syu --noconfirm --needed $ARCH_DEPS
+          apt-get install -y --no-install-recommends $UBUNTU_DEPS
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -39,15 +44,15 @@ jobs:
           path: |
             /github/home/.cargo/registry
             /github/home/.cargo/git
-          key: cargo-arch-${{ hashFiles('daemon/Cargo.lock') }}
+          key: cargo-ubuntu-${{ hashFiles('daemon/Cargo.lock') }}
 
       - name: Build
+        # LIBEXECDIR is pinned so the daemon path baked into the unit files
+        # is the same on every distro
         run: |
-          cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr \
+            -DKDE_INSTALL_USE_QT_SYS_PATHS=ON -DKDE_INSTALL_LIBEXECDIR=lib
           cmake --build build -j"$(nproc)"
-
-      - name: Test install
-        run: DESTDIR="$PWD/stage" cmake --install build
 
       - name: Check translations are up to date
         run: |
@@ -59,6 +64,32 @@ jobs:
             git --no-pager diff --stat -- po
             echo "::warning::po/ is out of date, run po/update.sh"
           fi
+
+      - name: Build .deb
+        run: cd build && cpack -G DEB
+
+      - name: Build tarball
+        run: |
+          version=$(sed -n 's/^project(framework-kcm VERSION \([0-9.]*\)).*/\1/p' CMakeLists.txt)
+          # Stripped like the .deb, so both ship identical binaries
+          DESTDIR="$PWD/stage" cmake --install build --strip
+          # Ubuntu's multiarch plugin dir to the upstream Qt default
+          mkdir -p stage/usr/lib/qt6
+          mv stage/usr/lib/x86_64-linux-gnu/qt6/plugins stage/usr/lib/qt6/
+          rmdir stage/usr/lib/x86_64-linux-gnu/qt6 stage/usr/lib/x86_64-linux-gnu
+          tar -C stage -czf "framework-kcm-$version-x86_64.tar.gz" --owner=0 --group=0 usr
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ubuntu-package
+          path: build/*.deb
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: tarball
+          path: framework-kcm-*-x86_64.tar.gz
+          if-no-files-found: error
 
   gui-only:
     name: Build standalone GUI without Plasma or KCM dependencies
@@ -119,13 +150,12 @@ jobs:
           fi
           echo "version=$tag" >> "$GITHUB_OUTPUT"
 
+  # The split PKGBUILD builds from source, so this runs alongside the Ubuntu
+  # build instead of reusing its binaries.
   arch-package:
     name: Package for Arch Linux
-    needs: [build, version]
     runs-on: ubuntu-latest
     container: archlinux:latest
-    env:
-      VERSION: ${{ needs.version.outputs.version }}
     steps:
       - name: Install dependencies
         run: |
@@ -137,11 +167,12 @@ jobs:
       - name: Prepare sources
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          version=$(sed -n 's/^project(framework-kcm VERSION \([0-9.]*\)).*/\1/p' CMakeLists.txt)
           mkdir -p /tmp/pkg
-          git archive --format=tar.gz --prefix="framework-settings-$VERSION/" -o "/tmp/pkg/framework-settings-$VERSION.tar.gz" HEAD
+          git archive --format=tar.gz --prefix="framework-settings-$version/" -o "/tmp/pkg/framework-settings-$version.tar.gz" HEAD
           cp packaging/arch/PKGBUILD packaging/arch/frameworkd.install /tmp/pkg/
           sed -i \
-            -e "s|^pkgver=.*|pkgver=$VERSION|" \
+            -e "s|^pkgver=.*|pkgver=$version|" \
             -e "s|^url=.*|url='$GITHUB_SERVER_URL/$GITHUB_REPOSITORY'|" \
             /tmp/pkg/PKGBUILD
 
@@ -152,7 +183,12 @@ jobs:
           chown -R builder /tmp/pkg
           su builder -c 'cd /tmp/pkg && makepkg --noconfirm'
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - name: Test install
+        run: |
+          find /tmp/pkg -maxdepth 1 -name '*.pkg.tar.zst' ! -name '*-debug-*' \
+            -exec pacman -U --noconfirm {} +
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: arch-package
           # Leave out the -debug split package
@@ -162,44 +198,32 @@ jobs:
             !/tmp/pkg/*-debug-*.pkg.tar.zst
           if-no-files-found: error
 
-  ubuntu-package:
-    name: Package for Ubuntu 26.04
-    needs: [build, version]
+  deb-install-test:
+    name: Test .deb install (Ubuntu 26.04)
+    needs: build
     runs-on: ubuntu-latest
     container: ubuntu:26.04
     steps:
-      - name: Install dependencies
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: ubuntu-package
+
+      - name: Install
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
           apt-get update
-          # shellcheck disable=SC2086 # split the package list on purpose
-          apt-get install -y --no-install-recommends $UBUNTU_DEPS
-
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Build
-        run: |
-          cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -DKDE_INSTALL_USE_QT_SYS_PATHS=ON
-          cmake --build build -j"$(nproc)"
-
-      - name: Build package
-        run: cd build && cpack -G DEB
-
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: ubuntu-package
-          path: build/*.deb
-          if-no-files-found: error
+          apt-get install -y ./*.deb
 
   release:
     name: Publish release
-    needs: [arch-package, ubuntu-package]
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [version, build, arch-package, deb-install-test]
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           path: dist
           merge-multiple: true
@@ -208,3 +232,16 @@ jobs:
         with:
           files: dist/*
           generate_release_notes: true
+
+  stable-branch:
+    name: Fast-forward stable branch
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # A plain push only fast-forwards, so a tag that isn't ahead of stable fails here
+      - name: Push release to stable
+        run: git push origin "HEAD:refs/heads/stable"

@@ -1,5 +1,5 @@
 %global appid com.github.framework-settings
-%global _version 0.1.2
+%global _version 0.2.0
 
 Name:           framework-settings
 Version:        %{_version}^%{autogitversion}

@@ -4,8 +4,10 @@ See [Packaging](packaging.md) for local package build commands and an overview
 of the Fedora, Arch, and Ubuntu packaging workflows.
 
 GitHub Actions (`.github/workflows/build.yml`) builds and install-tests the
-project in an Arch container on every push to `main` and on every pull
-request. It also warns if `po/` is out of date with the source.
+Ubuntu and Arch packages on every push to `main` and on every pull request.
+One Ubuntu build produces the `.deb` packages and the prebuilt tarball; Arch
+builds from source with `makepkg`. It also warns if `po/` is out of date with
+the source. On a tag, the `stable` branch is fast-forwarded to the release.
 
 ## Cutting a release
 
@@ -53,7 +55,8 @@ On a `v*` tag, the workflow:
    | Arch Linux   | `framework-settings`, `framework-gui`, `framework-kcm`, `framework-settings-translations`, and `frameworkd` | `packaging/arch/PKGBUILD` and `makepkg` |
    | Ubuntu 26.04 | `framework-settings`, `framework-gui`, `framework-kcm`, `framework-settings-translations`, and `frameworkd` `.deb` packages | CPack (`packaging/cpack.cmake`) |
 
-3. Creates a GitHub release for the tag, attaches all package files, and writes
+3. Creates a GitHub release for the tag, attaches all package files and the
+   `framework-kcm-<version>-x86_64.tar.gz` tarball, and writes
    release notes from the commits since the last tag.
 
 ## Packaging notes
