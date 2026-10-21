@@ -35,12 +35,24 @@ KCM.SimpleKCM {
             id: tabBar
             Layout.fillWidth: true
 
-            QQC2.TabButton { text: i18n("Overview") }
-            QQC2.TabButton { text: i18n("Battery") }
-            QQC2.TabButton { text: i18n("Schedule") }
-            QQC2.TabButton { text: i18n("Fans & Thermals") }
-            QQC2.TabButton { text: i18n("Touchpad & LED") }
-            QQC2.TabButton { text: i18n("System") }
+            QQC2.TabButton {
+                text: i18n("Overview")
+            }
+            QQC2.TabButton {
+                text: i18n("Battery")
+            }
+            QQC2.TabButton {
+                text: i18n("Schedule")
+            }
+            QQC2.TabButton {
+                text: i18n("Fans & Thermals")
+            }
+            QQC2.TabButton {
+                text: i18n("Touchpad & LED")
+            }
+            QQC2.TabButton {
+                text: i18n("System")
+            }
         }
     }
 

@@ -11,14 +11,18 @@ permissions:
   contents: read
 
 env:
+  ARCH_DEPS: >-
+    base-devel git rust cmake extra-cmake-modules
+    qt6-base qt6-declarative kcoreaddons ki18n kcmutils kirigami
+    hidapi libusb systemd-libs polkit hicolor-icon-theme
   UBUNTU_DEPS: >-
     build-essential cmake git ca-certificates pkgconf gettext dpkg-dev file
     rustc cargo extra-cmake-modules qt6-base-dev qt6-declarative-dev
     libkf6kcmutils-dev libkf6i18n-dev libkf6coreaddons-dev libudev-dev
 
 jobs:
-  # The only job that compiles anything. It runs on the oldest Qt/glibc we
-  # ship to, so every package below can reuse the same binaries.
+  # Builds the .deb packages and the release tarball from one compile. It runs
+  # on the oldest Qt/glibc we ship to, so the tarball works on newer distros too.
   build:
     name: Build (Ubuntu 26.04)
     runs-on: ubuntu-latest
@@ -69,7 +73,7 @@ jobs:
           version=$(sed -n 's/^project(framework-kcm VERSION \([0-9.]*\)).*/\1/p' CMakeLists.txt)
           # Stripped like the .deb, so both ship identical binaries
           DESTDIR="$PWD/stage" cmake --install build --strip
-          # Ubuntu's multiarch plugin dir to the upstream Qt default (Arch uses it too)
+          # Ubuntu's multiarch plugin dir to the upstream Qt default
           mkdir -p stage/usr/lib/qt6
           mv stage/usr/lib/x86_64-linux-gnu/qt6/plugins stage/usr/lib/qt6/
           rmdir stage/usr/lib/x86_64-linux-gnu/qt6 stage/usr/lib/x86_64-linux-gnu
@@ -78,7 +82,7 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ubuntu-package
-          path: build/framework-kcm_*.deb
+          path: build/*.deb
           if-no-files-found: error
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -86,6 +90,46 @@ jobs:
           name: tarball
           path: framework-kcm-*-x86_64.tar.gz
           if-no-files-found: error
+
+  gui-only:
+    name: Build standalone GUI without Plasma or KCM dependencies
+    runs-on: ubuntu-latest
+    container: ubuntu:26.04
+    env:
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+      - name: Install dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential cmake extra-cmake-modules gettext libkf6i18n-dev \
+            qt6-base-dev qt6-declarative-dev
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Build standalone GUI
+        run: |
+          cmake -B build-gui -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr \
+            -DBUILD_KCM=OFF -DBUILD_GUI=ON -DBUILD_DAEMON=OFF
+          cmake --build build-gui --target framework-settings -j"$(nproc)"
+          executable=build-gui/bin/framework-settings
+          test -x "$executable"
+          if ! linkage=$(ldd "$executable"); then
+            echo "::error::Could not inspect standalone GUI shared-library dependencies"
+            exit 1
+          fi
+          unresolved=$(printf '%s\n' "$linkage" | grep 'not found' || :)
+          if [ -n "$unresolved" ]; then
+            echo "::error::Standalone GUI has unresolved shared-library dependencies"
+            printf '%s\n' "$unresolved"
+            exit 1
+          fi
+          forbidden=$(printf '%s\n' "$linkage" | grep -E 'libKF6(KCMUtils|Plasma)|libPlasma' || :)
+          if [ -n "$forbidden" ]; then
+            echo "::error::Standalone GUI unexpectedly links KDE KCM or Plasma libraries"
+            printf '%s\n' "$forbidden"
+            exit 1
+          fi
 
   version:
     name: Check tag matches version
@@ -106,26 +150,27 @@ jobs:
           fi
           echo "version=$tag" >> "$GITHUB_OUTPUT"
 
+  # The split PKGBUILD builds from source, so this runs alongside the Ubuntu
+  # build instead of reusing its binaries.
   arch-package:
     name: Package for Arch Linux
-    needs: build
     runs-on: ubuntu-latest
     container: archlinux:latest
     steps:
       - name: Install dependencies
-        run: pacman -Syu --noconfirm --needed base-devel
+        run: |
+          # shellcheck disable=SC2086 # split the package list on purpose
+          pacman -Syu --noconfirm --needed $ARCH_DEPS
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: tarball
-          path: /tmp/pkg
-
       - name: Prepare sources
         run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           version=$(sed -n 's/^project(framework-kcm VERSION \([0-9.]*\)).*/\1/p' CMakeLists.txt)
-          cp packaging/arch/PKGBUILD packaging/arch/framework-kcm.install /tmp/pkg/
+          mkdir -p /tmp/pkg
+          git archive --format=tar.gz --prefix="framework-settings-$version/" -o "/tmp/pkg/framework-settings-$version.tar.gz" HEAD
+          cp packaging/arch/PKGBUILD packaging/arch/frameworkd.install /tmp/pkg/
           sed -i \
             -e "s|^pkgver=.*|pkgver=$version|" \
             -e "s|^url=.*|url='$GITHUB_SERVER_URL/$GITHUB_REPOSITORY'|" \
@@ -136,15 +181,21 @@ jobs:
           # makepkg refuses to run as root
           useradd -m builder
           chown -R builder /tmp/pkg
-          su builder -c 'cd /tmp/pkg && makepkg --noconfirm --nodeps'
+          su builder -c 'cd /tmp/pkg && makepkg --noconfirm'
 
       - name: Test install
-        run: pacman -U --noconfirm /tmp/pkg/framework-kcm-*.pkg.tar.zst
+        run: |
+          find /tmp/pkg -maxdepth 1 -name '*.pkg.tar.zst' ! -name '*-debug-*' \
+            -exec pacman -U --noconfirm {} +
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: arch-package
-          path: /tmp/pkg/framework-kcm-*.pkg.tar.zst
+          # Leave out the -debug split package
+          path: |
+            /tmp/pkg/framework-*.pkg.tar.zst
+            /tmp/pkg/frameworkd-*.pkg.tar.zst
+            !/tmp/pkg/*-debug-*.pkg.tar.zst
           if-no-files-found: error
 
   deb-install-test:
@@ -162,7 +213,7 @@ jobs:
           DEBIAN_FRONTEND: noninteractive
         run: |
           apt-get update
-          apt-get install -y ./framework-kcm_*.deb
+          apt-get install -y ./*.deb
 
   release:
     name: Publish release
