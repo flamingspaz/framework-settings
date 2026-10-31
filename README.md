@@ -46,8 +46,28 @@ with no style configured, Qt defaults to the desktop-oriented Fusion style.
 
 ## Install
 
-Download the package for your distribution from the
+Download the packages for your distribution from the
 [latest release](https://github.com/flamingspaz/framework-settings/releases/latest).
+
+### Which packages
+
+The Arch, Ubuntu and Fedora releases are split into several packages (the
+tarball and NixOS installs below cover everything). Every install needs the
+two base packages, plus at least one of the interfaces:
+
+| Package                           | What it is                                                     |
+| --------------------------------- | -------------------------------------------------------------- |
+| `frameworkd`                      | **Base.** The system service that talks to the hardware        |
+| `framework-settings-translations` | **Base.** Translations shared by both interfaces               |
+| `framework-kcm`                   | The KDE System Settings module, for Plasma                     |
+| `framework-gui`                   | The standalone **Framework Settings** app, for other desktops  |
+| `framework-settings`              | Meta-package that installs all of the above                    |
+
+So install the base packages with `framework-kcm` on KDE Plasma, or with
+`framework-gui` on other desktops (or both, or just `framework-settings`).
+From a repository, installing `framework-kcm` or `framework-gui` pulls in the
+base packages for you; when installing downloaded package files, include the
+base packages' files too, as in the commands below.
 
 ### Tarball (other distributions)
 
@@ -162,36 +182,52 @@ programs.framework-settings.package = framework-settings.packages.framework-sett
 ### Arch Linux
 
 ```sh
+# KDE Plasma: base packages + System Settings module
+sudo pacman -U frameworkd-*.pkg.tar.zst framework-settings-translations-*.pkg.tar.zst framework-kcm-*.pkg.tar.zst
+
+# Other desktops: base packages + standalone app
+sudo pacman -U frameworkd-*.pkg.tar.zst framework-settings-translations-*.pkg.tar.zst framework-gui-*.pkg.tar.zst
+
+# Everything, including the framework-settings meta-package
 sudo pacman -U framework-*.pkg.tar.zst frameworkd-*.pkg.tar.zst
-sudo systemctl enable --now frameworkd
 ```
 
-The Arch `framework-settings` meta-package installs the GUI, KCM, shared
-translations, and service.
-For a non-KDE desktop, install `framework-gui` instead; it brings in
-`frameworkd` without the KCM.
+Then enable the service so settings are re-applied at boot:
+
+```sh
+sudo systemctl enable --now frameworkd
+```
 
 ### Ubuntu 26.04
 
 ```sh
+# KDE Plasma: base packages + System Settings module
+sudo apt install ./frameworkd_*.deb ./framework-settings-translations_*.deb ./framework-kcm_*.deb
+
+# Other desktops: base packages + standalone app
+sudo apt install ./frameworkd_*.deb ./framework-settings-translations_*.deb ./framework-gui_*.deb
+
+# Everything, including the framework-settings meta-package
 sudo apt install ./framework-*.deb ./frameworkd_*.deb
 ```
 
-This installs the `framework-settings` meta-package and its GUI, KCM, shared
-translation, and service packages. From a repository, install `framework-gui`
-alone for a non-KDE setup; it pulls in the daemon but not the KCM. The daemon package
-configures and enables the background service.
+The `frameworkd` package configures and enables the background service.
 
 ### Fedora
 
-The `framework-settings` meta-package is available in [Terra](https://terrapkg.com).
+The packages are available in [Terra](https://terrapkg.com). dnf pulls in the
+base packages automatically:
 
 ```sh
+# KDE Plasma: System Settings module
+sudo dnf install framework-kcm
+
+# Other desktops: standalone app
+sudo dnf install framework-gui
+
+# Everything
 sudo dnf install framework-settings
 ```
-
-For a non-KDE desktop, install only `framework-gui`; it pulls in the service
-without installing the KCM.
 
 Then open **System Settings → System → Framework Laptop**, or run
 `kcmshell6 kcm_framework`. On non-KDE desktops, launch **Framework Settings**
@@ -204,13 +240,13 @@ restart.
 
 For a repository-managed installation, remove only the package you
 explicitly installed (`framework-settings` for the full suite, or
-`framework-gui` for a standalone GUI). Let the package manager remove
+`framework-kcm` or `framework-gui` for a single interface). Let the package manager remove
 unneeded dependencies with `sudo pacman -Rns <package>` on Arch or
 `sudo apt remove <package> && sudo apt autoremove` on Debian-based systems.
 
 When installing the release files directly with `pacman -U` or from local
-`.deb` files using `apt install`, all five packages may be marked as explicitly
-installed. Remove all of them to uninstall the full suite:
+`.deb` files using `apt install`, every package you listed may be marked as
+explicitly installed. Remove all of them; for the full suite:
 
 ```sh
 # Arch Linux
