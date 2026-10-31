@@ -66,7 +66,7 @@ Kirigami.FormLayout {
                 text: {
                     const power = kcm.powerInfo;
                     if (!power.batteryPresent) return i18n("Battery unavailable");
-                    if (power.charging) return i18n("Charging");
+                    if (power.charging) return i18nc("battery state", "Charging");
                     if (power.discharging) return i18n("Discharging");
                     return i18n("Not charging");
                 }
@@ -90,7 +90,7 @@ Kirigami.FormLayout {
 
     Item {
         Kirigami.FormData.isSection: true
-        Kirigami.FormData.label: i18n("Charging")
+        Kirigami.FormData.label: i18nc("settings section heading", "Charging")
     }
 
     RowLayout {
@@ -131,7 +131,8 @@ Kirigami.FormLayout {
         visible: kcm.chargeLimitOverridden
         type: Kirigami.MessageType.Information
         text: i18n("Charging to 100% until the computer restarts. The limit then goes back to %1%.", kcm.chargeLimit)
-        actions: Kirigami.Action {
+        actions: Kirigami.Action
+        {
             icon.name: "edit-undo"
             text: i18n("Restore Now")
             onTriggered: kcm.cancelChargeLimitOverride()
@@ -164,8 +165,8 @@ Kirigami.FormLayout {
 
             // Charging current as a multiple of full speed (the battery's C-rate)
             text: i18nc("charge speed multiplier, hours to charge from empty", "%1× (about %2 h from empty)",
-                        Number(rateSlider.value).toLocaleString(Qt.locale(), "f", 1),
-                        Number(hours).toLocaleString(Qt.locale(), "f", Number.isInteger(hours) ? 0 : 1))
+                Number(rateSlider.value).toLocaleString(Qt.locale(), "f", 1),
+                Number(hours).toLocaleString(Qt.locale(), "f", Number.isInteger(hours) ? 0 : 1))
         }
     }
 

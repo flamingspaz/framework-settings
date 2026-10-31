@@ -9,26 +9,29 @@ import org.kde.kirigami as Kirigami
 ColumnLayout {
     id: root
     spacing: Kirigami.Units.largeSpacing
-    property double scheduleNow: Date.now()
+
+    property double clock: Date.now()
+    // Injectable for the runtime tests; the KCM and the standalone app supply kcm
+    property var backend: kcm
 
     Timer {
         interval: 60000
         repeat: true
         running: true
-        onTriggered: root.scheduleNow = Date.now()
+        onTriggered: root.clock = Date.now()
     }
 
     function nextScheduleSummary() {
-        if (!kcm.scheduleEnabled) {
+        if (!backend.scheduleEnabled) {
             return "";
         }
 
-        const now = new Date(root.scheduleNow);
+        const now = new Date(root.clock);
         const weekdayNumber = {Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 0};
         let nextTime = null;
         let nextLimit = 0;
-        for (let i = 0; i < kcm.schedules.length; ++i) {
-            const entry = kcm.schedules[i];
+        for (let i = 0; i < backend.schedules.length; ++i) {
+            const entry = backend.schedules[i];
             const match = /^(?:([01]\d|2[0-3])):([0-5]\d)$/.exec(entry.time);
             if (!match) {
                 continue;
@@ -41,7 +44,7 @@ ColumnLayout {
                 }
                 const daysUntil = (dayNumber - now.getDay() + 7) % 7;
                 const candidate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysUntil,
-                                           Number(match[1]), Number(match[2]), 0, 0);
+                    Number(match[1]), Number(match[2]), 0, 0);
                 if (candidate <= now) {
                     candidate.setDate(candidate.getDate() + 7);
                 }
@@ -54,7 +57,7 @@ ColumnLayout {
         if (nextTime === null) {
             return "";
         }
-        const time = Qt.formatDateTime(nextTime, "HH:mm");
+        const time = nextTime.toLocaleTimeString(Qt.locale(), Locale.ShortFormat);
         let relativeTime;
         if (nextTime.getFullYear() === now.getFullYear()
             && nextTime.getMonth() === now.getMonth()
@@ -67,131 +70,182 @@ ColumnLayout {
                 && nextTime.getDate() === tomorrow.getDate()) {
                 relativeTime = i18n("tomorrow at %1", time);
             } else {
-                relativeTime = i18n("%1 at %2", Qt.formatDateTime(nextTime, "dddd"), time);
+                relativeTime = i18n("%1 at %2", nextTime.toLocaleString(Qt.locale(), "dddd"), time);
             }
         }
         return i18n("Next scheduled change: %1% %2", nextLimit, relativeTime);
     }
 
-    Kirigami.Heading {
-        level: 1
-        text: i18n("Framework Laptop")
-        Layout.topMargin: Kirigami.Units.largeSpacing
-    }
-
-    QQC2.Label {
-        Layout.fillWidth: true
-        text: kcm.systemInfo.product || i18n("Framework hardware overview")
-        color: Kirigami.Theme.disabledTextColor
-    }
-
     Kirigami.InlineMessage {
         Layout.fillWidth: true
-        visible: kcm.fixtureMode
+        Layout.topMargin: Kirigami.Units.largeSpacing
+        visible: root.backend.fixtureMode
         type: Kirigami.MessageType.Information
-        text: i18n("Fixture mode is active. Values are simulated, and changes stay in memory; no hardware service is contacted.")
+        text: i18n("Fixture mode is active. Readings are simulated, changes stay in memory, and no hardware service is contacted.")
     }
 
-    ControlsFrame {
+    QQC2.GroupBox {
         Layout.fillWidth: true
-        title: i18n("Battery")
-        detail: {
-            const power = kcm.powerInfo;
-            const percent = power.percentage ?? -1;
-            if (!power.batteryPresent || percent < 0) {
-                return i18n("Battery status unavailable");
-            }
-            const state = power.charging ? i18n("Charging") : power.discharging ? i18n("Discharging") : i18n("Not charging");
-            const source = power.acPresent ? i18n("AC power connected") : i18n("Running on battery");
-            return i18n("%1% · %2 · %3", percent, state, source);
-        }
-        secondary: kcm.chargeLimit > 0 ? i18n("Charge limit: %1%", kcm.chargeLimit) : i18n("Charge limit unavailable")
-        tertiary: root.nextScheduleSummary()
-    }
-
-    ControlsFrame {
-        Layout.fillWidth: true
-        title: i18n("Thermals")
-        detail: {
-            if (kcm.sensors.length === 0) {
-                return i18n("Temperature readings unavailable");
-            }
-            return kcm.sensors.filter(sensor => sensor.status === "ok").map(sensor => i18n("%1: %2 °C", sensor.name, sensor.temp)).join(" · ");
-        }
-        secondary: {
-            if (kcm.fans.length === 0) {
-                return i18n("Fan readings unavailable");
-            }
-            return kcm.fans.map(fan => i18n("%1: %2 RPM", fan.name, fan.rpm)).join(" · ");
-        }
-    }
-
-    ControlsFrame {
-        Layout.fillWidth: true
-        title: i18n("System")
-        detail: kcm.systemInfo.product || i18n("Model information unavailable")
-        secondary: kcm.systemInfo.biosVersion ? i18n("BIOS %1 · EC %2", kcm.systemInfo.biosVersion, kcm.systemInfo.ecVersion || i18n("Unknown")) : i18n("Firmware information unavailable")
-    }
-
-    ControlsFrame {
-        Layout.fillWidth: true
-        visible: kcm.fixtureMode
-        title: i18n("Test fixture")
-        detail: i18n("Choose a hardware profile to preview model-specific controls.")
-        secondary: i18n("Keyboard backlight: %1 · Fingerprint LED: %2 · Input deck: %3 · Touchscreen: %4 · Tablet mode: %5", kcm.supportsKeyboardBacklight ? i18n("yes") : i18n("no"), kcm.fpLedSupported ? i18n("yes") : i18n("no"), kcm.supportsInputDeck ? i18n("yes") : i18n("no"), kcm.supportsTouchscreen ? i18n("yes") : i18n("no"), kcm.supportsTabletMode ? i18n("yes") : i18n("no"))
-
-        content: QQC2.ComboBox
-        {
-            id: fixtureModelSelector
-            Layout.fillWidth: true
-            textRole: "name"
-            valueRole: "id"
-            model: kcm.fixtureModels
-            Component.onCompleted: currentIndex = indexOfValue(kcm.fixtureModel)
-            onActivated: kcm.setFixtureModel(currentValue)
-        }
-    }
-
-    component
-    ControlsFrame: QQC2.Frame
-    {
-        id: frame
-        property string title
-        property string detail
-        property string secondary
-        property string tertiary
-        property Component content
+        visible: root.backend.fixtureMode
+        title: i18n("Test hardware profile")
 
         ColumnLayout {
             anchors.fill: parent
-            spacing: Kirigami.Units.smallSpacing
-
             QQC2.Label {
-                text: frame.title
+                Layout.fillWidth: true
+                text: i18n("Choose a profile to preview model-specific controls.")
+                wrapMode: Text.Wrap
+            }
+            QQC2.ComboBox {
+                Layout.fillWidth: true
+                textRole: "name"
+                valueRole: "id"
+                model: root.backend.fixtureModels
+                Component.onCompleted: currentIndex = indexOfValue(root.backend.fixtureModel)
+                onActivated: root.backend.setFixtureModel(currentValue)
+            }
+            QQC2.Label {
+                Layout.fillWidth: true
+                objectName: "overviewFixtureCapabilities"
+                text: i18n("Keyboard backlight: %1 · Fingerprint LED: %2 · Input deck: %3 · Touchscreen: %4 · Tablet mode: %5",
+                    root.backend.supportsKeyboardBacklight ? i18n("Yes") : i18n("No"),
+                    root.backend.fpLedSupported ? i18n("Yes") : i18n("No"),
+                    root.backend.supportsInputDeck ? i18n("Yes") : i18n("No"),
+                    root.backend.supportsTouchscreen ? i18n("Yes") : i18n("No"),
+                    root.backend.supportsTabletMode ? i18n("Yes") : i18n("No"))
+                color: Kirigami.Theme.disabledTextColor
+                wrapMode: Text.Wrap
+            }
+        }
+    }
+
+    QQC2.GroupBox {
+        Layout.fillWidth: true
+        Layout.topMargin: root.backend.fixtureMode ? 0 : Kirigami.Units.largeSpacing
+        title: i18n("Battery")
+
+        ColumnLayout {
+            anchors.fill: parent
+            QQC2.Label {
+                Layout.fillWidth: true
+                text: {
+                    const power = root.backend.powerInfo;
+                    if (!power.batteryPresent) return i18n("Battery status unavailable");
+                    if (power.charging) return i18nc("battery state", "Charging");
+                    if (power.discharging) return i18n("Discharging");
+                    return i18n("Not charging");
+                }
                 font.bold: true
             }
             QQC2.Label {
                 Layout.fillWidth: true
-                text: frame.detail
-                wrapMode: Text.WordWrap
+                objectName: "overviewBatterySummary"
+                text: root.backend.powerInfo.batteryPresent && root.backend.powerInfo.percentage >= 0
+                    ? i18n("%1% · %2", root.backend.powerInfo.percentage,
+                        root.backend.powerInfo.acPresent ? i18n("AC power connected") : i18n("Running on battery"))
+                    : i18n("Battery readings unavailable")
+                wrapMode: Text.Wrap
+            }
+            QQC2.ProgressBar {
+                Layout.fillWidth: true
+                visible: root.backend.powerInfo.batteryPresent && root.backend.powerInfo.percentage >= 0
+                from: 0
+                to: 100
+                value: root.backend.powerInfo.percentage ?? 0
             }
             QQC2.Label {
                 Layout.fillWidth: true
-                visible: frame.secondary.length > 0
-                text: frame.secondary
+                objectName: "overviewChargeLimit"
+                text: root.backend.chargeLimit > 0 ? i18n("Charge limit: %1%", root.backend.chargeLimit)
+                    : i18n("Charge limit unavailable")
                 color: Kirigami.Theme.disabledTextColor
-                wrapMode: Text.WordWrap
+                wrapMode: Text.Wrap
             }
             QQC2.Label {
                 Layout.fillWidth: true
-                visible: frame.tertiary.length > 0
-                text: frame.tertiary
+                objectName: "overviewNextScheduleSummary"
+                visible: text.length > 0
+                text: root.nextScheduleSummary()
                 color: Kirigami.Theme.disabledTextColor
-                wrapMode: Text.WordWrap
+                wrapMode: Text.Wrap
             }
-            Loader {
+        }
+    }
+
+    QQC2.GroupBox {
+        Layout.fillWidth: true
+        title: i18n("Thermals and fans")
+
+        ColumnLayout {
+            anchors.fill: parent
+            QQC2.Label {
                 Layout.fillWidth: true
-                sourceComponent: frame.content
+                text: root.backend.sensors.length > 0
+                    ? root.backend.sensors.filter(sensor => sensor.status === "ok")
+                        .map(sensor => i18n("%1: %2 °C", root.backend.sensorDisplayName(sensor.location, sensor.name || i18n("Sensor")), sensor.temp))
+                        .join(" · ")
+                    : i18n("Temperature readings unavailable")
+                wrapMode: Text.Wrap
+            }
+            QQC2.Label {
+                objectName: "overviewFanSummary"
+                Layout.fillWidth: true
+                text: root.backend.fans.length > 0
+                    ? root.backend.fans.map(fan => fan.stalled
+                        ? i18n("%1: %2", root.backend.fanDisplayName(fan.position, fan.name || i18n("Fan")), i18n("Stalled"))
+                        : i18n("%1: %2 RPM", root.backend.fanDisplayName(fan.position, fan.name || i18n("Fan")), fan.rpm)).join(" · ")
+                    : i18n("Fan readings unavailable")
+                color: Kirigami.Theme.disabledTextColor
+                wrapMode: Text.Wrap
+            }
+            QQC2.Label {
+                Layout.fillWidth: true
+                text: {
+                    const t = root.backend.throttle;
+                    if (!t.known) return i18n("Throttling: unknown");
+                    if (t.hard) return i18n("Throttling: yes (PROCHOT)");
+                    return t.soft ? i18n("Throttling: yes (soft limit)") : i18n("Not throttling");
+                }
+                color: Kirigami.Theme.disabledTextColor
+            }
+        }
+    }
+
+    QQC2.GroupBox {
+        Layout.fillWidth: true
+        title: i18n("Device and firmware")
+
+        GridLayout {
+            anchors.fill: parent
+            columns: 2
+            columnSpacing: Kirigami.Units.gridUnit
+            rowSpacing: Kirigami.Units.smallSpacing
+            QQC2.Label {
+                text: i18n("Model")
+                color: Kirigami.Theme.disabledTextColor
+            }
+            QQC2.Label {
+                Layout.fillWidth: true
+                text: root.backend.systemInfo.product || i18n("Unknown")
+                wrapMode: Text.Wrap
+            }
+            QQC2.Label {
+                text: i18n("BIOS")
+                color: Kirigami.Theme.disabledTextColor
+            }
+            QQC2.Label {
+                Layout.fillWidth: true
+                text: root.backend.systemInfo.biosVersion || i18n("Unknown")
+                wrapMode: Text.Wrap
+            }
+            QQC2.Label {
+                text: i18n("EC")
+                color: Kirigami.Theme.disabledTextColor
+            }
+            QQC2.Label {
+                Layout.fillWidth: true
+                text: root.backend.systemInfo.ecVersion || i18n("Unknown")
+                wrapMode: Text.Wrap
             }
         }
     }

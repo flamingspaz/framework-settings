@@ -1,28 +1,28 @@
-# Framework KCM
+# Framework Settings
 
-Framework laptop settings in KDE System Settings: battery charge limits,
-fans and temperatures, fingerprint LED and haptic touchpad settings, and
-firmware and USB-C port information.
+Framework laptop settings, in KDE System Settings or as a standalone app:
+battery charge limits, fans and temperatures, fingerprint LED and haptic
+touchpad settings, and firmware and USB-C port information.
 
-| Battery                                  | Fans & Thermals                           |
-| ---------------------------------------- | ----------------------------------------- |
-| ![Battery tab](docs/battery.png)         | ![Fans & Thermals tab](docs/thermals.png) |
-| **Touchpad & LED**                       | **System**                                |
-| ![Touchpad & LED tab](docs/touchpad.png) | ![System tab](docs/system.png)            |
+| Battery                          | Thermals                           |
+| -------------------------------- | ---------------------------------- |
+| ![Battery tab](docs/battery.png) | ![Thermals tab](docs/thermals.png) |
+| **Input**                        | **System**                         |
+| ![Input tab](docs/touchpad.png)  | ![System tab](docs/system.png)     |
 
 ## Features
 
-- **Overview:** a read-only summary of battery, thermals, fans, and firmware,
-  with hardware controls kept on their dedicated tabs.
+- **Overview:** a read-only summary of battery, temperatures, fans,
+  throttling and firmware, with hardware controls kept on their dedicated tabs.
 - **Battery:** set a charge limit, charge to 100% once with _Override Charge
   Limit_ (the limit comes back after the next restart), and slow down
   charging to reduce heat and battery wear.
 - **Schedule:** apply different charge limits on selected weekdays and times
-  using user systemd timers. Scheduling requires `framework_tool` from
-  `framework-system`.
-- **Fans & Thermals:** live temperatures, fan speed and throttling status.
+  using user systemd timers. Scheduling requires the Framework System
+  command-line tools.
+- **Thermals:** live temperatures, fan speed and throttling status.
   Leave the fans on automatic, or fix their speed.
-- **Touchpad & LED:** fingerprint reader LED brightness, and haptic touchpad
+- **Input:** fingerprint reader LED brightness, and haptic touchpad
   feedback strength and click force.
 - **System:** model, BIOS, EC and PD controller firmware versions, camera and
   microphone privacy switches, and what's connected to each USB-C port.
@@ -37,7 +37,12 @@ Series 3)**. Other Framework laptops use the same embedded controller
 interface, so most features should work there too, but they haven't been
 tested.
 
-Requires KDE Plasma 6.
+The System Settings module requires KDE Plasma 6. A separate desktop app,
+`framework-settings`, is also provided for other desktop environments. It shows
+the same pages as the module, so it uses Qt Quick Controls, KDE Frameworks
+Kirigami and I18n, but does not need KCMUtils or Plasma.
+It follows Qt Quick Controls' configured style (including KDE's); on Linux
+with no style configured, Qt defaults to the desktop-oriented Fusion style.
 
 ## Install
 
@@ -87,13 +92,32 @@ release; use `main` instead for development builds. Below is a basic
   outputs = { nixpkgs, framework-settings, ... }: {
     nixosConfigurations = {
       yourHost = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
         modules = [
-          framework-settings.nixosModules.framework-kcm
-          { programs.framework-kcm.enable = true; }
-          ...
+          ./hardware-configuration.nix
+          framework-settings.nixosModules.framework-settings
+          { programs.framework-settings.enable = true; }
+          # rest of your system configuration here.
         ];
       };
     };
+  };
+}
+```
+
+To install only the standalone GUI without the KCM, add a module function to
+the Flake example's `modules` list and override the package with
+`withKcm = false`:
+
+```nix
+{ pkgs, ... }:
+let
+  packages = framework-settings.packages.${pkgs.stdenv.hostPlatform.system};
+in
+{
+  programs.framework-settings.package = packages.framework-settings.override {
+    withGui = true;
+    withKcm = false;
   };
 }
 ```
@@ -117,55 +141,103 @@ in
 {
   imports = [
     ./hardware-configuration.nix
-    framework-settings.nixosModules.framework-kcm
+    framework-settings.nixosModules.framework-settings
   ];
-  programs.framework-kcm.enable = true;
-  ...
+  programs.framework-settings.enable = true;
+  # rest of your system configuration here.
 }
+```
+
+To install only the standalone GUI without the KCM, override the
+`framework-settings` package in your `configuration.nix` with
+`withKcm = false`:
+
+```nix
+programs.framework-settings.package = framework-settings.packages.framework-settings.override {
+  withGui = true;
+  withKcm = false;
+};
 ```
 
 ### Arch Linux
 
 ```sh
-sudo pacman -U framework-kcm-*.pkg.tar.zst
+sudo pacman -U framework-*.pkg.tar.zst frameworkd-*.pkg.tar.zst
 sudo systemctl enable --now frameworkd
 ```
+
+The Arch `framework-settings` meta-package installs the GUI, KCM, shared
+translations, and service.
+For a non-KDE desktop, install `framework-gui` instead; it brings in
+`frameworkd` without the KCM.
 
 ### Ubuntu 26.04
 
 ```sh
-sudo apt install ./framework-kcm_*.deb
+sudo apt install ./framework-*.deb ./frameworkd_*.deb
 ```
 
-The Ubuntu package enables the background service for you.
+This installs the `framework-settings` meta-package and its GUI, KCM, shared
+translation, and service packages. From a repository, install `framework-gui`
+alone for a non-KDE setup; it pulls in the daemon but not the KCM. The daemon package
+configures and enables the background service.
 
 ### Fedora
 
-`framework-kcm` is available in [Terra](https://terrapkg.com).
+The `framework-settings` meta-package is available in [Terra](https://terrapkg.com).
 
 ```sh
-sudo dnf install framework-kcm
+sudo dnf install framework-settings
 ```
 
+For a non-KDE desktop, install only `framework-gui`; it pulls in the service
+without installing the KCM.
+
 Then open **System Settings → System → Framework Laptop**, or run
-`kcmshell6 kcm_framework`.
+`kcmshell6 kcm_framework`. On non-KDE desktops, launch **Framework Settings**
+or run `framework-settings`.
 
 The `frameworkd` service starts on its own when you open the settings
 page. Enabling it also starts it at boot, so settings the hardware forgets
 (touchpad feedback, click force, charge speed) are applied again after a
 restart.
 
+For a repository-managed installation, remove only the package you
+explicitly installed (`framework-settings` for the full suite, or
+`framework-gui` for a standalone GUI). Let the package manager remove
+unneeded dependencies with `sudo pacman -Rns <package>` on Arch or
+`sudo apt remove <package> && sudo apt autoremove` on Debian-based systems.
+
+When installing the release files directly with `pacman -U` or from local
+`.deb` files using `apt install`, all five packages may be marked as explicitly
+installed. Remove all of them to uninstall the full suite:
+
+```sh
+# Arch Linux
+sudo pacman -Rns framework-settings framework-gui framework-kcm framework-settings-translations frameworkd
+
+# Debian-based systems
+sudo apt remove framework-settings framework-gui framework-kcm framework-settings-translations frameworkd
+```
+
+Removing `frameworkd` also deletes the settings it re-applies at boot
+(`/var/lib/frameworkd`) on Arch and Fedora. Debian-based systems keep them
+until you purge the package (`sudo apt purge frameworkd`). Charge schedules
+live in your home directory, so turn them off on the **Schedule** tab before
+uninstalling, or they keep running.
+
 ## Fixture mode
 
-To preview the pages without Framework hardware or the daemon, launch the KCM
-with fixture mode enabled. All readings are simulated, setting changes stay in
-memory, and scheduling does not create systemd units:
+To preview either UI without Framework hardware or the daemon, launch it with
+fixture mode enabled. Readings are simulated, setting changes stay in memory,
+and scheduling does not create systemd units:
 
 ```sh
 FRAMEWORK_KCM_FIXTURE=1 kcmshell6 kcm_framework
+FRAMEWORK_KCM_FIXTURE=1 ./build-qt/bin/framework-settings
 ```
 
-The Overview tab then lets you choose a profile for testing model-specific
+The Overview tab lets you choose a hardware profile for testing model-specific
 controls. You can also pick a profile at launch:
 
 ```sh
@@ -175,7 +247,7 @@ FRAMEWORK_KCM_FIXTURE=1 FRAMEWORK_KCM_FIXTURE_MODEL=framework-13 kcmshell6 kcm_f
 FRAMEWORK_KCM_FIXTURE=1 FRAMEWORK_KCM_FIXTURE_MODEL=framework-13-pro kcmshell6 kcm_framework
 ```
 
-To uninstall, run `sudo pacman -R framework-kcm` or `sudo apt remove framework-kcm`.
+The same `FRAMEWORK_KCM_FIXTURE_MODEL` values work with the standalone GUI.
 
 ## Permissions
 
@@ -209,10 +281,11 @@ for an administrator password.
 
 ## Languages
 
-The module follows your System Settings language. It's available in
-English, Dutch, German, Spanish and French. The non-English translations
-were machine-generated and haven't been reviewed by native speakers yet,
-so corrections are welcome. See [docs/translations.md](docs/translations.md).
+The KCM and standalone `framework-settings` app use the same KI18n catalogs,
+so their UI follows your language and is available in English, Dutch, German,
+Spanish and French. The non-English translations were machine-generated and
+haven't been reviewed by native speakers yet, so corrections are welcome.
+See [docs/translations.md](docs/translations.md).
 
 ## Documentation
 
@@ -226,7 +299,7 @@ so corrections are welcome. See [docs/translations.md](docs/translations.md).
 
 ## License
 
-Framework KCM is free software, licensed under the GNU General Public
+Framework Settings is free software, licensed under the GNU General Public
 License version 3 or (at your option) any later version. See
 [LICENSE](LICENSE).
 

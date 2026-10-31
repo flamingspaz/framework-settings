@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: framework-kcm\n"
 "Report-Msgid-Bugs-To: github-viral8565@pxdmail.com\n"
-"POT-Creation-Date: 2026-10-03 11:55-0600\n"
-"PO-Revision-Date: 2026-09-28 23:38+0000\n"
+"POT-Creation-Date: 2026-10-31 19:52+0000\n"
+"PO-Revision-Date: 2026-10-31 19:45+0000\n"
 "Last-Translator: Machine translation (Claude), needs review\n"
 "Language-Team: Dutch\n"
 "Language: nl\n"
@@ -15,97 +15,266 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: kcm/frameworkkcm.cpp:215 kcm/frameworkkcm.cpp:251
+#: gui/Main.qml:16 gui/Main.qml:48
+#, kde-format
+msgid "Framework Settings"
+msgstr "Framework-instellingen"
+
+#: gui/Main.qml:51
+#, kde-format
+msgid "Manage charging, cooling, and input hardware."
+msgstr "Beheer opladen, koeling en invoerhardware."
+
+#: gui/Main.qml:96
+#, kde-format
+msgid "Applying settings…"
+msgstr "Instellingen toepassen…"
+
+#: gui/Main.qml:96
+#, kde-format
+msgid "Changes not applied"
+msgstr "Wijzigingen niet toegepast"
+
+#: gui/Main.qml:99
+#, kde-format
+msgid "Defaults"
+msgstr "Standaardwaarden"
+
+#: gui/Main.qml:104
+#, kde-format
+msgid "Apply"
+msgstr "Toepassen"
+
+#: gui/Main.qml:116
+#, kde-format
+msgid "Unsaved changes"
+msgstr "Niet-opgeslagen wijzigingen"
+
+#: gui/Main.qml:120
+#, kde-format
+msgid ""
+"Settings are being applied. Wait for the operation to finish before closing."
+msgstr ""
+"De instellingen worden toegepast. Wacht tot de bewerking klaar is voordat u "
+"afsluit."
+
+#: gui/Main.qml:121
+#, kde-format
+msgid "You have unsaved settings or schedule changes. Discard them and close?"
+msgstr ""
+"Er zijn niet-opgeslagen instellingen of schemawijzigingen. Verwerpen en "
+"afsluiten?"
+
+#: gui/Main.qml:127
+#, kde-format
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: gui/Main.qml:135
+#, kde-format
+msgid "Discard and close"
+msgstr "Verwerpen en afsluiten"
+
+#: kcm/frameworkkcm.cpp:232 kcm/frameworkkcm.cpp:314
 #, kde-format
 msgid "Framework Laptop 12"
-msgstr ""
+msgstr "Framework Laptop 12"
 
-#: kcm/frameworkkcm.cpp:216 kcm/frameworkkcm.cpp:253
+#: kcm/frameworkkcm.cpp:233 kcm/frameworkkcm.cpp:316
 #, kde-format
 msgid "Framework Laptop 12 (2nd Gen)"
-msgstr ""
+msgstr "Framework Laptop 12 (2e generatie)"
 
-#: kcm/frameworkkcm.cpp:217 kcm/frameworkkcm.cpp:255
+#: kcm/frameworkkcm.cpp:234 kcm/frameworkkcm.cpp:318
 #, kde-format
 msgid "Framework Laptop 13"
-msgstr ""
+msgstr "Framework Laptop 13"
 
-#: kcm/frameworkkcm.cpp:218 kcm/frameworkkcm.cpp:257
+#: kcm/frameworkkcm.cpp:235 kcm/frameworkkcm.cpp:320
 #, kde-format
 msgid "Framework Laptop 13 Pro"
-msgstr ""
+msgstr "Framework Laptop 13 Pro"
 
-#: kcm/frameworkkcm.cpp:536
+#: kcm/frameworkkcm.cpp:241
+#, kde-format
+msgctxt "temperature sensor"
+msgid "CPU"
+msgstr "CPU"
+
+#: kcm/frameworkkcm.cpp:243
+#, kde-format
+msgctxt "temperature sensor on the mainboard next to the CPU"
+msgid "Near CPU"
+msgstr "Bij CPU"
+
+#: kcm/frameworkkcm.cpp:245
+#, kde-format
+msgctxt "temperature sensor"
+msgid "Memory"
+msgstr "Geheugen"
+
+#: kcm/frameworkkcm.cpp:247
+#, kde-format
+msgctxt "temperature sensor"
+msgid "Mainboard"
+msgstr "Moederbord"
+
+#: kcm/frameworkkcm.cpp:249
+#, kde-format
+msgctxt "temperature sensor"
+msgid "Battery"
+msgstr "Accu"
+
+#: kcm/frameworkkcm.cpp:251
+#, kde-format
+msgctxt "temperature sensor"
+msgid "Charger"
+msgstr "Lader"
+
+#: kcm/frameworkkcm.cpp:253
+#, kde-format
+msgctxt "temperature sensor on the case surface"
+msgid "Chassis"
+msgstr "Behuizing"
+
+#: kcm/frameworkkcm.cpp:255
+#, kde-format
+msgctxt "temperature sensor"
+msgid "SSD"
+msgstr "SSD"
+
+#: kcm/frameworkkcm.cpp:257
+#, kde-format
+msgctxt "temperature sensor"
+msgid "GPU"
+msgstr "GPU"
+
+#: kcm/frameworkkcm.cpp:259
+#, kde-format
+msgctxt "temperature sensor"
+msgid "Wi-Fi"
+msgstr "Wifi"
+
+#: kcm/frameworkkcm.cpp:265
+#, kde-format
+msgctxt "temperature sensor state"
+msgid "Off"
+msgstr "Uit"
+
+#: kcm/frameworkkcm.cpp:267
+#, kde-format
+msgctxt "temperature sensor state"
+msgid "Not calibrated"
+msgstr "Niet gekalibreerd"
+
+#: kcm/frameworkkcm.cpp:268
+#, kde-format
+msgctxt "temperature sensor state"
+msgid "Error"
+msgstr "Fout"
+
+#: kcm/frameworkkcm.cpp:273
+#, kde-format
+msgctxt "fan cooling the processor"
+msgid "CPU fan"
+msgstr "CPU-ventilator"
+
+#: kcm/frameworkkcm.cpp:275
+#, kde-format
+msgid "Left fan"
+msgstr "Linkerventilator"
+
+#: kcm/frameworkkcm.cpp:277
+#, kde-format
+msgid "Right fan"
+msgstr "Rechterventilator"
+
+#: kcm/frameworkkcm.cpp:279
+#, kde-format
+msgid "Front fan"
+msgstr "Voorste ventilator"
+
+#: kcm/frameworkkcm.cpp:281
+#, kde-format
+msgid "Third fan"
+msgstr "Derde ventilator"
+
+#: kcm/frameworkkcm.cpp:602
 #, kde-format
 msgid "You are not authorized to change this setting."
 msgstr "U bent niet gemachtigd om deze instelling te wijzigen."
 
-#: kcm/frameworkkcm.cpp:538
+#: kcm/frameworkkcm.cpp:604
 #, kde-format
 msgid "The Framework hardware service is not running."
 msgstr "De Framework-hardwaredienst draait niet."
 
-#: kcm/frameworkkcm.cpp:616
+#: kcm/frameworkkcm.cpp:697
 #, kde-format
 msgid "Add at least one schedule."
-msgstr ""
+msgstr "Voeg ten minste één schema toe."
 
-#: kcm/frameworkkcm.cpp:624
+#: kcm/frameworkkcm.cpp:705
 #, kde-format
 msgid "Each schedule needs at least one day and a valid time in HH:MM format."
 msgstr ""
+"Elk schema heeft ten minste één dag en een geldige tijd in de notatie HH:MM "
+"nodig."
 
-#: kcm/frameworkkcm.cpp:631
+#: kcm/frameworkkcm.cpp:712
 #, kde-format
 msgid "Each schedule must use unique weekdays."
-msgstr ""
-
-#: kcm/frameworkkcm.cpp:637
-#, kde-format
-msgid "The same weekday and time cannot be scheduled more than once."
-msgstr ""
-
-#: kcm/frameworkkcm.cpp:655 kcm/frameworkkcm.cpp:672
-#, kde-format
-msgid "Could not save the charge schedule configuration."
-msgstr ""
-
-#: kcm/frameworkkcm.cpp:685
-#, kde-format
-msgid "Could not create the user systemd configuration directory."
-msgstr ""
-
-#: kcm/frameworkkcm.cpp:695
-#, kde-format
-msgid "The user systemd manager did not respond."
-msgstr ""
-
-#: kcm/frameworkkcm.cpp:703
-#, kde-format
-msgid "Could not update the user systemd schedule."
-msgstr ""
+msgstr "Elk schema moet unieke weekdagen gebruiken."
 
 #: kcm/frameworkkcm.cpp:718
 #, kde-format
-msgid ""
-"framework_tool was not found. Install framework-system to use charge "
-"schedules."
+msgid "The same weekday and time cannot be scheduled more than once."
 msgstr ""
+"Dezelfde weekdag en tijd kunnen niet meer dan één keer worden ingepland."
 
-#: kcm/frameworkkcm.cpp:750 kcm/frameworkkcm.cpp:764
+#: kcm/frameworkkcm.cpp:736 kcm/frameworkkcm.cpp:753
+#, kde-format
+msgid "Could not save the charge schedule configuration."
+msgstr "Kan de configuratie van het laadschema niet opslaan."
+
+#: kcm/frameworkkcm.cpp:766
+#, kde-format
+msgid "Could not create the user systemd configuration directory."
+msgstr "Kan de systemd-configuratiemap van de gebruiker niet aanmaken."
+
+#: kcm/frameworkkcm.cpp:776
+#, kde-format
+msgid "The user systemd manager did not respond."
+msgstr "De systemd-gebruikersbeheerder reageerde niet."
+
+#: kcm/frameworkkcm.cpp:784
+#, kde-format
+msgid "Could not update the user systemd schedule."
+msgstr "Kan het systemd-schema van de gebruiker niet bijwerken."
+
+#: kcm/frameworkkcm.cpp:799
+#, kde-format
+msgid ""
+"The Framework System command-line tools were not found. Install framework-"
+"system to use charge schedules."
+msgstr ""
+"De opdrachtregelprogramma's van Framework System zijn niet gevonden. "
+"Installeer framework-system om laadschema's te gebruiken."
+
+#: kcm/frameworkkcm.cpp:832 kcm/frameworkkcm.cpp:846
 #, kde-format
 msgid "Could not write the user systemd schedule."
-msgstr ""
+msgstr "Kan het systemd-schema van de gebruiker niet schrijven."
 
 #: kcm/ui/BatteryPage.qml:11
 #, kde-format
 msgid "Battery:"
-msgstr ""
+msgstr "Accu:"
 
 #: kcm/ui/BatteryPage.qml:45 kcm/ui/BatteryPage.qml:110
-#: kcm/ui/BatteryPage.qml:187 kcm/ui/InputPage.qml:38 kcm/ui/InputPage.qml:39
-#: kcm/ui/InputPage.qml:40 kcm/ui/InputPage.qml:41 kcm/ui/SchedulePage.qml:167
-#: kcm/ui/ThermalPage.qml:146
+#: kcm/ui/BatteryPage.qml:188 kcm/ui/InputPage.qml:38 kcm/ui/InputPage.qml:39
+#: kcm/ui/InputPage.qml:40 kcm/ui/InputPage.qml:41 kcm/ui/SchedulePage.qml:218
+#: kcm/ui/ThermalPage.qml:112
 #, kde-format
 msgctxt "percent"
 msgid "%1%"
@@ -114,48 +283,54 @@ msgstr "%1%"
 #: kcm/ui/BatteryPage.qml:68
 #, kde-format
 msgid "Battery unavailable"
-msgstr ""
+msgstr "Accu niet beschikbaar"
 
-#: kcm/ui/BatteryPage.qml:69 kcm/ui/BatteryPage.qml:93
-#: kcm/ui/OverviewPage.qml:104
+#: kcm/ui/BatteryPage.qml:69 kcm/ui/OverviewPage.qml:134
 #, kde-format
+msgctxt "battery state"
 msgid "Charging"
-msgstr "Opladen"
+msgstr "Laadt op"
 
-#: kcm/ui/BatteryPage.qml:70 kcm/ui/OverviewPage.qml:104
+#: kcm/ui/BatteryPage.qml:70 kcm/ui/OverviewPage.qml:135
 #, kde-format
 msgid "Discharging"
-msgstr ""
+msgstr "Ontlaadt"
 
-#: kcm/ui/BatteryPage.qml:71 kcm/ui/OverviewPage.qml:104
+#: kcm/ui/BatteryPage.qml:71 kcm/ui/OverviewPage.qml:136
 #, kde-format
 msgid "Not charging"
-msgstr ""
+msgstr "Laadt niet op"
 
 #: kcm/ui/BatteryPage.qml:78
 #, kde-format
 msgid "Power status unavailable"
-msgstr ""
+msgstr "Voedingsstatus niet beschikbaar"
 
-#: kcm/ui/BatteryPage.qml:79 kcm/ui/OverviewPage.qml:105
+#: kcm/ui/BatteryPage.qml:79 kcm/ui/OverviewPage.qml:145
 #, kde-format
 msgid "AC power connected"
-msgstr ""
+msgstr "Netvoeding aangesloten"
 
-#: kcm/ui/BatteryPage.qml:79 kcm/ui/OverviewPage.qml:105
+#: kcm/ui/BatteryPage.qml:79 kcm/ui/OverviewPage.qml:145
 #, kde-format
 msgid "Running on battery"
-msgstr ""
+msgstr "Werkt op accu"
 
-#: kcm/ui/BatteryPage.qml:86 kcm/ui/OverviewPage.qml:108
+#: kcm/ui/BatteryPage.qml:86 kcm/ui/OverviewPage.qml:159
 #, kde-format
 msgid "Charge limit: %1%"
-msgstr ""
+msgstr "Laadlimiet: %1%"
 
-#: kcm/ui/BatteryPage.qml:86 kcm/ui/OverviewPage.qml:108
+#: kcm/ui/BatteryPage.qml:86 kcm/ui/OverviewPage.qml:160
 #, kde-format
 msgid "Charge limit unavailable"
-msgstr ""
+msgstr "Laadlimiet niet beschikbaar"
+
+#: kcm/ui/BatteryPage.qml:93
+#, kde-format
+msgctxt "settings section heading"
+msgid "Charging"
+msgstr "Opladen"
 
 #: kcm/ui/BatteryPage.qml:97
 #, kde-format
@@ -196,33 +371,33 @@ msgstr ""
 "Opladen tot 100% totdat de computer opnieuw start. Daarna gaat de limiet "
 "terug naar %1%."
 
-#: kcm/ui/BatteryPage.qml:136
+#: kcm/ui/BatteryPage.qml:137
 #, kde-format
 msgid "Restore Now"
 msgstr "Nu herstellen"
 
-#: kcm/ui/BatteryPage.qml:143
+#: kcm/ui/BatteryPage.qml:144
 #, kde-format
 msgid "Charge speed:"
 msgstr "Laadsnelheid:"
 
-#: kcm/ui/BatteryPage.qml:144
+#: kcm/ui/BatteryPage.qml:145
 #, kde-format
 msgid "Limit charging speed"
 msgstr "Laadsnelheid beperken"
 
-#: kcm/ui/BatteryPage.qml:166
+#: kcm/ui/BatteryPage.qml:167
 #, kde-format
 msgctxt "charge speed multiplier, hours to charge from empty"
 msgid "%1× (about %2 h from empty)"
 msgstr "%1× (ongeveer %2 u van leeg tot vol)"
 
-#: kcm/ui/BatteryPage.qml:176
+#: kcm/ui/BatteryPage.qml:177
 #, kde-format
 msgid "Only above battery level:"
 msgstr "Alleen boven accuniveau:"
 
-#: kcm/ui/BatteryPage.qml:193
+#: kcm/ui/BatteryPage.qml:194
 #, kde-format
 msgid ""
 "Relative to full charging speed. Slower charging produces less heat and "
@@ -249,13 +424,16 @@ msgstr "Led van vingerafdruklezer:"
 msgid "Custom"
 msgstr "Aangepast"
 
-#: kcm/ui/InputPage.qml:17 kcm/ui/OverviewPage.qml:133 kcm/ui/SystemPage.qml:13
-#: kcm/ui/SystemPage.qml:97 kcm/ui/SystemPage.qml:102 kcm/ui/SystemPage.qml:142
+#: kcm/ui/InputPage.qml:17 kcm/ui/OverviewPage.qml:229
+#: kcm/ui/OverviewPage.qml:238 kcm/ui/OverviewPage.qml:247
+#: kcm/ui/SystemPage.qml:13 kcm/ui/SystemPage.qml:84 kcm/ui/SystemPage.qml:89
+#: kcm/ui/SystemPage.qml:112 kcm/ui/SystemPage.qml:117
+#: kcm/ui/SystemPage.qml:159
 #, kde-format
 msgid "Unknown"
 msgstr "Onbekend"
 
-#: kcm/ui/InputPage.qml:19 kcm/ui/ThermalPage.qml:127
+#: kcm/ui/InputPage.qml:19 kcm/ui/ThermalPage.qml:93
 #, kde-format
 msgid "Automatic"
 msgstr "Automatisch"
@@ -338,624 +516,590 @@ msgstr ""
 "teruggeven, dus hier staat wat hier het laatst is ingesteld. De dienst past "
 "ze opnieuw toe wanneer hij start."
 
-#: kcm/ui/OverviewPage.qml:62
+#: kcm/ui/OverviewPage.qml:65
 #, kde-format
 msgid "at %1"
-msgstr ""
+msgstr "om %1"
 
-#: kcm/ui/OverviewPage.qml:68
+#: kcm/ui/OverviewPage.qml:71
 #, kde-format
 msgid "tomorrow at %1"
-msgstr ""
-
-#: kcm/ui/OverviewPage.qml:70
-#, kde-format
-msgid "%1 at %2"
-msgstr ""
+msgstr "morgen om %1"
 
 #: kcm/ui/OverviewPage.qml:73
 #, kde-format
-msgid "Next scheduled change: %1% %2"
-msgstr ""
+msgid "%1 at %2"
+msgstr "%1 om %2"
 
-#: kcm/ui/OverviewPage.qml:78
+#: kcm/ui/OverviewPage.qml:76
 #, kde-format
-msgid "Framework Laptop"
-msgstr ""
+msgid "Next scheduled change: %1% %2"
+msgstr "Volgende geplande wijziging: %1% %2"
 
 #: kcm/ui/OverviewPage.qml:84
 #, kde-format
-msgid "Framework hardware overview"
-msgstr ""
-
-#: kcm/ui/OverviewPage.qml:92
-#, kde-format
 msgid ""
-"Fixture mode is active. Values are simulated, and changes stay in memory; no "
-"hardware service is contacted."
+"Fixture mode is active. Readings are simulated, changes stay in memory, and "
+"no hardware service is contacted."
 msgstr ""
+"De testmodus is actief. Metingen zijn gesimuleerd, wijzigingen blijven in "
+"het geheugen en er wordt geen hardwaredienst benaderd."
 
-#: kcm/ui/OverviewPage.qml:97 kcm/ui/main.qml:39
+#: kcm/ui/OverviewPage.qml:90
 #, kde-format
-msgid "Battery"
-msgstr "Accu"
+msgid "Test hardware profile"
+msgstr "Testhardwareprofiel"
 
-#: kcm/ui/OverviewPage.qml:102
+#: kcm/ui/OverviewPage.qml:96
 #, kde-format
-msgid "Battery status unavailable"
-msgstr ""
+msgid "Choose a profile to preview model-specific controls."
+msgstr "Kies een profiel om modelspecifieke bedieningselementen te bekijken."
 
-#: kcm/ui/OverviewPage.qml:106
+#: kcm/ui/OverviewPage.qml:111 kcm/ui/OverviewPage.qml:112
+#: kcm/ui/OverviewPage.qml:113 kcm/ui/OverviewPage.qml:114
+#: kcm/ui/OverviewPage.qml:115
 #, kde-format
-msgid "%1% · %2 · %3"
-msgstr ""
+msgid "Yes"
+msgstr "Ja"
 
-#: kcm/ui/OverviewPage.qml:114
+#: kcm/ui/OverviewPage.qml:111 kcm/ui/OverviewPage.qml:112
+#: kcm/ui/OverviewPage.qml:113 kcm/ui/OverviewPage.qml:114
+#: kcm/ui/OverviewPage.qml:115
 #, kde-format
-msgid "Thermals"
-msgstr ""
+msgid "No"
+msgstr "Nee"
 
-#: kcm/ui/OverviewPage.qml:117
-#, kde-format
-msgid "Temperature readings unavailable"
-msgstr ""
-
-#: kcm/ui/OverviewPage.qml:119
-#, kde-format
-msgid "%1: %2 °C"
-msgstr ""
-
-#: kcm/ui/OverviewPage.qml:123
-#, kde-format
-msgid "Fan readings unavailable"
-msgstr ""
-
-#: kcm/ui/OverviewPage.qml:125
-#, kde-format
-msgid "%1: %2 RPM"
-msgstr ""
-
-#: kcm/ui/OverviewPage.qml:131 kcm/ui/main.qml:43
-#, kde-format
-msgid "System"
-msgstr "Systeem"
-
-#: kcm/ui/OverviewPage.qml:132
-#, kde-format
-msgid "Model information unavailable"
-msgstr ""
-
-#: kcm/ui/OverviewPage.qml:133
-#, kde-format
-msgid "BIOS %1 · EC %2"
-msgstr ""
-
-#: kcm/ui/OverviewPage.qml:133
-#, kde-format
-msgid "Firmware information unavailable"
-msgstr ""
-
-#: kcm/ui/OverviewPage.qml:139
-#, kde-format
-msgid "Test fixture"
-msgstr ""
-
-#: kcm/ui/OverviewPage.qml:140
-#, kde-format
-msgid "Choose a hardware profile to preview model-specific controls."
-msgstr ""
-
-#: kcm/ui/OverviewPage.qml:141
-#, kde-format
-msgid "yes"
-msgstr ""
-
-#: kcm/ui/OverviewPage.qml:141
-#, kde-format
-msgid "no"
-msgstr ""
-
-#: kcm/ui/OverviewPage.qml:141
+#: kcm/ui/OverviewPage.qml:110
 #, kde-format
 msgid ""
 "Keyboard backlight: %1 · Fingerprint LED: %2 · Input deck: %3 · Touchscreen: "
 "%4 · Tablet mode: %5"
 msgstr ""
+"Toetsenbordverlichting: %1 · Vingerafdrukled: %2 · Input deck: %3 · "
+"Touchscreen: %4 · Tabletmodus: %5"
 
-#: kcm/ui/SchedulePage.qml:16
+#: kcm/ui/OverviewPage.qml:125 kcm/ui/Pages.qml:12
+#, kde-format
+msgid "Battery"
+msgstr "Accu"
+
+#: kcm/ui/OverviewPage.qml:133
+#, kde-format
+msgid "Battery status unavailable"
+msgstr "Accustatus niet beschikbaar"
+
+#: kcm/ui/OverviewPage.qml:144
+#, kde-format
+msgid "%1% · %2"
+msgstr "%1% · %2"
+
+#: kcm/ui/OverviewPage.qml:146
+#, kde-format
+msgid "Battery readings unavailable"
+msgstr "Accumetingen niet beschikbaar"
+
+#: kcm/ui/OverviewPage.qml:177
+#, kde-format
+msgid "Thermals and fans"
+msgstr "Temperatuur en ventilatoren"
+
+#: kcm/ui/OverviewPage.qml:185
+#, kde-format
+msgid "Sensor"
+msgstr "Sensor"
+
+#: kcm/ui/OverviewPage.qml:185
+#, kde-format
+msgid "%1: %2 °C"
+msgstr "%1: %2 °C"
+
+#: kcm/ui/OverviewPage.qml:187
+#, kde-format
+msgid "Temperature readings unavailable"
+msgstr "Temperatuurmetingen niet beschikbaar"
+
+#: kcm/ui/OverviewPage.qml:195 kcm/ui/OverviewPage.qml:196
+#, kde-format
+msgid "Fan"
+msgstr "Ventilator"
+
+#: kcm/ui/OverviewPage.qml:195 kcm/ui/ThermalPage.qml:85
+#, kde-format
+msgid "Stalled"
+msgstr "Vastgelopen"
+
+#: kcm/ui/OverviewPage.qml:195
+#, kde-format
+msgid "%1: %2"
+msgstr "%1: %2"
+
+#: kcm/ui/OverviewPage.qml:196
+#, kde-format
+msgid "%1: %2 RPM"
+msgstr "%1: %2 tpm"
+
+#: kcm/ui/OverviewPage.qml:197
+#, kde-format
+msgid "Fan readings unavailable"
+msgstr "Ventilatormetingen niet beschikbaar"
+
+#: kcm/ui/OverviewPage.qml:205 kcm/ui/ThermalPage.qml:59
+#, kde-format
+msgid "Throttling: unknown"
+msgstr "Throttling: onbekend"
+
+#: kcm/ui/OverviewPage.qml:206 kcm/ui/ThermalPage.qml:62
+#, kde-format
+msgid "Throttling: yes (PROCHOT)"
+msgstr "Throttling: ja (PROCHOT)"
+
+#: kcm/ui/OverviewPage.qml:207 kcm/ui/ThermalPage.qml:64
+#, kde-format
+msgid "Throttling: yes (soft limit)"
+msgstr "Throttling: ja (zachte limiet)"
+
+#: kcm/ui/OverviewPage.qml:207 kcm/ui/ThermalPage.qml:64
+#, kde-format
+msgid "Not throttling"
+msgstr "Geen throttling"
+
+#: kcm/ui/OverviewPage.qml:216
+#, kde-format
+msgid "Device and firmware"
+msgstr "Apparaat en firmware"
+
+#: kcm/ui/OverviewPage.qml:224
+#, kde-format
+msgid "Model"
+msgstr "Model"
+
+#: kcm/ui/OverviewPage.qml:233
+#, kde-format
+msgid "BIOS"
+msgstr "BIOS"
+
+#: kcm/ui/OverviewPage.qml:242
+#, kde-format
+msgid "EC"
+msgstr "EC"
+
+#: kcm/ui/Pages.qml:12
+#, kde-format
+msgid "Overview"
+msgstr "Overzicht"
+
+#: kcm/ui/Pages.qml:12
+#, kde-format
+msgid "Schedule"
+msgstr "Schema"
+
+#: kcm/ui/Pages.qml:12
+#, kde-format
+msgid "Thermals"
+msgstr "Temperatuur"
+
+#: kcm/ui/Pages.qml:12
+#, kde-format
+msgid "Input"
+msgstr "Invoer"
+
+#: kcm/ui/Pages.qml:12
+#, kde-format
+msgid "System"
+msgstr "Systeem"
+
+#: kcm/ui/SchedulePage.qml:24
 #, kde-format
 msgid "Monday"
-msgstr ""
+msgstr "Maandag"
 
-#: kcm/ui/SchedulePage.qml:16
+#: kcm/ui/SchedulePage.qml:24
 #, kde-format
 msgid "Tuesday"
-msgstr ""
+msgstr "Dinsdag"
 
-#: kcm/ui/SchedulePage.qml:16
+#: kcm/ui/SchedulePage.qml:24
 #, kde-format
 msgid "Wednesday"
-msgstr ""
+msgstr "Woensdag"
 
-#: kcm/ui/SchedulePage.qml:16
+#: kcm/ui/SchedulePage.qml:24
 #, kde-format
 msgid "Thursday"
-msgstr ""
+msgstr "Donderdag"
 
-#: kcm/ui/SchedulePage.qml:16
+#: kcm/ui/SchedulePage.qml:24
 #, kde-format
 msgid "Friday"
-msgstr ""
+msgstr "Vrijdag"
 
-#: kcm/ui/SchedulePage.qml:16
+#: kcm/ui/SchedulePage.qml:24
 #, kde-format
 msgid "Saturday"
-msgstr ""
+msgstr "Zaterdag"
 
-#: kcm/ui/SchedulePage.qml:16
+#: kcm/ui/SchedulePage.qml:24
 #, kde-format
 msgid "Sunday"
-msgstr ""
+msgstr "Zondag"
 
-#: kcm/ui/SchedulePage.qml:65
+#: kcm/ui/SchedulePage.qml:108
 #, kde-format
 msgid "Charge schedule"
-msgstr ""
+msgstr "Laadschema"
 
-#: kcm/ui/SchedulePage.qml:70
+#: kcm/ui/SchedulePage.qml:113
 #, kde-format
 msgid ""
 "Create entries that automatically apply a charge limit on selected weekdays."
 msgstr ""
+"Maak items die op gekozen weekdagen automatisch een laadlimiet toepassen."
 
-#: kcm/ui/SchedulePage.qml:79
+#: kcm/ui/SchedulePage.qml:122
 #, kde-format
 msgid "Schedule saved."
-msgstr ""
+msgstr "Schema opgeslagen."
 
-#: kcm/ui/SchedulePage.qml:86
+#: kcm/ui/SchedulePage.qml:129
 #, kde-format
 msgid ""
 "Fixture mode only previews schedule settings. No systemd timers are created."
 msgstr ""
+"De testmodus toont de schema-instellingen alleen als voorbeeld. Er worden "
+"geen systemd-timers aangemaakt."
 
-#: kcm/ui/SchedulePage.qml:90
+#: kcm/ui/SchedulePage.qml:134
 #, kde-format
 msgid "Enable charge schedules"
-msgstr ""
+msgstr "Laadschema's inschakelen"
 
-#: kcm/ui/SchedulePage.qml:114
+#: kcm/ui/SchedulePage.qml:162
 #, kde-format
 msgid "Schedule %1"
-msgstr ""
+msgstr "Schema %1"
 
-#: kcm/ui/SchedulePage.qml:121
+#: kcm/ui/SchedulePage.qml:170
 #, kde-format
 msgid "Remove schedule"
-msgstr ""
+msgstr "Schema verwijderen"
 
-#: kcm/ui/SchedulePage.qml:127
+#: kcm/ui/SchedulePage.qml:176
 #, kde-format
 msgid "Days"
-msgstr ""
+msgstr "Dagen"
 
-#: kcm/ui/SchedulePage.qml:149
+#: kcm/ui/SchedulePage.qml:198
 #, kde-format
 msgid "Time"
-msgstr ""
+msgstr "Tijd"
 
-#: kcm/ui/SchedulePage.qml:159
+#: kcm/ui/SchedulePage.qml:210
 #, kde-format
 msgid "Charge limit"
-msgstr ""
+msgstr "Laadlimiet"
 
-#: kcm/ui/SchedulePage.qml:179
+#: kcm/ui/SchedulePage.qml:231
 #, kde-format
 msgid "Add schedule"
-msgstr ""
+msgstr "Schema toevoegen"
 
-#: kcm/ui/SchedulePage.qml:187
+#: kcm/ui/SchedulePage.qml:238
+#, kde-format
+msgid "Schedule changes need saving"
+msgstr "Schemawijzigingen moeten worden opgeslagen"
+
+#: kcm/ui/SchedulePage.qml:249
 #, kde-format
 msgid "Save schedule"
-msgstr ""
+msgstr "Schema opslaan"
 
-#: kcm/ui/SchedulePage.qml:195
+#: kcm/ui/SchedulePage.qml:257
 #, kde-format
 msgid ""
-"Schedules run through your user systemd manager and require framework_tool "
-"from framework-system."
+"Schedules run through your user systemd manager and require the Framework "
+"System command-line tools."
 msgstr ""
+"Schema's worden uitgevoerd via uw systemd-gebruikersbeheerder en vereisen de "
+"opdrachtregelprogramma's van Framework System."
 
-#: kcm/ui/SystemPage.qml:18
+#: kcm/ui/StatusMessages.qml:17
+#, kde-format
+msgid ""
+"Cannot connect to the Framework hardware service (frameworkd). It is "
+"normally started automatically by D-Bus. Check that it is installed and that "
+"D-Bus activation is available, then retry."
+msgstr ""
+"Kan geen verbinding maken met de Framework-hardwaredienst (frameworkd). Deze "
+"wordt normaal gesproken automatisch gestart door D-Bus. Controleer of deze "
+"is geïnstalleerd en of D-Bus-activering beschikbaar is en probeer het daarna "
+"opnieuw."
+
+#: kcm/ui/StatusMessages.qml:20
+#, kde-format
+msgid "Retry"
+msgstr "Opnieuw proberen"
+
+#: kcm/ui/SystemPage.qml:19
 #, kde-format
 msgctxt "USB-C port location"
 msgid "Right back"
 msgstr "Rechts achter"
 
-#: kcm/ui/SystemPage.qml:19
+#: kcm/ui/SystemPage.qml:21
 #, kde-format
 msgctxt "USB-C port location"
 msgid "Right front"
 msgstr "Rechts voor"
 
-#: kcm/ui/SystemPage.qml:20
+#: kcm/ui/SystemPage.qml:23
 #, kde-format
 msgctxt "USB-C port location"
 msgid "Right middle"
 msgstr "Rechts midden"
 
-#: kcm/ui/SystemPage.qml:21
+#: kcm/ui/SystemPage.qml:25
 #, kde-format
 msgctxt "USB-C port location"
 msgid "Left front"
 msgstr "Links voor"
 
-#: kcm/ui/SystemPage.qml:22
+#: kcm/ui/SystemPage.qml:27
 #, kde-format
 msgctxt "USB-C port location"
 msgid "Left middle"
 msgstr "Links midden"
 
-#: kcm/ui/SystemPage.qml:23
+#: kcm/ui/SystemPage.qml:29
 #, kde-format
 msgctxt "USB-C port location"
 msgid "Left back"
 msgstr "Links achter"
 
-#: kcm/ui/SystemPage.qml:30
+#: kcm/ui/SystemPage.qml:38
 #, kde-format
 msgctxt "charger type"
 msgid "USB Power Delivery"
 msgstr "USB Power Delivery"
 
-#: kcm/ui/SystemPage.qml:31
+#: kcm/ui/SystemPage.qml:40
 #, kde-format
 msgctxt "charger type"
 msgid "USB-C"
 msgstr "USB-C"
 
-#: kcm/ui/SystemPage.qml:32
+#: kcm/ui/SystemPage.qml:42
 #, kde-format
 msgctxt "charger type"
 msgid "a proprietary charger"
 msgstr "een eigen lader"
 
-#: kcm/ui/SystemPage.qml:33
+#: kcm/ui/SystemPage.qml:46
 #, kde-format
 msgctxt "charger type"
 msgid "USB battery charging"
 msgstr "USB Battery Charging"
 
-#: kcm/ui/SystemPage.qml:34
+#: kcm/ui/SystemPage.qml:48
 #, kde-format
 msgctxt "charger type"
 msgid "USB bus power"
 msgstr "USB-busvoeding"
 
-#: kcm/ui/SystemPage.qml:35
+#: kcm/ui/SystemPage.qml:50
 #, kde-format
 msgctxt "charger type"
 msgid "an unknown charger"
 msgstr "een onbekende lader"
 
-#: kcm/ui/SystemPage.qml:41
+#: kcm/ui/SystemPage.qml:57
 #, kde-format
 msgctxt "PD controller firmware version"
 msgid "Right: %1"
 msgstr "Rechts: %1"
 
-#: kcm/ui/SystemPage.qml:42
+#: kcm/ui/SystemPage.qml:59
 #, kde-format
 msgctxt "PD controller firmware version"
 msgid "Left: %1"
 msgstr "Links: %1"
 
-#: kcm/ui/SystemPage.qml:44
+#: kcm/ui/SystemPage.qml:61
 #, kde-format
 msgctxt "PD controller number, firmware version"
 msgid "PD %1: %2"
 msgstr "PD %1: %2"
 
-#: kcm/ui/SystemPage.qml:50
+#: kcm/ui/SystemPage.qml:67
 #, kde-format
 msgid "Device"
 msgstr "Apparaat"
 
-#: kcm/ui/SystemPage.qml:54
+#: kcm/ui/SystemPage.qml:71
 #, kde-format
 msgid "Model:"
 msgstr "Model:"
 
-#: kcm/ui/SystemPage.qml:62
+#: kcm/ui/SystemPage.qml:79
 #, kde-format
 msgid ""
 "This does not look like a Framework laptop. Most settings will not work."
 msgstr ""
 "Dit lijkt geen Framework-laptop te zijn. De meeste instellingen werken niet."
 
-#: kcm/ui/SystemPage.qml:66
+#: kcm/ui/SystemPage.qml:83
 #, kde-format
 msgid "Camera:"
 msgstr "Camera:"
 
-#: kcm/ui/SystemPage.qml:68 kcm/ui/SystemPage.qml:74
+#: kcm/ui/SystemPage.qml:84 kcm/ui/SystemPage.qml:89
 #, kde-format
 msgid "Enabled"
 msgstr "Ingeschakeld"
 
-#: kcm/ui/SystemPage.qml:68 kcm/ui/SystemPage.qml:74
+#: kcm/ui/SystemPage.qml:84 kcm/ui/SystemPage.qml:89
 #, kde-format
 msgid "Disabled by privacy switch"
 msgstr "Uitgeschakeld door privacyschakelaar"
 
-#: kcm/ui/SystemPage.qml:72
+#: kcm/ui/SystemPage.qml:88
 #, kde-format
 msgid "Microphone:"
 msgstr "Microfoon:"
 
-#: kcm/ui/SystemPage.qml:79
+#: kcm/ui/SystemPage.qml:94
 #, kde-format
 msgid "Firmware"
 msgstr "Firmware"
 
-#: kcm/ui/SystemPage.qml:83
+#: kcm/ui/SystemPage.qml:98
 #, kde-format
 msgid "BIOS:"
 msgstr "BIOS:"
 
-#: kcm/ui/SystemPage.qml:84
+#: kcm/ui/SystemPage.qml:99
 #, kde-format
 msgctxt "version (date)"
 msgid "%1 (%2)"
 msgstr "%1 (%2)"
 
-#: kcm/ui/SystemPage.qml:88
+#: kcm/ui/SystemPage.qml:103
 #, kde-format
 msgid "EC:"
 msgstr "EC:"
 
-#: kcm/ui/SystemPage.qml:93
+#: kcm/ui/SystemPage.qml:108
 #, kde-format
 msgid "EC image:"
 msgstr "EC-image:"
 
-#: kcm/ui/SystemPage.qml:96
+#: kcm/ui/SystemPage.qml:111
 #, kde-format
 msgctxt "EC firmware images; RO and RW are the read-only and read-write copies"
 msgid "RO %1, RW %2 (running %3)"
 msgstr "RO %1, RW %2 (actief: %3)"
 
-#: kcm/ui/SystemPage.qml:101
+#: kcm/ui/SystemPage.qml:116
 #, kde-format
 msgid "PD controllers:"
 msgstr "PD-controllers:"
 
-#: kcm/ui/SystemPage.qml:106
+#: kcm/ui/SystemPage.qml:121
 #, kde-format
 msgid "Service:"
 msgstr "Dienst:"
 
-#: kcm/ui/SystemPage.qml:108
+#: kcm/ui/SystemPage.qml:123
 #, kde-format
 msgid "frameworkd %1"
 msgstr "frameworkd %1"
 
-#: kcm/ui/SystemPage.qml:113
+#: kcm/ui/SystemPage.qml:128
 #, kde-format
 msgid "USB-C Ports"
 msgstr "USB-C-poorten"
 
-#: kcm/ui/SystemPage.qml:123
+#: kcm/ui/SystemPage.qml:140
 #, kde-format
 msgctxt "port name"
 msgid "%1:"
 msgstr "%1:"
 
-#: kcm/ui/SystemPage.qml:127
+#: kcm/ui/SystemPage.qml:144
 #, kde-format
 msgid "Unavailable"
 msgstr "Niet beschikbaar"
 
-#: kcm/ui/SystemPage.qml:131
+#: kcm/ui/SystemPage.qml:148
 #, kde-format
 msgid "Nothing connected"
 msgstr "Niets aangesloten"
 
-#: kcm/ui/SystemPage.qml:133
+#: kcm/ui/SystemPage.qml:150
 #, kde-format
 msgid "Powering a device"
 msgstr "Voedt een apparaat"
 
-#: kcm/ui/SystemPage.qml:138
+#: kcm/ui/SystemPage.qml:155
 #, kde-format
 msgctxt "USB-C port state"
 msgid "Charging"
 msgstr "Laadt op"
 
-#: kcm/ui/SystemPage.qml:138
+#: kcm/ui/SystemPage.qml:155
 #, kde-format
 msgctxt "USB-C port state"
 msgid "Connected, not charging"
 msgstr "Aangesloten, laadt niet op"
 
-#: kcm/ui/SystemPage.qml:139
+#: kcm/ui/SystemPage.qml:156
 #, kde-format
 msgctxt "state, charger type, watts, volts"
 msgid "%1 via %2, up to %3 W (%4 V)"
 msgstr "%1 via %2, tot %3 W (%4 V)"
 
-#: kcm/ui/ThermalPage.qml:14
-#, kde-format
-msgctxt "temperature sensor"
-msgid "CPU"
-msgstr "CPU"
-
-#: kcm/ui/ThermalPage.qml:15
-#, kde-format
-msgctxt "temperature sensor on the mainboard next to the CPU"
-msgid "Near CPU"
-msgstr "Bij CPU"
-
 #: kcm/ui/ThermalPage.qml:16
-#, kde-format
-msgctxt "temperature sensor"
-msgid "Memory"
-msgstr "Geheugen"
-
-#: kcm/ui/ThermalPage.qml:17
-#, kde-format
-msgctxt "temperature sensor"
-msgid "Mainboard"
-msgstr "Moederbord"
-
-#: kcm/ui/ThermalPage.qml:18
-#, kde-format
-msgctxt "temperature sensor"
-msgid "Battery"
-msgstr "Accu"
-
-#: kcm/ui/ThermalPage.qml:19
-#, kde-format
-msgctxt "temperature sensor"
-msgid "Charger"
-msgstr "Lader"
-
-#: kcm/ui/ThermalPage.qml:20
-#, kde-format
-msgctxt "temperature sensor on the case surface"
-msgid "Chassis"
-msgstr "Behuizing"
-
-#: kcm/ui/ThermalPage.qml:21
-#, kde-format
-msgctxt "temperature sensor"
-msgid "SSD"
-msgstr "SSD"
-
-#: kcm/ui/ThermalPage.qml:22
-#, kde-format
-msgctxt "temperature sensor"
-msgid "GPU"
-msgstr "GPU"
-
-#: kcm/ui/ThermalPage.qml:23
-#, kde-format
-msgctxt "temperature sensor"
-msgid "Wi-Fi"
-msgstr "Wifi"
-
-#: kcm/ui/ThermalPage.qml:30
-#, kde-format
-msgctxt "temperature sensor state"
-msgid "Off"
-msgstr "Uit"
-
-#: kcm/ui/ThermalPage.qml:31
-#, kde-format
-msgctxt "temperature sensor state"
-msgid "Not calibrated"
-msgstr "Niet gekalibreerd"
-
-#: kcm/ui/ThermalPage.qml:32
-#, kde-format
-msgctxt "temperature sensor state"
-msgid "Error"
-msgstr "Fout"
-
-#: kcm/ui/ThermalPage.qml:38
-#, kde-format
-msgctxt "fan cooling the processor"
-msgid "CPU fan"
-msgstr "CPU-ventilator"
-
-#: kcm/ui/ThermalPage.qml:39
-#, kde-format
-msgid "Left fan"
-msgstr "Linkerventilator"
-
-#: kcm/ui/ThermalPage.qml:40
-#, kde-format
-msgid "Right fan"
-msgstr "Rechterventilator"
-
-#: kcm/ui/ThermalPage.qml:41
-#, kde-format
-msgid "Front fan"
-msgstr "Voorste ventilator"
-
-#: kcm/ui/ThermalPage.qml:42
-#, kde-format
-msgid "Third fan"
-msgstr "Derde ventilator"
-
-#: kcm/ui/ThermalPage.qml:51
 #, kde-format
 msgid "Temperatures"
 msgstr "Temperaturen"
 
-#: kcm/ui/ThermalPage.qml:75
+#: kcm/ui/ThermalPage.qml:40
 #, kde-format
 msgctxt "degrees celsius"
 msgid "%1 °C"
 msgstr "%1 °C"
 
-#: kcm/ui/ThermalPage.qml:94
-#, kde-format
-msgid "Throttling: unknown"
-msgstr "Throttling: onbekend"
-
-#: kcm/ui/ThermalPage.qml:97
-#, kde-format
-msgid "Throttling: yes (PROCHOT)"
-msgstr "Throttling: ja (PROCHOT)"
-
-#: kcm/ui/ThermalPage.qml:99
-#, kde-format
-msgid "Throttling: yes (soft limit)"
-msgstr "Throttling: ja (zachte limiet)"
-
-#: kcm/ui/ThermalPage.qml:99
-#, kde-format
-msgid "Not throttling"
-msgstr "Geen throttling"
-
-#: kcm/ui/ThermalPage.qml:108
+#: kcm/ui/ThermalPage.qml:73
 #, kde-format
 msgid "Fans"
 msgstr "Ventilatoren"
 
-#: kcm/ui/ThermalPage.qml:118
+#: kcm/ui/ThermalPage.qml:84
 #, kde-format
 msgctxt "fan name"
 msgid "%1:"
 msgstr "%1:"
 
-#: kcm/ui/ThermalPage.qml:119
-#, kde-format
-msgid "Stalled"
-msgstr "Vastgelopen"
-
-#: kcm/ui/ThermalPage.qml:119 kcm/ui/ThermalPage.qml:157
+#: kcm/ui/ThermalPage.qml:85 kcm/ui/ThermalPage.qml:123
 #, kde-format
 msgid "%1 RPM"
 msgstr "%1 tpm"
 
-#: kcm/ui/ThermalPage.qml:124
+#: kcm/ui/ThermalPage.qml:90
 #, kde-format
 msgid "Fan control:"
 msgstr "Ventilatorbesturing:"
 
-#: kcm/ui/ThermalPage.qml:128
+#: kcm/ui/ThermalPage.qml:94
 #, kde-format
 msgid "Fixed duty cycle"
 msgstr "Vaste inschakelduur"
 
-#: kcm/ui/ThermalPage.qml:129
+#: kcm/ui/ThermalPage.qml:95
 #, kde-format
 msgid "Fixed speed"
 msgstr "Vaste snelheid"
 
-#: kcm/ui/ThermalPage.qml:165
+#: kcm/ui/ThermalPage.qml:131
 #, kde-format
 msgid ""
 "The EC still shuts the system down if it overheats, but a fixed fan speed "
@@ -967,32 +1111,23 @@ msgstr ""
 "ventilatoren gaan terug naar automatisch wanneer de dienst stopt of de "
 "laptop opnieuw start."
 
-#: kcm/ui/main.qml:21
 #, kde-format
-msgid ""
-"Could not reach the Framework hardware service (frameworkd). Make sure "
-"it is installed and that D-Bus activation or the systemd unit is enabled."
-msgstr ""
-"Kan de Framework-hardwaredienst (frameworkd) niet bereiken. Zorg ervoor "
-"dat deze is geïnstalleerd en dat D-Bus-activering of de systemd-unit is "
-"ingeschakeld."
+#~ msgid "Charging"
+#~ msgstr "Opladen"
 
-#: kcm/ui/main.qml:38
 #, kde-format
-msgid "Overview"
-msgstr ""
+#~ msgid ""
+#~ "Could not reach the Framework hardware service (frameworkd). Make sure it "
+#~ "is installed and that D-Bus activation or the systemd unit is enabled."
+#~ msgstr ""
+#~ "Kan de Framework-hardwaredienst (frameworkd) niet bereiken. Zorg ervoor "
+#~ "dat deze is geïnstalleerd en dat D-Bus-activering of de systemd-unit is "
+#~ "ingeschakeld."
 
-#: kcm/ui/main.qml:40
 #, kde-format
-msgid "Schedule"
-msgstr ""
+#~ msgid "Fans & Thermals"
+#~ msgstr "Ventilatoren en temperatuur"
 
-#: kcm/ui/main.qml:41
 #, kde-format
-msgid "Fans & Thermals"
-msgstr "Ventilatoren en temperatuur"
-
-#: kcm/ui/main.qml:42
-#, kde-format
-msgid "Touchpad & LED"
-msgstr "Touchpad en led"
+#~ msgid "Touchpad & LED"
+#~ msgstr "Touchpad en led"
