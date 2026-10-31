@@ -18,7 +18,7 @@ env:
   UBUNTU_DEPS: >-
     build-essential cmake git ca-certificates pkgconf gettext dpkg-dev file
     rustc cargo extra-cmake-modules qt6-base-dev qt6-declarative-dev
-    libkf6kcmutils-dev libkf6i18n-dev libkf6coreaddons-dev libudev-dev
+    libkf6kcmutils-dev libkf6i18n-dev libkf6coreaddons-dev libkirigami-dev libudev-dev
 
 jobs:
   # Builds the .deb packages and the release tarball from one compile. It runs
@@ -103,7 +103,7 @@ jobs:
           apt-get update
           apt-get install -y --no-install-recommends \
             build-essential cmake extra-cmake-modules gettext libkf6i18n-dev \
-            qt6-base-dev qt6-declarative-dev
+            libkirigami-dev qt6-base-dev qt6-declarative-dev
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 

@@ -12,9 +12,11 @@ name: C++ CI
 
 jobs:
   ci:
+    # A called workflow can't be granted more than this; FyraLabs/actions also needs actions: read
     permissions:
       contents: read
       security-events: write
+      actions: read
     uses: FyraLabs/actions/.github/workflows/cpp.yml@main
     with:
       container: ghcr.io/terrapkg/builder:f44
