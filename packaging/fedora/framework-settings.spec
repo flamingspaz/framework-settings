@@ -149,7 +149,7 @@ fi
 %files -n framework-gui
 %license LICENSE
 %{_bindir}/framework-settings
-%{_appsdir}/io.github.frameworkkcm.desktop
+%{_appsdir}/%{appid}.desktop
 %{_scalableiconsdir}/framework-gui.svg
 %{_metainfodir}/%{appid}.metainfo.xml
 

@@ -62,7 +62,7 @@ qt_add_qml_module(framework-settings
 )
 
 install(TARGETS framework-settings DESTINATION ${KDE_INSTALL_BINDIR} COMPONENT gui)
-install(FILES ../data/io.github.frameworkkcm.desktop
+install(FILES ../data/com.github.framework-settings.desktop
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications COMPONENT gui)
 
 if(BUILD_TESTING)

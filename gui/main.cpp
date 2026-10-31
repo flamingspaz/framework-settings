@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
     QGuiApplication::setApplicationName(QStringLiteral("Framework Settings"));
     QGuiApplication::setOrganizationName(QStringLiteral("Framework"));
-    QGuiApplication::setDesktopFileName(QStringLiteral("io.github.frameworkkcm"));
+    QGuiApplication::setDesktopFileName(QStringLiteral("com.github.framework-settings"));
     KLocalizedString::setApplicationDomain(QByteArrayLiteral(TRANSLATION_DOMAIN));
 
     FrameworkKcm settings;
