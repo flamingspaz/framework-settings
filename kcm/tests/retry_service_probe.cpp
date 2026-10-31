@@ -3,6 +3,7 @@
 #include "frameworkkcm.h"
 
 #include <KLocalizedString>
+#include <KPluginMetaData>
 
 #include <QDBusConnection>
 #include <QDBusContext>
@@ -66,7 +67,7 @@ private Q_SLOTS:
         FakeDaemon daemon;
         QVERIFY(bus.registerObject(QString::fromLatin1(s_path), &daemon, QDBusConnection::ExportAllSlots));
 
-        FrameworkKcm settings;
+        FrameworkKcm settings(nullptr, KPluginMetaData());
         QSignalSpy powerChanged(&settings, &FrameworkKcm::powerChanged);
         QVERIFY(powerChanged.isValid());
 
@@ -85,6 +86,50 @@ private Q_SLOTS:
 
         bus.unregisterObject(QString::fromLatin1(s_path));
         bus.unregisterService(QString::fromLatin1(s_service));
+    }
+
+    void batteryTabPollsPowerAndOverviewReadsOnce() {
+        auto bus = QDBusConnection::systemBus();
+        QVERIFY(bus.registerService(QString::fromLatin1(s_service)));
+        FakeDaemon daemon;
+        daemon.powerAvailable = true;
+        QVERIFY(bus.registerObject(QString::fromLatin1(s_path), &daemon, QDBusConnection::ExportAllSlots));
+
+        FrameworkKcm settings(nullptr, KPluginMetaData());
+        settings.setLiveData(QStringLiteral("power"));
+        QTRY_COMPARE(settings.powerInfo().value(QStringLiteral("percentage")).toInt(), 67);
+        // Polled every couple of seconds while the Battery tab is shown
+        QTRY_VERIFY_WITH_TIMEOUT(daemon.powerCalls >= 2, 5000);
+
+        // The Overview reads once (unless a poll was still in flight), then stops
+        settings.setLiveData(QStringLiteral("overview"));
+        const int atSwitch = daemon.powerCalls;
+        QTest::qWait(5000);
+        QVERIFY(daemon.powerCalls <= atSwitch + 1);
+
+        bus.unregisterObject(QString::fromLatin1(s_path));
+        bus.unregisterService(QString::fromLatin1(s_service));
+    }
+
+    void scheduleEditsCountTowardsNeedsSave() {
+        FrameworkKcm settings(nullptr, KPluginMetaData());
+        QSignalSpy saveRequested(&settings, &FrameworkKcm::scheduleSaveRequested);
+        QSignalSpy resetRequested(&settings, &FrameworkKcm::scheduleResetRequested);
+        QVERIFY(!settings.needsSave());
+
+        settings.setScheduleDirty(true);
+        QVERIFY(settings.needsSave());
+
+        // Apply and Reset hand the schedule to the page that holds its edits
+        settings.save();
+        QCOMPARE(saveRequested.count(), 1);
+        settings.load();
+        QCOMPARE(resetRequested.count(), 1);
+        // The page didn't clear its edits, so they still need saving
+        QVERIFY(settings.needsSave());
+
+        settings.setScheduleDirty(false);
+        QVERIFY(!settings.needsSave());
     }
 };
 

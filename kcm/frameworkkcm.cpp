@@ -110,12 +110,8 @@ namespace {
 
 #ifdef FRAMEWORK_STANDALONE
 FrameworkKcm::FrameworkKcm(QObject *parent) : QObject(parent) {
-
-
 #else
 FrameworkKcm::FrameworkKcm(QObject *parent, const KPluginMetaData &data) : KQuickConfigModule(parent, data) {
-#endif
-#ifndef FRAMEWORK_STANDALONE
     setButtons(Help | Default | Apply);
 #endif
 
@@ -187,6 +183,7 @@ void FrameworkKcm::load() {
 #endif
 
     // Reset: drop unsaved edits, then take whatever the hardware reports
+    Q_EMIT scheduleResetRequested();
     m_current = m_saved;
     settingsEdited();
 
@@ -195,40 +192,52 @@ void FrameworkKcm::load() {
         return;
     }
 
-    // Slow (talks to the PD controllers over I2C), and never changes, so only once
-    call(u"GetSystemInfo"_s, {}, [this](const QDBusMessage &reply) {
-        m_systemInfo = replyArg(reply, 0).toMap();
-        Q_EMIT systemInfoChanged();
-    });
-
-    loadPowerInfo();
-
-    loadSettings();
-    refreshLive();
+    readService();
 }
 
 void FrameworkKcm::retryService() {
+    if (m_fixtureMode) {
+        return;
+    }
+    // Re-read without dropping unsaved edits; the call also lets D-Bus
+    // activation start frameworkd if it was stopped
     clearError();
+    readService();
+}
 
-    // Retry reads without resetting the user's unsaved edits. Calling the
-    // service also lets D-Bus activation start frameworkd when it is stopped.
+void FrameworkKcm::readService() {
+    // Slow (talks to the PD controllers over I2C), and never changes, so only on load or retry
     call(u"GetSystemInfo"_s, {}, [this](const QDBusMessage &reply) {
         m_systemInfo = replyArg(reply, 0).toMap();
         Q_EMIT systemInfoChanged();
     });
-    loadPowerInfo();
+
+    // The Battery and Overview tabs read power through refreshLive() below
+    if (!liveReadsPower()) {
+        readPower({});
+    }
+
     loadSettings();
     refreshLive();
 }
 
-void FrameworkKcm::loadPowerInfo() {
+void FrameworkKcm::readPower(const std::function<void()> &finished) {
     call(
         u"GetPower"_s, {},
-        [this](const QDBusMessage &reply) {
-            m_powerInfo = replyArg(reply, 0).toMap();
-            Q_EMIT powerChanged();
+        [this, finished](const QDBusMessage &reply) {
+            if (finished) {
+                finished();
+            }
+            const auto power = replyArg(reply, 0).toMap();
+            if (power != m_powerInfo) {
+                m_powerInfo = power;
+                Q_EMIT powerChanged();
+            }
         },
-        [this](const QDBusError &error) {
+        [this, finished](const QDBusError &error) {
+            if (finished) {
+                finished();
+            }
             if (!isServiceMissing(error)) {
                 setError(error.message());
             }
@@ -456,31 +465,31 @@ void FrameworkKcm::setLiveData(const QString &liveData) {
         return;
     }
 
-    if (m_liveData.isEmpty()) {
+    refreshLive();
+    // The Overview's summary reads once; the other tabs poll while shown
+    if (m_liveData.isEmpty() || m_liveData == u"overview"_s) {
         m_liveTimer.stop();
     } else {
-        refreshLive();
         m_liveTimer.start();
     }
 }
 
+bool FrameworkKcm::liveReadsPower() const { return m_liveData == u"power"_s || m_liveData == u"overview"_s; }
+
 void FrameworkKcm::refreshLive() {
-    if (m_fixtureMode) {
-        return;
-    }
     // Don't pile up requests if the EC is slow
-    if (m_liveInFlight || m_liveData.isEmpty()) {
+    if (m_fixtureMode || m_liveInFlight > 0) {
         return;
     }
-    m_liveInFlight = true;
+    const auto finished = [this] { --m_liveInFlight; };
 
-    const auto done = [this](const QDBusError &) { m_liveInFlight = false; };
-
-    if (m_liveData == u"thermal"_s) {
+    if (m_liveData == u"thermal"_s || m_liveData == u"overview"_s) {
+        ++m_liveInFlight;
+        const auto done = [finished](const QDBusError &) { finished(); };
         call(
             u"GetThermal"_s, {},
-            [this](const QDBusMessage &reply) {
-                m_liveInFlight = false;
+            [this, finished](const QDBusMessage &reply) {
+                finished();
                 const auto sensors = replyArg(reply, 0).toList();
                 const auto fans = replyArg(reply, 1).toList();
                 const auto throttle = replyArg(reply, 2).toMap();
@@ -493,11 +502,18 @@ void FrameworkKcm::refreshLive() {
                 }
             },
             done);
-    } else if (m_liveData == u"ports"_s) {
+    }
+    if (liveReadsPower()) {
+        ++m_liveInFlight;
+        readPower(finished);
+    }
+    if (m_liveData == u"ports"_s) {
+        ++m_liveInFlight;
+        const auto done = [finished](const QDBusError &) { finished(); };
         call(
             u"GetPorts"_s, {},
-            [this](const QDBusMessage &reply) {
-                m_liveInFlight = false;
+            [this, finished](const QDBusMessage &reply) {
+                finished();
                 const auto ports = replyArg(reply, 0).toList();
                 if (ports != m_ports) {
                     m_ports = ports;
@@ -522,6 +538,8 @@ void FrameworkKcm::save() {
 #ifndef FRAMEWORK_STANDALONE
     KQuickConfigModule::save();
 #endif
+    // Synchronous; a failed schedule save leaves scheduleDirty set, which keeps needsSave
+    Q_EMIT scheduleSaveRequested();
     if (m_fixtureMode) {
         m_saved = m_current;
         settingsEdited();
@@ -561,7 +579,7 @@ void FrameworkKcm::runNextWrite() {
         setBusy(false);
         // Everything was written; reload merges in what the hardware now reports
         m_saved = m_current;
-        updateNeedsSave(false);
+        updateNeedsSave();
         loadSettings();
         return;
     }
@@ -575,7 +593,7 @@ void FrameworkKcm::runNextWrite() {
             setBusy(false);
             setWriteError(error);
             // Keep the unsaved edits so the user can retry
-            updateNeedsSave(true);
+            updateNeedsSave();
         },
         s_writeTimeout);
 }
@@ -626,7 +644,7 @@ void FrameworkKcm::defaults() {
 
 void FrameworkKcm::settingsEdited() {
     Q_EMIT settingsChanged();
-    updateNeedsSave(m_current != m_saved);
+    updateNeedsSave();
 #ifndef FRAMEWORK_STANDALONE
     setRepresentsDefaults(m_current == withDefaults(m_current));
 #endif
@@ -655,7 +673,17 @@ SETTER(ClickForce, clickForce, const QString &)
 
 void FrameworkKcm::clearError() { setError(QString()); }
 
-void FrameworkKcm::updateNeedsSave(bool needsSave) {
+void FrameworkKcm::setScheduleDirty(const bool dirty) {
+    if (m_scheduleDirty == dirty) {
+        return;
+    }
+    m_scheduleDirty = dirty;
+    Q_EMIT scheduleDirtyChanged();
+    updateNeedsSave();
+}
+
+void FrameworkKcm::updateNeedsSave() {
+    const bool needsSave = m_current != m_saved || m_scheduleDirty;
 #ifdef FRAMEWORK_STANDALONE
     if (m_needsSave != needsSave) {
         m_needsSave = needsSave;

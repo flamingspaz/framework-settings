@@ -55,8 +55,12 @@ class FrameworkKcm : public KQuickConfigModule {
     Q_PROPERTY(QVariantMap powerInfo READ powerInfo NOTIFY powerChanged)
     Q_PROPERTY(bool scheduleEnabled READ scheduleEnabled NOTIFY scheduleChanged)
     Q_PROPERTY(QVariantList schedules READ schedules NOTIFY scheduleChanged)
+    // Unsaved edits on the schedule page; they count towards needsSave so Apply,
+    // Reset and the unsaved-changes prompts cover them too
+    Q_PROPERTY(bool scheduleDirty READ scheduleDirty WRITE setScheduleDirty NOTIFY scheduleDirtyChanged)
 
-    // Which live readings the visible page needs: "thermal", "ports" or empty
+    // Which live readings the visible page needs: "thermal", "power" or "ports"
+    // (polled), "overview" (thermal and power, read once) or empty
     Q_PROPERTY(QString liveData READ liveData WRITE setLiveData NOTIFY liveDataChanged)
 
     // Live readings, refreshed every couple of seconds while shown
@@ -111,6 +115,9 @@ public:
     [[nodiscard]] QVariantMap powerInfo() const { return m_powerInfo; }
     [[nodiscard]] bool scheduleEnabled() const { return m_scheduleEnabled; }
     [[nodiscard]] QVariantList schedules() const { return m_schedules; }
+    [[nodiscard]] bool scheduleDirty() const { return m_scheduleDirty; }
+
+    void setScheduleDirty(bool dirty);
     [[nodiscard]] QString liveData() const { return m_liveData; }
 
     void setLiveData(const QString &liveData);
@@ -153,6 +160,7 @@ public:
 
     Q_INVOKABLE void clearError();
 
+    // Re-read everything from frameworkd, keeping unsaved edits
     Q_INVOKABLE void retryService();
 
     Q_INVOKABLE void setFixtureModel(const QString &model);
@@ -200,6 +208,13 @@ Q_SIGNALS:
 
     void scheduleChanged();
 
+    void scheduleDirtyChanged();
+
+    // Apply and Reset also cover the schedule page, which keeps its own edits
+    void scheduleSaveRequested();
+
+    void scheduleResetRequested();
+
 private:
     using ReplyHandler = std::function<void(const QDBusMessage &)>;
     using ErrorHandler = std::function<void(const QDBusError &)>;
@@ -207,9 +222,13 @@ private:
     void call(const QString &method, const QVariantList &args, const ReplyHandler &onReply,
               const ErrorHandler &onError = {}, int timeout = -1);
 
-    void refreshLive();
+    void readService();
 
-    void loadPowerInfo();
+    void readPower(const std::function<void()> &finished);
+
+    [[nodiscard]] bool liveReadsPower() const;
+
+    void refreshLive();
 
     void loadSettings();
 
@@ -232,7 +251,8 @@ private:
 
     void setWriteError(const QDBusError &error);
 
-    void updateNeedsSave(bool needsSave);
+    // Re-derive needsSave; KQuickConfigModule::save() clears it before the writes finish
+    void updateNeedsSave();
 
     void runAction(const QString &method);
 
@@ -265,7 +285,8 @@ private:
     bool m_supportsInputDeck = false;
     bool m_supportsTabletMode = false;
     bool m_supportsTouchscreen = false;
-    bool m_liveInFlight = false;
+    int m_liveInFlight = 0;
+    bool m_scheduleDirty = false;
     QString m_errorMessage;
     QString m_liveData;
     QTimer m_liveTimer;
