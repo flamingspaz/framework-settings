@@ -44,11 +44,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_AUTOMOC ON)
 
-find_package(Qt6 ${QT_MIN_VERSION} REQUIRED COMPONENTS Core DBus Qml Quick)
-if(BUILD_GUI)
-  find_package(Qt6 ${QT_MIN_VERSION} REQUIRED COMPONENTS QuickControls2)
+# A daemon-only build (both UIs off) needs no Qt
+if(BUILD_KCM OR BUILD_GUI)
+  find_package(Qt6 ${QT_MIN_VERSION} REQUIRED COMPONENTS Core DBus Qml Quick)
+  if(BUILD_GUI)
+    find_package(Qt6 ${QT_MIN_VERSION} REQUIRED COMPONENTS QuickControls2)
+  endif()
+  qt_policy(SET QTP0001 NEW)
 endif()
-qt_policy(SET QTP0001 NEW)
 
 set(DAEMON_PATH "${KDE_INSTALL_FULL_LIBEXECDIR}/frameworkd" CACHE FILEPATH "Path to the Daemon build to use if BUILD_DAEMON=OFF")
 if(BUILD_DAEMON AND NOT DAEMON_PATH STREQUAL "${KDE_INSTALL_FULL_LIBEXECDIR}/frameworkd")
