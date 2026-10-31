@@ -1,28 +1,28 @@
-# Framework KCM
+# Framework Settings
 
-Framework laptop settings in KDE System Settings: battery charge limits,
-fans and temperatures, fingerprint LED and haptic touchpad settings, and
-firmware and USB-C port information.
+Framework laptop settings, in KDE System Settings or as a standalone app:
+battery charge limits, fans and temperatures, fingerprint LED and haptic
+touchpad settings, and firmware and USB-C port information.
 
-| Battery                                  | Fans & Thermals                           |
-| ---------------------------------------- | ----------------------------------------- |
-| ![Battery tab](docs/battery.png)         | ![Fans & Thermals tab](docs/thermals.png) |
-| **Touchpad & LED**                       | **System**                                |
-| ![Touchpad & LED tab](docs/touchpad.png) | ![System tab](docs/system.png)            |
+| Battery                          | Thermals                           |
+| -------------------------------- | ---------------------------------- |
+| ![Battery tab](docs/battery.png) | ![Thermals tab](docs/thermals.png) |
+| **Input**                        | **System**                         |
+| ![Input tab](docs/touchpad.png)  | ![System tab](docs/system.png)     |
 
 ## Features
 
-- **Overview:** a read-only summary of battery, thermals, fans, and firmware,
-  with hardware controls kept on their dedicated tabs.
+- **Overview:** a read-only summary of battery, temperatures, fans,
+  throttling and firmware, with hardware controls kept on their dedicated tabs.
 - **Battery:** set a charge limit, charge to 100% once with _Override Charge
   Limit_ (the limit comes back after the next restart), and slow down
   charging to reduce heat and battery wear.
 - **Schedule:** apply different charge limits on selected weekdays and times
   using user systemd timers. Scheduling requires the Framework System
   command-line tools.
-- **Fans & Thermals:** live temperatures, fan speed and throttling status.
+- **Thermals:** live temperatures, fan speed and throttling status.
   Leave the fans on automatic, or fix their speed.
-- **Touchpad & LED:** fingerprint reader LED brightness, and haptic touchpad
+- **Input:** fingerprint reader LED brightness, and haptic touchpad
   feedback strength and click force.
 - **System:** model, BIOS, EC and PD controller firmware versions, camera and
   microphone privacy switches, and what's connected to each USB-C port.
@@ -38,9 +38,9 @@ interface, so most features should work there too, but they haven't been
 tested.
 
 The System Settings module requires KDE Plasma 6. A separate desktop app,
-`framework-settings`, is also provided for other desktop environments. It uses
-Qt Quick Controls and KDE Frameworks I18n for translations, but does not depend
-on the KCM or Plasma libraries.
+`framework-settings`, is also provided for other desktop environments. It shows
+the same pages as the module, so it uses Qt Quick Controls, KDE Frameworks
+Kirigami and I18n, but does not need KCMUtils or Plasma.
 It follows Qt Quick Controls' configured style (including KDE's); on Linux
 with no style configured, Qt defaults to the desktop-oriented Fusion style.
 
@@ -220,6 +220,12 @@ sudo pacman -Rns framework-settings framework-gui framework-kcm framework-settin
 sudo apt remove framework-settings framework-gui framework-kcm framework-settings-translations frameworkd
 ```
 
+Removing `frameworkd` also deletes the settings it re-applies at boot
+(`/var/lib/frameworkd`) on Arch and Fedora. Debian-based systems keep them
+until you purge the package (`sudo apt purge frameworkd`). Charge schedules
+live in your home directory, so turn them off on the **Schedule** tab before
+uninstalling, or they keep running.
+
 ## Fixture mode
 
 To preview either UI without Framework hardware or the daemon, launch it with
@@ -293,7 +299,7 @@ See [docs/translations.md](docs/translations.md).
 
 ## License
 
-Framework KCM is free software, licensed under the GNU General Public
+Framework Settings is free software, licensed under the GNU General Public
 License version 3 or (at your option) any later version. See
 [LICENSE](LICENSE).
 
