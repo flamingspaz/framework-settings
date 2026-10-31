@@ -34,6 +34,9 @@ stdenv.mkDerivation {
   ++ (lib.optionals (withGui || withKcm) (with kdePackages; [
     ki18n
   ]))
+  ++ (lib.optionals withGui (with kdePackages; [
+    kirigami
+  ]))
   ++ (lib.optionals withKcm (with kdePackages; [
     kcoreaddons
     kcmutils

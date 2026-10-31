@@ -66,7 +66,7 @@ Kirigami.FormLayout {
                 text: {
                     const power = kcm.powerInfo;
                     if (!power.batteryPresent) return i18n("Battery unavailable");
-                    if (power.charging) return i18n("Charging");
+                    if (power.charging) return i18nc("battery state", "Charging");
                     if (power.discharging) return i18n("Discharging");
                     return i18n("Not charging");
                 }
@@ -90,7 +90,7 @@ Kirigami.FormLayout {
 
     Item {
         Kirigami.FormData.isSection: true
-        Kirigami.FormData.label: i18n("Charging")
+        Kirigami.FormData.label: i18nc("settings section heading", "Charging")
     }
 
     RowLayout {

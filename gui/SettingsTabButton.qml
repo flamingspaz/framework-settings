@@ -9,6 +9,16 @@ TabButton {
     readonly property bool selected: TabBar.tabBar !== null
         && TabBar.tabBar.currentIndex === TabBar.index
 
+    // Some styles (org.kde.desktop) draw the label as part of the background,
+    // so replacing the background needs an explicit label
+    contentItem: Label {
+        text: control.text
+        font: control.font
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+        elide: Text.ElideRight
+    }
+
     background: Rectangle {
         implicitWidth: 100
         implicitHeight: 36

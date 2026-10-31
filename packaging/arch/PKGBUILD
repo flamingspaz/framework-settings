@@ -51,7 +51,7 @@ package_framework-settings() {
 
 package_framework-gui() {
   pkgdesc='Standalone Qt settings application for Framework laptops'
-  depends=('framework-settings-translations' 'frameworkd' 'hicolor-icon-theme' 'ki18n' 'qt6-base' 'qt6-declarative')
+  depends=('framework-settings-translations' 'frameworkd' 'hicolor-icon-theme' 'ki18n' 'kirigami' 'qt6-base' 'qt6-declarative')
   DESTDIR="$pkgdir" cmake --install build --component gui
   install -Dm644 "$pkgbase-$pkgver/LICENSE" "$pkgdir/usr/share/licenses/framework-gui/LICENSE"
 }

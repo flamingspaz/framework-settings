@@ -21,6 +21,7 @@ BuildRequires:  qt6-qtdeclarative-devel
 BuildRequires:  kf6-kcmutils-devel
 BuildRequires:  kf6-kcoreaddons-devel
 BuildRequires:  kf6-ki18n-devel
+BuildRequires:  kf6-kirigami-devel
 BuildRequires:  kf6-rpm-macros
 BuildRequires:  hidapi-devel
 BuildRequires:  libusb1-devel
@@ -56,6 +57,7 @@ Summary:        Standalone Qt settings application for Framework laptops
 Requires:       framework-settings-translations = %{evr}
 Requires:       frameworkd%{?_isa} = %{evr}
 Requires:       hicolor-icon-theme
+Requires:       kf6-kirigami
 Requires:       qt6-qtdeclarative
 
 %description -n framework-gui

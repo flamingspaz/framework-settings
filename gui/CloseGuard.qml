@@ -5,9 +5,8 @@ import QtQml
 QtObject {
     // Busy operations must finish even if a prior close attempt allowed discarding edits.
     property bool busy: false
-    property bool settingsDirty: false
-    property bool scheduleDirty: false
+    // Unsaved settings or schedule edits; the backend's needsSave covers both
+    property bool dirty: false
     property bool allowClose: false
-    readonly property bool hasUnsavedChanges: settingsDirty || scheduleDirty
-    readonly property bool shouldBlockClose: busy || (hasUnsavedChanges && !allowClose)
+    readonly property bool shouldBlockClose: busy || (dirty && !allowClose)
 }

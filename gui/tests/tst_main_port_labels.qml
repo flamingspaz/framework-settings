@@ -34,7 +34,8 @@ Item {
         property var throttle: ({known: false, hard: false, soft: false})
         property var sensors: []
         property var fans: []
-        property var ports: [{ok: true, position: "Left", role: "sink", maxPower: 65000000, voltageNow: 20500}]
+        property var ports: [{ok: true, position: "left-back", role: "sink", chargingType: "pd", maxPower: 65000000, voltageNow: 20500}]
+        property string liveData: ""
         property bool scheduleEnabled: false
         property var schedules: []
         property var fixtureModels: []
@@ -52,6 +53,7 @@ Item {
         function save() {}
         function defaults() {}
         function retryService() {}
+        function clearError() {}
         function overrideChargeLimit() {}
         function cancelChargeLimitOverride() {}
     }
@@ -85,7 +87,8 @@ Item {
         function test_portVoltageUsesLocaleDecimalSeparator() {
             const label = findByObjectName(mainWindow.contentItem, "portStatus");
             verify(label !== null, "Missing port status label");
-            const expected = "65 W, " + Number(20.5).toLocaleString(Qt.locale(), "f", 1) + " V";
+            const expected = "Charging via USB Power Delivery, up to 65 W ("
+                + Number(20.5).toLocaleString(Qt.locale(), "f", 1) + " V)";
             compare(label.text, expected);
             verify(label.text.indexOf("I18N_ARGUMENT_MISSING") < 0);
             verify(label.text.indexOf("I18N_ARGUMENT_EXCESS") < 0);

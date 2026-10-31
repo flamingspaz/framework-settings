@@ -53,6 +53,11 @@ Item {
             verify(!/%\d/.test(label.text), "Unsubstituted placeholder in " + label.text);
         }
 
+        // The time follows the locale's short format, so 9:30 AM in 12-hour locales
+        function localTime(hours, minutes) {
+            return new Date(2024, 0, 1, hours, minutes, 0, 0).toLocaleTimeString(Qt.locale(), Locale.ShortFormat);
+        }
+
         function init() {
             mockBackend.schedules = [{days: ["Tue"], time: "09:30", limit: 75}];
         }
@@ -62,7 +67,7 @@ Item {
                 "Keyboard backlight: Yes · Fingerprint LED: No · Input deck: Yes · Touchscreen: No · Tablet mode: Yes");
             assertFormattedText("overviewBatterySummary", "65% · AC power connected");
             assertFormattedText("overviewChargeLimit", "Charge limit: 85%");
-            assertFormattedText("overviewNextScheduleSummary", "Next scheduled change: 75% tomorrow at 09:30");
+            assertFormattedText("overviewNextScheduleSummary", "Next scheduled change: 75% tomorrow at " + localTime(9, 30));
         }
 
         function test_laterWeekdayNameUsesLocale() {
@@ -76,7 +81,7 @@ Item {
             } else if (Qt.locale().name.startsWith("en")) {
                 compare(dayName, "Thursday");
             }
-            assertFormattedText("overviewNextScheduleSummary", "Next scheduled change: 75% " + dayName + " at 09:30");
+            assertFormattedText("overviewNextScheduleSummary", "Next scheduled change: 75% " + dayName + " at " + localTime(9, 30));
         }
     }
 }

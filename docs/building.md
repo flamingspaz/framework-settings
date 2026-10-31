@@ -11,8 +11,8 @@ translations.
 - CMake 3.22 or newer and a C++20 compiler
 - Qt 6.6 or newer (Core, DBus, Qml and Quick) for either UI; add Quick
   Controls 2 for the standalone application
-- Extra CMake Modules (ECM) and KF6 I18n for either UI; KF6 CoreAddons and
-  KCMUtils are additionally required for the KCM
+- Extra CMake Modules (ECM), KF6 I18n and KF6 Kirigami for either UI; KF6
+  CoreAddons and KCMUtils are additionally required for the KCM
 - Rust and Cargo (the service is built with `cargo build --release --locked`)
 - The native development libraries used by `framework_lib` (including hidapi,
   libusb and systemd)

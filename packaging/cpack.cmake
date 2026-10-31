@@ -50,7 +50,7 @@ set(CPACK_DEBIAN_GUI_PACKAGE_SECTION "utils")
 set(CPACK_DEBIAN_GUI_DESCRIPTION
     "Standalone Qt application for managing Framework laptop charging, fans, touchpad, LED, and firmware settings.")
 set(CPACK_DEBIAN_GUI_PACKAGE_DEPENDS
-    "frameworkd, framework-settings-translations (= ${PROJECT_VERSION}-${CPACK_DEBIAN_PACKAGE_RELEASE}), hicolor-icon-theme, qml6-module-qtquick-controls, qml6-module-qtquick-layouts")
+    "frameworkd, framework-settings-translations (= ${PROJECT_VERSION}-${CPACK_DEBIAN_PACKAGE_RELEASE}), hicolor-icon-theme, qml6-module-org-kde-kirigami, qml6-module-qtquick-controls, qml6-module-qtquick-layouts")
 
 set(CPACK_DEBIAN_KCM_PACKAGE_NAME "framework-kcm")
 set(CPACK_DEBIAN_KCM_PACKAGE_SECTION "kde")

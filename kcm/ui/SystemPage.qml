@@ -81,14 +81,12 @@ Kirigami.FormLayout {
 
     QQC2.Label {
         Kirigami.FormData.label: i18n("Camera:")
-        visible: info.privacyKnown === true
-        text: info.cameraEnabled ? i18n("Enabled") : i18n("Disabled by privacy switch")
+        text: info.privacyKnown === true ? (info.cameraEnabled ? i18n("Enabled") : i18n("Disabled by privacy switch")) : i18n("Unknown")
     }
 
     QQC2.Label {
         Kirigami.FormData.label: i18n("Microphone:")
-        visible: info.privacyKnown === true
-        text: info.micEnabled ? i18n("Enabled") : i18n("Disabled by privacy switch")
+        text: info.privacyKnown === true ? (info.micEnabled ? i18n("Enabled") : i18n("Disabled by privacy switch")) : i18n("Unknown")
     }
 
     Item {
@@ -138,6 +136,7 @@ Kirigami.FormLayout {
         {
             required property int index
             readonly property var modelData: kcm.ports[index] ?? ({})
+            objectName: "portStatus"
             Kirigami.FormData.label: i18nc("port name", "%1:", portName(modelData.position))
             text: {
                 const p = modelData;

@@ -1,20 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+#include "localizedcontext.h"
+
 #include <QtQuickTest/quicktest.h>
 
 #include <QGuiApplication>
 #include <QQmlContext>
 #include <QQmlEngine>
 
-#if defined(FRAMEWORK_KF6_HAS_LOCALIZED_QML_CONTEXT)
-// KI18n's TRANSLATION_DOMAIN macros expand the i18n method names in this header.
-#pragma push_macro("TRANSLATION_DOMAIN")
-#undef TRANSLATION_DOMAIN
-#include <KLocalizedQmlContext>
-#pragma pop_macro("TRANSLATION_DOMAIN")
-#else
-#include <KLocalizedContext>
-#endif
 #pragma push_macro("TRANSLATION_DOMAIN")
 #undef TRANSLATION_DOMAIN
 #include <KLocalizedString>
@@ -31,14 +24,8 @@ public Q_SLOTS:
     }
 
     void qmlEngineAvailable(QQmlEngine *engine) {
-#if defined(FRAMEWORK_KF6_HAS_LOCALIZED_QML_CONTEXT)
-        auto *localizedContext = KLocalization::setupLocalizedContext(engine);
-        localizedContext->setTranslationDomain(QStringLiteral(TRANSLATION_DOMAIN));
-#else
-        auto *localizedContext = new KLocalizedContext(engine);
-        engine->rootContext()->setContextObject(localizedContext);
-#endif
-        engine->rootContext()->setContextProperty(QStringLiteral("productionI18nContext"), localizedContext);
+        engine->rootContext()->setContextProperty(QStringLiteral("productionI18nContext"),
+                                                  setupLocalizedContext(engine));
     }
 };
 

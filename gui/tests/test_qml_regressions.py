@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-"""Source-level regression checks for standalone GUI states without hardware."""
+"""Source-level regression checks for the shared and standalone QML without hardware."""
 
 from pathlib import Path
 import re
@@ -8,6 +8,8 @@ import unittest
 
 
 GUI_DIR = Path(__file__).resolve().parents[1]
+# The pages both UIs load
+SHARED_DIR = GUI_DIR.parent / "kcm" / "ui"
 
 
 def post_translation_arg_calls(source: str) -> list[str]:
@@ -71,63 +73,51 @@ def named_block(source: str, qml_type: str, object_name: str) -> str:
 
 class KI18nArgumentTests(unittest.TestCase):
     def test_qml_arguments_are_passed_to_translation_calls(self) -> None:
-        for qml_name in ("Main.qml", "OverviewPage.qml", "SchedulePage.qml"):
-            with self.subTest(qml_name=qml_name):
-                source = (GUI_DIR / qml_name).read_text(encoding="utf-8")
+        for path in sorted([*GUI_DIR.glob("*.qml"), *SHARED_DIR.glob("*.qml")]):
+            with self.subTest(qml_name=path.name, parent=path.parent.name):
+                source = path.read_text(encoding="utf-8")
                 self.assertEqual(post_translation_arg_calls(source), [])
 
-    def test_main_formatted_labels_pass_arguments_directly(self) -> None:
-        main = (GUI_DIR / "Main.qml").read_text(encoding="utf-8")
-        self.assertIn('i18n("Charge limit: %1%", kcm.chargeLimit)', main)
-        self.assertIn('i18n("%1 RPM", value)', main)
-        self.assertIn('i18n("%1 W, %2 V", watts, volts)', main)
-        self.assertIn('Number(p.voltageNow / 1000).toLocaleString(Qt.locale(), "f", 1)', main)
-        self.assertNotIn("toFixed(", main)
+    def test_formatted_labels_use_the_locale(self) -> None:
+        system = (SHARED_DIR / "SystemPage.qml").read_text(encoding="utf-8")
+        self.assertIn('Number(p.voltageNow / 1000).toLocaleString(Qt.locale(), "f", 1)', system)
+        for path in sorted([*GUI_DIR.glob("*.qml"), *SHARED_DIR.glob("*.qml")]):
+            with self.subTest(qml_name=path.name, parent=path.parent.name):
+                self.assertNotIn("toFixed(", path.read_text(encoding="utf-8"))
 
 
 class LocaleFormattingTests(unittest.TestCase):
     def test_overview_weekday_name_uses_locale(self) -> None:
-        for path in (GUI_DIR / "OverviewPage.qml", GUI_DIR.parent / "kcm" / "ui" / "OverviewPage.qml"):
-            with self.subTest(path=path.name, parent=path.parent.name):
-                source = path.read_text(encoding="utf-8")
-                self.assertIn('nextTime.toLocaleString(Qt.locale(), "dddd")', source)
-                self.assertNotIn('Qt.formatDateTime(nextTime, "dddd")', source)
+        source = (SHARED_DIR / "OverviewPage.qml").read_text(encoding="utf-8")
+        self.assertIn('nextTime.toLocaleString(Qt.locale(), "dddd")', source)
+        self.assertNotIn('Qt.formatDateTime(nextTime, "dddd")', source)
 
 
 class HapticSelectorTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.main = (GUI_DIR / "Main.qml").read_text(encoding="utf-8")
+        cls.input = (SHARED_DIR / "InputPage.qml").read_text(encoding="utf-8")
 
-    def test_unset_intensity_is_display_only(self) -> None:
-        selector = named_block(self.main, "ComboBox", "hapticIntensitySelector")
-        self.assertIn('model: [i18n("Off"),', selector)
-        self.assertNotIn('i18n("Not set")', selector.split("model:", 1)[1].split("\n", 1)[0])
-        self.assertIn("currentIndex: [0, 25, 50, 75, 100].indexOf(kcm.hapticIntensity)", selector)
-        self.assertIn("onActivated: kcm.hapticIntensity = [0, 25, 50, 75, 100][currentIndex]", selector)
-        self.assertIn('displayText: currentIndex < 0 ? i18n("Not set") : currentText', selector)
+    def setting_block(self, setting: str) -> str:
+        start = self.input.index(f'setting: "{setting}"')
+        return self.input[start : self.input.index("]", start)]
 
-    def test_unset_click_force_is_display_only(self) -> None:
-        selector = named_block(self.main, "ComboBox", "clickForceSelector")
-        self.assertIn('model: [i18nc("touchpad click force", "Light"),', selector)
-        self.assertNotIn('i18n("Not set")', selector.split("model:", 1)[1].split("\n", 1)[0])
-        self.assertIn('currentIndex: ["low", "medium", "high"].indexOf(kcm.clickForce)', selector)
-        self.assertIn('onActivated: kcm.clickForce = ["low", "medium", "high"][currentIndex]', selector)
-        self.assertIn('displayText: currentIndex < 0 ? i18n("Not set") : currentText', selector)
+    def test_unset_values_are_display_only(self) -> None:
+        for setting in ("hapticIntensity", "clickForce"):
+            with self.subTest(setting=setting):
+                block = self.setting_block(setting)
+                self.assertIn('unsetText: i18n("Not set")', block)
+                self.assertNotIn('i18n("Not set")', block.split("model:", 1)[1])
 
 
 class StalledFanTests(unittest.TestCase):
     def test_thermals_page_prefers_stalled_state_to_rpm(self) -> None:
-        main = (GUI_DIR / "Main.qml").read_text(encoding="utf-8")
-        delegate = named_block(main, "delegate: Label", "fanReading")
-        self.assertIn("text: modelData.stalled", delegate)
-        self.assertIn('i18n("Stalled")', delegate)
-        self.assertIn('i18n("%1: %2 RPM",', delegate)
-        self.assertLess(delegate.index("text: modelData.stalled"), delegate.index("modelData.rpm"))
+        thermal = (SHARED_DIR / "ThermalPage.qml").read_text(encoding="utf-8")
+        self.assertIn('text: modelData.stalled ? i18n("Stalled") : i18n("%1 RPM", modelData.rpm)', thermal)
 
     def test_overview_prefers_stalled_state_to_rpm(self) -> None:
-        overview = (GUI_DIR / "OverviewPage.qml").read_text(encoding="utf-8")
-        summary = named_block(overview, "Label", "overviewFanSummary")
+        overview = (SHARED_DIR / "OverviewPage.qml").read_text(encoding="utf-8")
+        summary = named_block(overview, "QQC2.Label", "overviewFanSummary")
         self.assertIn("backend.fans.map(fan => fan.stalled", summary)
         self.assertIn('i18n("Stalled")', summary)
         self.assertIn('i18n("%1: %2 RPM",', summary)

@@ -18,6 +18,11 @@ Item {
         property var schedules: [{days: ["Mon", "Tue", "Wed", "Thu", "Fri"], time: "08:00", limit: 80}]
         property var lastEntries: []
         property bool lastEnabled: false
+        property bool scheduleDirty: false
+
+        // Emitted by FrameworkKcm::save() and load()
+        signal scheduleSaveRequested()
+        signal scheduleResetRequested()
 
         function configureSchedule(enabled, entries) {
             lastEnabled = enabled;
@@ -61,8 +66,7 @@ Item {
             mockBackend.saveSucceeds = true;
             mockBackend.lastEntries = [];
             closeGuard.busy = false;
-            closeGuard.settingsDirty = false;
-            closeGuard.scheduleDirty = false;
+            closeGuard.dirty = false;
             closeGuard.allowClose = false;
             schedulePage.discardChanges();
         }
@@ -164,9 +168,38 @@ Item {
             }));
         }
 
+        function test_dirtyStateReachesTheBackend() {
+            compare(mockBackend.scheduleDirty, false);
+            schedulePage.toggleDay(0, "Sat", true);
+            compare(mockBackend.scheduleDirty, true);
+            schedulePage.toggleDay(0, "Sat", false);
+            compare(mockBackend.scheduleDirty, false);
+        }
+
+        function test_applySavesTheSchedule() {
+            schedulePage.toggleDay(0, "Sat", true);
+            mockBackend.scheduleSaveRequested();
+            compare(schedulePage.hasUnsavedChanges, false);
+            compare(mockBackend.scheduleDirty, false);
+            verify(mockBackend.schedules[0].days.indexOf("Sat") >= 0);
+        }
+
+        function test_applyWithoutEditsDoesNotSave() {
+            mockBackend.lastEntries = [];
+            mockBackend.scheduleSaveRequested();
+            compare(mockBackend.lastEntries.length, 0);
+        }
+
+        function test_resetDiscardsScheduleEdits() {
+            schedulePage.toggleDay(0, "Sat", true);
+            mockBackend.scheduleResetRequested();
+            compare(schedulePage.hasUnsavedChanges, false);
+            compare(mockBackend.scheduleDirty, false);
+            compare(schedulePage.entries()[0].days.indexOf("Sat"), -1);
+        }
+
         function test_busyBlocksCleanCloseEvenWhenDiscardWasAllowed() {
-            closeGuard.settingsDirty = false;
-            closeGuard.scheduleDirty = false;
+            closeGuard.dirty = false;
             closeGuard.allowClose = false;
             compare(closeGuard.shouldBlockClose, false);
 
@@ -177,8 +210,7 @@ Item {
         }
 
         function test_busyBlocksDirtyCloseAndWaitsForOperation() {
-            closeGuard.scheduleDirty = true;
-            compare(closeGuard.hasUnsavedChanges, true);
+            closeGuard.dirty = true;
             compare(closeGuard.shouldBlockClose, true);
             closeGuard.busy = true;
             compare(closeGuard.shouldBlockClose, true);
