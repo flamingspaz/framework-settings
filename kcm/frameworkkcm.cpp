@@ -3,7 +3,6 @@
 #include "frameworkkcm.h"
 
 #include <KLocalizedString>
-#include <KPluginFactory>
 
 #include <QDBusArgument>
 #include <QDBusConnection>
@@ -22,8 +21,6 @@
 #include <QStandardPaths>
 
 #include <algorithm>
-
-K_PLUGIN_CLASS_WITH_JSON(FrameworkKcm, "kcm_framework.json")
 
 using namespace Qt::StringLiterals;
 
@@ -111,8 +108,12 @@ namespace {
     }
 } // namespace
 
+#ifdef FRAMEWORK_STANDALONE
+FrameworkKcm::FrameworkKcm(QObject *parent) : QObject(parent) {
+#else
 FrameworkKcm::FrameworkKcm(QObject *parent, const KPluginMetaData &data) : KQuickConfigModule(parent, data) {
     setButtons(Help | Default | Apply);
+#endif
 
     m_fixtureMode = qEnvironmentVariableIntValue("FRAMEWORK_KCM_FIXTURE") != 0;
     m_fixtureModel = qEnvironmentVariable("FRAMEWORK_KCM_FIXTURE_MODEL").toLower();
@@ -177,9 +178,12 @@ void FrameworkKcm::call(const QString &method, const QVariantList &args, const R
 }
 
 void FrameworkKcm::load() {
+#ifndef FRAMEWORK_STANDALONE
     KQuickConfigModule::load();
+#endif
 
     // Reset: drop unsaved edits, then take whatever the hardware reports
+    Q_EMIT scheduleResetRequested();
     m_current = m_saved;
     settingsEdited();
 
@@ -188,26 +192,56 @@ void FrameworkKcm::load() {
         return;
     }
 
-    // Slow (talks to the PD controllers over I2C), and never changes, so only once
+    readService();
+}
+
+void FrameworkKcm::retryService() {
+    if (m_fixtureMode) {
+        return;
+    }
+    // Re-read without dropping unsaved edits; the call also lets D-Bus
+    // activation start frameworkd if it was stopped
+    clearError();
+    readService();
+}
+
+void FrameworkKcm::readService() {
+    // Slow (talks to the PD controllers over I2C), and never changes, so only on load or retry
     call(u"GetSystemInfo"_s, {}, [this](const QDBusMessage &reply) {
         m_systemInfo = replyArg(reply, 0).toMap();
         Q_EMIT systemInfoChanged();
     });
 
+    // The Battery and Overview tabs read power through refreshLive() below
+    if (!liveReadsPower()) {
+        readPower({});
+    }
+
+    loadSettings();
+    refreshLive();
+}
+
+void FrameworkKcm::readPower(const std::function<void()> &finished) {
     call(
         u"GetPower"_s, {},
-        [this](const QDBusMessage &reply) {
-            m_powerInfo = replyArg(reply, 0).toMap();
-            Q_EMIT powerChanged();
+        [this, finished](const QDBusMessage &reply) {
+            if (finished) {
+                finished();
+            }
+            const auto power = replyArg(reply, 0).toMap();
+            if (power != m_powerInfo) {
+                m_powerInfo = power;
+                Q_EMIT powerChanged();
+            }
         },
-        [this](const QDBusError &error) {
+        [this, finished](const QDBusError &error) {
+            if (finished) {
+                finished();
+            }
             if (!isServiceMissing(error)) {
                 setError(error.message());
             }
         });
-
-    loadSettings();
-    refreshLive();
 }
 
 QVariantList FrameworkKcm::fixtureModels() const {
@@ -217,6 +251,52 @@ QVariantList FrameworkKcm::fixtureModels() const {
         QVariantMap{{u"id"_s, u"framework-13"_s}, {u"name"_s, i18n("Framework Laptop 13")}},
         QVariantMap{{u"id"_s, u"framework-13-pro"_s}, {u"name"_s, i18n("Framework Laptop 13 Pro")}},
     };
+}
+
+QString FrameworkKcm::sensorDisplayName(const QString &location, const QString &fallback) const {
+    if (location == u"cpu"_s)
+        return i18nc("temperature sensor", "CPU");
+    if (location == u"near-cpu"_s)
+        return i18nc("temperature sensor on the mainboard next to the CPU", "Near CPU");
+    if (location == u"memory"_s)
+        return i18nc("temperature sensor", "Memory");
+    if (location == u"mainboard"_s)
+        return i18nc("temperature sensor", "Mainboard");
+    if (location == u"battery"_s)
+        return i18nc("temperature sensor", "Battery");
+    if (location == u"charger"_s)
+        return i18nc("temperature sensor", "Charger");
+    if (location == u"chassis"_s)
+        return i18nc("temperature sensor on the case surface", "Chassis");
+    if (location == u"ssd"_s)
+        return i18nc("temperature sensor", "SSD");
+    if (location == u"gpu"_s)
+        return i18nc("temperature sensor", "GPU");
+    if (location == u"wifi"_s)
+        return i18nc("temperature sensor", "Wi-Fi");
+    return fallback;
+}
+
+QString FrameworkKcm::sensorStatusDisplayName(const QString &status) const {
+    if (status == u"not-powered"_s)
+        return i18nc("temperature sensor state", "Off");
+    if (status == u"not-calibrated"_s)
+        return i18nc("temperature sensor state", "Not calibrated");
+    return i18nc("temperature sensor state", "Error");
+}
+
+QString FrameworkKcm::fanDisplayName(const QString &position, const QString &fallback) const {
+    if (position == u"apu"_s)
+        return i18nc("fan cooling the processor", "CPU fan");
+    if (position == u"left"_s)
+        return i18n("Left fan");
+    if (position == u"right"_s)
+        return i18n("Right fan");
+    if (position == u"front"_s)
+        return i18n("Front fan");
+    if (position == u"third"_s)
+        return i18n("Third fan");
+    return fallback;
 }
 
 void FrameworkKcm::setFixtureModel(const QString &model) {
@@ -385,31 +465,31 @@ void FrameworkKcm::setLiveData(const QString &liveData) {
         return;
     }
 
-    if (m_liveData.isEmpty()) {
+    refreshLive();
+    // The Overview's summary reads once; the other tabs poll while shown
+    if (m_liveData.isEmpty() || m_liveData == u"overview"_s) {
         m_liveTimer.stop();
     } else {
-        refreshLive();
         m_liveTimer.start();
     }
 }
 
+bool FrameworkKcm::liveReadsPower() const { return m_liveData == u"power"_s || m_liveData == u"overview"_s; }
+
 void FrameworkKcm::refreshLive() {
-    if (m_fixtureMode) {
-        return;
-    }
     // Don't pile up requests if the EC is slow
-    if (m_liveInFlight || m_liveData.isEmpty()) {
+    if (m_fixtureMode || m_liveInFlight > 0) {
         return;
     }
-    m_liveInFlight = true;
+    const auto finished = [this] { --m_liveInFlight; };
 
-    const auto done = [this](const QDBusError &) { m_liveInFlight = false; };
-
-    if (m_liveData == u"thermal"_s) {
+    if (m_liveData == u"thermal"_s || m_liveData == u"overview"_s) {
+        ++m_liveInFlight;
+        const auto done = [finished](const QDBusError &) { finished(); };
         call(
             u"GetThermal"_s, {},
-            [this](const QDBusMessage &reply) {
-                m_liveInFlight = false;
+            [this, finished](const QDBusMessage &reply) {
+                finished();
                 const auto sensors = replyArg(reply, 0).toList();
                 const auto fans = replyArg(reply, 1).toList();
                 const auto throttle = replyArg(reply, 2).toMap();
@@ -422,11 +502,18 @@ void FrameworkKcm::refreshLive() {
                 }
             },
             done);
-    } else if (m_liveData == u"ports"_s) {
+    }
+    if (liveReadsPower()) {
+        ++m_liveInFlight;
+        readPower(finished);
+    }
+    if (m_liveData == u"ports"_s) {
+        ++m_liveInFlight;
+        const auto done = [finished](const QDBusError &) { finished(); };
         call(
             u"GetPorts"_s, {},
-            [this](const QDBusMessage &reply) {
-                m_liveInFlight = false;
+            [this, finished](const QDBusMessage &reply) {
+                finished();
                 const auto ports = replyArg(reply, 0).toList();
                 if (ports != m_ports) {
                     m_ports = ports;
@@ -448,7 +535,11 @@ FrameworkKcm::PendingWrite FrameworkKcm::fanWrite(const FrameworkSettings &s) {
 }
 
 void FrameworkKcm::save() {
+#ifndef FRAMEWORK_STANDALONE
     KQuickConfigModule::save();
+#endif
+    // Synchronous; a failed schedule save leaves scheduleDirty set, which keeps needsSave
+    Q_EMIT scheduleSaveRequested();
     if (m_fixtureMode) {
         m_saved = m_current;
         settingsEdited();
@@ -488,6 +579,7 @@ void FrameworkKcm::runNextWrite() {
         setBusy(false);
         // Everything was written; reload merges in what the hardware now reports
         m_saved = m_current;
+        updateNeedsSave();
         loadSettings();
         return;
     }
@@ -501,7 +593,7 @@ void FrameworkKcm::runNextWrite() {
             setBusy(false);
             setWriteError(error);
             // Keep the unsaved edits so the user can retry
-            setNeedsSave(true);
+            updateNeedsSave();
         },
         s_writeTimeout);
 }
@@ -542,7 +634,9 @@ void FrameworkKcm::setWriteError(const QDBusError &error) {
 }
 
 void FrameworkKcm::defaults() {
+#ifndef FRAMEWORK_STANDALONE
     KQuickConfigModule::defaults();
+#endif
 
     m_current = withDefaults(m_current);
     settingsEdited();
@@ -550,8 +644,10 @@ void FrameworkKcm::defaults() {
 
 void FrameworkKcm::settingsEdited() {
     Q_EMIT settingsChanged();
-    setNeedsSave(m_current != m_saved);
+    updateNeedsSave();
+#ifndef FRAMEWORK_STANDALONE
     setRepresentsDefaults(m_current == withDefaults(m_current));
+#endif
 }
 
 #define SETTER(Name, member, Type)                                                                                     \
@@ -576,6 +672,27 @@ SETTER(ClickForce, clickForce, const QString &)
 #undef SETTER
 
 void FrameworkKcm::clearError() { setError(QString()); }
+
+void FrameworkKcm::setScheduleDirty(const bool dirty) {
+    if (m_scheduleDirty == dirty) {
+        return;
+    }
+    m_scheduleDirty = dirty;
+    Q_EMIT scheduleDirtyChanged();
+    updateNeedsSave();
+}
+
+void FrameworkKcm::updateNeedsSave() {
+    const bool needsSave = m_current != m_saved || m_scheduleDirty;
+#ifdef FRAMEWORK_STANDALONE
+    if (m_needsSave != needsSave) {
+        m_needsSave = needsSave;
+        Q_EMIT needsSaveChanged();
+    }
+#else
+    setNeedsSave(needsSave);
+#endif
+}
 
 void FrameworkKcm::loadSchedule() {
     const auto path =
@@ -715,7 +832,8 @@ bool FrameworkKcm::applyScheduleUnits(const bool enabled, const QVariantList &sc
             }
         }
         if (tool.isEmpty()) {
-            setError(i18n("framework_tool was not found. Install framework-system to use charge schedules."));
+            setError(i18n("The Framework System command-line tools were not found. Install framework-system to use "
+                          "charge schedules."));
             return false;
         }
     }
@@ -802,5 +920,3 @@ void FrameworkKcm::setDaemonAvailable(bool available) {
         Q_EMIT daemonAvailableChanged();
     }
 }
-
-#include "frameworkkcm.moc"

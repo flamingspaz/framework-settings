@@ -9,41 +9,6 @@ import org.kde.kirigami as Kirigami
 ColumnLayout {
     spacing: Kirigami.Units.largeSpacing
 
-    function sensorName(sensor) {
-        switch (sensor.location) {
-        case "cpu": return i18nc("temperature sensor", "CPU");
-        case "near-cpu": return i18nc("temperature sensor on the mainboard next to the CPU", "Near CPU");
-        case "memory": return i18nc("temperature sensor", "Memory");
-        case "mainboard": return i18nc("temperature sensor", "Mainboard");
-        case "battery": return i18nc("temperature sensor", "Battery");
-        case "charger": return i18nc("temperature sensor", "Charger");
-        case "chassis": return i18nc("temperature sensor on the case surface", "Chassis");
-        case "ssd": return i18nc("temperature sensor", "SSD");
-        case "gpu": return i18nc("temperature sensor", "GPU");
-        case "wifi": return i18nc("temperature sensor", "Wi-Fi");
-        default: return sensor.name;
-        }
-    }
-
-    function sensorStatus(status) {
-        switch (status) {
-        case "not-powered": return i18nc("temperature sensor state", "Off");
-        case "not-calibrated": return i18nc("temperature sensor state", "Not calibrated");
-        default: return i18nc("temperature sensor state", "Error");
-        }
-    }
-
-    function fanName(fan) {
-        switch (fan.position) {
-        case "apu": return i18nc("fan cooling the processor", "CPU fan");
-        case "left": return i18n("Left fan");
-        case "right": return i18n("Right fan");
-        case "front": return i18n("Front fan");
-        case "third": return i18n("Third fan");
-        default: return fan.name;
-        }
-    }
-
     Kirigami.Heading {
         Layout.alignment: Qt.AlignHCenter
         Layout.topMargin: Kirigami.Units.largeSpacing
@@ -73,14 +38,14 @@ ColumnLayout {
                     level: 2
                     text: modelData.status === "ok"
                         ? i18nc("degrees celsius", "%1 °C", modelData.temp)
-                        : sensorStatus(modelData.status)
+                        : kcm.sensorStatusDisplayName(modelData.status)
                 }
                 QQC2.Label {
                     Layout.alignment: Qt.AlignHCenter
                     Layout.maximumWidth: sensorFlow.tileWidth
                     elide: Text.ElideRight
                     opacity: 0.7
-                    text: sensorName(modelData)
+                    text: kcm.sensorDisplayName(modelData.location, modelData.name)
                 }
             }
         }
@@ -112,10 +77,11 @@ ColumnLayout {
             // Count, not the list: a list model rebuilds every row whenever any value
             // changes, and FormLayout trips over the destroyed rows
             model: kcm.fans.length
-            delegate: QQC2.Label {
+            delegate: QQC2.Label
+            {
                 required property int index
                 readonly property var modelData: kcm.fans[index] ?? ({})
-                Kirigami.FormData.label: i18nc("fan name", "%1:", fanName(modelData))
+                Kirigami.FormData.label: i18nc("fan name", "%1:", kcm.fanDisplayName(modelData.position, modelData.name))
                 text: modelData.stalled ? i18n("Stalled") : i18n("%1 RPM", modelData.rpm)
             }
         }
@@ -124,9 +90,9 @@ ColumnLayout {
             Kirigami.FormData.label: i18n("Fan control:")
             setting: "fanMode"
             model: [
-                { text: i18n("Automatic"), value: "auto" },
-                { text: i18n("Fixed duty cycle"), value: "duty" },
-                { text: i18n("Fixed speed"), value: "rpm" },
+                {text: i18n("Automatic"), value: "auto"},
+                {text: i18n("Fixed duty cycle"), value: "duty"},
+                {text: i18n("Fixed speed"), value: "rpm"},
             ]
         }
 

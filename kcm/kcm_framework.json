@@ -1,24 +1,24 @@
 {
-    "KPlugin": {
-        "Authors": [
-            {
-                "Email": "github-viral8565@pxdmail.com",
-                "Name": "Yousef"
-            }
-        ],
-        "Description": "Battery charging, fans, touchpad, LEDs and firmware information for Framework laptops",
-        "Description[de]": "Akkuladen, Lüfter, Touchpad, LEDs und Firmware-Informationen für Framework-Laptops",
-        "Description[es]": "Carga de la batería, ventiladores, panel táctil, LED e información del firmware para portátiles Framework",
-        "Description[fr]": "Charge de la batterie, ventilateurs, pavé tactile, voyants et informations sur le micrologiciel des portables Framework",
-        "Description[nl]": "Accu opladen, ventilatoren, touchpad, leds en firmware-informatie voor Framework-laptops",
-        "Icon": "framework-kcm",
-        "License": "GPL-3.0-or-later",
-        "Name": "Framework Laptop",
-        "Name[de]": "Framework-Laptop",
-        "Name[es]": "Portátil Framework",
-        "Name[fr]": "Portable Framework",
-        "Name[nl]": "Framework-laptop"
-    },
-    "X-KDE-Keywords": "Framework,battery,charge limit,charging,fan,thermal,temperature,fingerprint,touchpad,haptic,firmware,BIOS,EC,USB-C",
-    "X-KDE-System-Settings-Parent-Category": "system-administration"
+  "KPlugin": {
+    "Authors": [
+      {
+        "Email": "github-viral8565@pxdmail.com",
+        "Name": "Yousef"
+      }
+    ],
+    "Description": "Battery charging, fans, touchpad, LEDs and firmware information for Framework laptops",
+    "Description[de]": "Akkuladen, Lüfter, Touchpad, LEDs und Firmware-Informationen für Framework-Laptops",
+    "Description[es]": "Carga de la batería, ventiladores, panel táctil, LED e información del firmware para portátiles Framework",
+    "Description[fr]": "Charge de la batterie, ventilateurs, pavé tactile, voyants et informations sur le micrologiciel des portables Framework",
+    "Description[nl]": "Accu opladen, ventilatoren, touchpad, leds en firmware-informatie voor Framework-laptops",
+    "Icon": "framework-kcm",
+    "License": "GPL-3.0-or-later",
+    "Name": "Framework Laptop",
+    "Name[de]": "Framework-Laptop",
+    "Name[es]": "Portátil Framework",
+    "Name[fr]": "Portable Framework",
+    "Name[nl]": "Framework-laptop"
+  },
+  "X-KDE-Keywords": "Framework,battery,charge limit,charging,fan,thermal,temperature,fingerprint,touchpad,haptic,firmware,BIOS,EC,USB-C",
+  "X-KDE-System-Settings-Parent-Category": "system-administration"
 }

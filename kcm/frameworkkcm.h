@@ -2,7 +2,11 @@
 
 #pragma once
 
+#ifdef FRAMEWORK_STANDALONE
+#include <QObject>
+#else
 #include <KQuickConfigModule>
+#endif
 
 #include <QDBusError>
 #include <QDBusMessage>
@@ -27,9 +31,17 @@ struct FrameworkSettings {
     bool operator==(const FrameworkSettings &) const = default;
 };
 
+#ifdef FRAMEWORK_STANDALONE
+class FrameworkKcm : public QObject {
+
+#else
 class FrameworkKcm : public KQuickConfigModule {
+#endif
     Q_OBJECT
 
+#ifdef FRAMEWORK_STANDALONE
+    Q_PROPERTY(bool needsSave READ needsSave NOTIFY needsSaveChanged)
+#endif
     Q_PROPERTY(bool daemonAvailable READ daemonAvailable NOTIFY daemonAvailableChanged)
     Q_PROPERTY(bool busy READ busy NOTIFY busyChanged)
     Q_PROPERTY(QString errorMessage READ errorMessage NOTIFY errorMessageChanged)
@@ -43,8 +55,12 @@ class FrameworkKcm : public KQuickConfigModule {
     Q_PROPERTY(QVariantMap powerInfo READ powerInfo NOTIFY powerChanged)
     Q_PROPERTY(bool scheduleEnabled READ scheduleEnabled NOTIFY scheduleChanged)
     Q_PROPERTY(QVariantList schedules READ schedules NOTIFY scheduleChanged)
+    // Unsaved edits on the schedule page; they count towards needsSave so Apply,
+    // Reset and the unsaved-changes prompts cover them too
+    Q_PROPERTY(bool scheduleDirty READ scheduleDirty WRITE setScheduleDirty NOTIFY scheduleDirtyChanged)
 
-    // Which live readings the visible page needs: "thermal", "ports" or empty
+    // Which live readings the visible page needs: "thermal", "power" or "ports"
+    // (polled), "overview" (thermal and power, read once) or empty
     Q_PROPERTY(QString liveData READ liveData WRITE setLiveData NOTIFY liveDataChanged)
 
     // Live readings, refreshed every couple of seconds while shown
@@ -68,18 +84,30 @@ class FrameworkKcm : public KQuickConfigModule {
     Q_PROPERTY(QString clickForce READ clickForce WRITE setClickForce NOTIFY settingsChanged)
 
 public:
+#ifdef FRAMEWORK_STANDALONE
+    explicit FrameworkKcm(QObject *parent = nullptr);
+    [[nodiscard]] bool needsSave() const { return m_needsSave; }
+    Q_INVOKABLE void load();
+    Q_INVOKABLE void save();
+    Q_INVOKABLE void defaults();
+#else
     FrameworkKcm(QObject *parent, const KPluginMetaData &data);
 
     void load() override;
+
     void save() override;
+
     void defaults() override;
+#endif
 
     [[nodiscard]] bool daemonAvailable() const { return m_daemonAvailable; }
     [[nodiscard]] bool busy() const { return m_busy; }
     [[nodiscard]] QString errorMessage() const { return m_errorMessage; }
     [[nodiscard]] bool fixtureMode() const { return m_fixtureMode; }
     [[nodiscard]] QString fixtureModel() const { return m_fixtureModel; }
+
     [[nodiscard]] QVariantList fixtureModels() const;
+
     [[nodiscard]] bool supportsKeyboardBacklight() const { return m_supportsKeyboardBacklight; }
     [[nodiscard]] bool supportsInputDeck() const { return m_supportsInputDeck; }
     [[nodiscard]] bool supportsTabletMode() const { return m_supportsTabletMode; }
@@ -87,7 +115,11 @@ public:
     [[nodiscard]] QVariantMap powerInfo() const { return m_powerInfo; }
     [[nodiscard]] bool scheduleEnabled() const { return m_scheduleEnabled; }
     [[nodiscard]] QVariantList schedules() const { return m_schedules; }
+    [[nodiscard]] bool scheduleDirty() const { return m_scheduleDirty; }
+
+    void setScheduleDirty(bool dirty);
     [[nodiscard]] QString liveData() const { return m_liveData; }
+
     void setLiveData(const QString &liveData);
 
     [[nodiscard]] QVariantMap systemInfo() const { return m_systemInfo; }
@@ -109,36 +141,79 @@ public:
     [[nodiscard]] QString clickForce() const { return m_current.clickForce; }
 
     void setChargeLimit(int value);
+
     void setChargeRateLimit(double value);
+
     void setChargeRateSoc(int value);
+
     void setFanMode(const QString &value);
+
     void setFanDuty(int value);
+
     void setFanRpm(int value);
+
     void setFpLedLevel(const QString &value);
+
     void setHapticIntensity(int value);
+
     void setClickForce(const QString &value);
 
     Q_INVOKABLE void clearError();
+
+    // Re-read everything from frameworkd, keeping unsaved edits
+    Q_INVOKABLE void retryService();
+
     Q_INVOKABLE void setFixtureModel(const QString &model);
+
+    Q_INVOKABLE QString sensorDisplayName(const QString &location, const QString &fallback) const;
+
+    Q_INVOKABLE QString sensorStatusDisplayName(const QString &status) const;
+
+    Q_INVOKABLE QString fanDisplayName(const QString &position, const QString &fallback) const;
+
     Q_INVOKABLE bool configureSchedule(bool enabled, const QVariantList &schedules);
+
     // Charge to 100% until the next boot; applied immediately, not on Apply
     Q_INVOKABLE void overrideChargeLimit();
+
     Q_INVOKABLE void cancelChargeLimitOverride();
 
 Q_SIGNALS:
+#ifdef FRAMEWORK_STANDALONE
+    void needsSaveChanged();
+#endif
     void daemonAvailableChanged();
+
     void busyChanged();
+
     void errorMessageChanged();
+
     void liveDataChanged();
+
     void systemInfoChanged();
+
     void thermalChanged();
+
     void portsChanged();
+
     void supportChanged();
+
     void settingsChanged();
+
     void chargeOverrideChanged();
+
     void fixtureChanged();
+
     void powerChanged();
+
     void scheduleChanged();
+
+    void scheduleDirtyChanged();
+
+    // Apply and Reset also cover the schedule page, which keeps its own edits
+    void scheduleSaveRequested();
+
+    void scheduleResetRequested();
 
 private:
     using ReplyHandler = std::function<void(const QDBusMessage &)>;
@@ -146,20 +221,43 @@ private:
 
     void call(const QString &method, const QVariantList &args, const ReplyHandler &onReply,
               const ErrorHandler &onError = {}, int timeout = -1);
+
+    void readService();
+
+    void readPower(const std::function<void()> &finished);
+
+    [[nodiscard]] bool liveReadsPower() const;
+
     void refreshLive();
+
     void loadSettings();
+
     void loadFixture();
+
     void loadSchedule();
+
     void updateFixtureProfile();
+
     bool applyScheduleUnits(bool enabled, const QVariantList &schedules);
+
     template<typename T>
     void syncSetting(T FrameworkSettings::*field, const T &value);
+
     void runNextWrite();
+
     void settingsEdited();
+
     void setError(const QString &message);
+
     void setWriteError(const QDBusError &error);
+
+    // Re-derive needsSave; KQuickConfigModule::save() clears it before the writes finish
+    void updateNeedsSave();
+
     void runAction(const QString &method);
+
     void setBusy(bool busy);
+
     void setDaemonAvailable(bool available);
 
     FrameworkSettings m_current;
@@ -171,9 +269,14 @@ private:
 
         bool operator==(const PendingWrite &) const = default;
     };
+
     static PendingWrite fanWrite(const FrameworkSettings &s);
+
     QList<PendingWrite> m_writeQueue;
 
+#ifdef FRAMEWORK_STANDALONE
+    bool m_needsSave = false;
+#endif
     bool m_daemonAvailable = true;
     bool m_busy = false;
     bool m_fixtureMode = false;
@@ -182,7 +285,8 @@ private:
     bool m_supportsInputDeck = false;
     bool m_supportsTabletMode = false;
     bool m_supportsTouchscreen = false;
-    bool m_liveInFlight = false;
+    int m_liveInFlight = 0;
+    bool m_scheduleDirty = false;
     QString m_errorMessage;
     QString m_liveData;
     QTimer m_liveTimer;

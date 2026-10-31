@@ -1,10 +1,10 @@
 # Translations
 
-The KCM uses KI18n with the translation domain `kcm_framework` and follows
-the language set in System Settings. It ships Dutch, German, Spanish and
-French translations in `po/<lang>/kcm_framework.po`. These are **machine
-translations that still need review by native speakers**; corrections are
-welcome.
+The KCM and standalone `framework-settings` application use KI18n with the
+translation domain `kcm_framework` and follow the user's language. They share
+Dutch, German, Spanish and French translations in `po/<lang>/kcm_framework.po`.
+These are **machine translations that still need review by native speakers**;
+corrections are welcome.
 
 Two things aren't translated through gettext and are edited by hand:
 

@@ -3,6 +3,7 @@ name: C++ CI
   push:
     paths:
       - "kcm/**"
+      - "gui/**"
       - "CMakeLists.txt"
       - ".clang-format"
       - ".clang-tidy"
@@ -11,13 +12,15 @@ name: C++ CI
 
 jobs:
   ci:
+    # A called workflow can't be granted more than this; FyraLabs/actions also needs actions: read
     permissions:
       contents: read
       security-events: write
+      actions: read
     uses: FyraLabs/actions/.github/workflows/cpp.yml@main
     with:
       container: ghcr.io/terrapkg/builder:f44
-      packages: cmake extra-cmake-modules qt6-qtbase-devel qt6-qtdeclarative-devel kf6-kcmutils-devel kf6-kirigami-devel kf6-ki18n-devel
+      packages: cmake extra-cmake-modules qt6-qtbase-devel qt6-qtdeclarative-devel kf6-kcmutils-devel kf6-kirigami-devel kf6-ki18n-devel dbus-daemon
       configure-command: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_DAEMON=OFF
       cppcheck-extra-args: >-
         --suppress=preprocessorErrorDirective
