@@ -241,6 +241,10 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # git refuses to update stable unless it has stable's current commit
+          # locally, which a shallow checkout of the tag doesn't
+          fetch-depth: 0
 
       # A plain push only fast-forwards, so a tag that isn't ahead of stable fails here
       - name: Push release to stable
