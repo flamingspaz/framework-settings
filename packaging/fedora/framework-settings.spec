@@ -1,8 +1,8 @@
 %global appid com.github.framework-settings
 
 Name:           framework-settings
-Version:        0.2.0
-Release:        2%{?dist}
+Version:        1.0.0
+Release:        1%{?dist}
 Summary:        Framework laptop settings and hardware service
 
 License:        GPL-3.0-or-later
@@ -188,6 +188,9 @@ fi
 %ghost %attr(0644,root,root) %{_sharedstatedir}/frameworkd/state.json
 
 %changelog
+* Sat Oct 31 2026 Yousef Alam <github-viral8565@pxdmail.com> - 1.0.0-1
+- Release 1.0.0: the standalone app and the KCM share the same pages
+
 * Sat Oct 31 2026 Yousef Alam <github-viral8565@pxdmail.com> - 0.2.0-2
 - Bump the split package release above the monolithic 0.2.0-1 KCM so it upgrades
 - Rename the standalone app's desktop file to com.github.framework-settings.desktop

@@ -26,6 +26,7 @@
   </categories>
 
   <releases>
+    <release version="1.0.0" date="2026-10-31" />
     <release version="0.2.0" date="2026-10-15" />
     <release version="0.1.2" date="2026-10-04" />
   </releases>
