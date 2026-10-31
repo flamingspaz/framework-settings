@@ -2,6 +2,12 @@ pre_remove() {
   systemctl disable --now frameworkd.service >/dev/null 2>&1 || true
 }
 
+post_remove() {
+  # Created at runtime through StateDirectory=, so no package owns it
+  rm -rf /var/lib/frameworkd /var/lib/framework-kcmd
+  systemctl daemon-reload >/dev/null 2>&1 || true
+}
+
 frameworkd_migrate_old_install() {
   # Up to 0.1.1 the daemon was called framework-kcmd. Its unit file is still
   # installed at this point, so disable it here (otherwise the enable symlink
@@ -11,7 +17,15 @@ frameworkd_migrate_old_install() {
     touch /run/frameworkd-migrate-enable
   fi
   systemctl disable --now framework-kcmd.service >/dev/null 2>&1 || true
-  if [ -d /var/lib/framework-kcmd ] && [ ! -e /var/lib/frameworkd ]; then
+  frameworkd_migrate_state
+}
+
+frameworkd_migrate_state() {
+  [ -d /var/lib/framework-kcmd ] || return 0
+  if [ -e /var/lib/frameworkd ]; then
+    # Already migrated; the old copy is stale
+    rm -rf /var/lib/framework-kcmd
+  else
     mv /var/lib/framework-kcmd /var/lib/frameworkd
   fi
 }

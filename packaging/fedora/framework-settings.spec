@@ -2,7 +2,7 @@
 
 Name:           framework-settings
 Version:        0.2.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Framework laptop settings and hardware service
 
 License:        GPL-3.0-or-later
@@ -108,6 +108,8 @@ cd ..
 
 %install
 %cmake_install
+# frameworkd creates its state here at runtime; packaged so removal cleans it up
+install -d %{buildroot}%{_sharedstatedir}/frameworkd
 %find_lang kcm_framework
 
 %terra_appstream
@@ -121,9 +123,20 @@ if [ -e %{_unitdir}/framework-kcmd.service ]; then
         touch %{_rundir}/frameworkd-migrate-enable
     fi
     systemctl disable --now framework-kcmd.service >/dev/null 2>&1 || :
-    if [ -d %{_sharedstatedir}/framework-kcmd ] && [ ! -e %{_sharedstatedir}/frameworkd ]; then
+fi
+if [ -d %{_sharedstatedir}/framework-kcmd ]; then
+    if [ -e %{_sharedstatedir}/frameworkd ]; then
+        # Already migrated; the old copy is stale
+        rm -rf %{_sharedstatedir}/framework-kcmd
+    else
         mv %{_sharedstatedir}/framework-kcmd %{_sharedstatedir}/frameworkd
     fi
+fi
+# Up to 0.2.0 the monolithic framework-kcm package owned frameworkd.service.
+# On the first install of this package %%systemd_post applies the preset,
+# which would drop an existing enablement, so remember it.
+if [ $1 -eq 1 ] && systemctl is-enabled --quiet frameworkd.service 2>/dev/null; then
+    touch %{_rundir}/frameworkd-migrate-enable
 fi
 
 %post -n frameworkd
@@ -170,8 +183,15 @@ fi
 %{_unitdir}/frameworkd.service
 %{_libexecdir}/frameworkd
 %{_datadir}/polkit-1/actions/io.github.frameworkkcm.policy
+# Created at runtime through StateDirectory=; owned so uninstalling removes it
+%dir %{_sharedstatedir}/frameworkd
+%ghost %attr(0644,root,root) %{_sharedstatedir}/frameworkd/state.json
 
 %changelog
+* Sat Oct 31 2026 Yousef Alam <github-viral8565@pxdmail.com> - 0.2.0-2
+- Bump the split package release above the monolithic 0.2.0-1 KCM so it upgrades
+- Rename the standalone app's desktop file to com.github.framework-settings.desktop
+
 * Sun Oct 11 2026 Cypress Reed <cypress@fyralabs.com> - 0.1.2-2
 - Make the meta-package install both interfaces and the service
 - Bump the split package release for upgrades from the monolithic KCM

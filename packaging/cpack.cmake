@@ -64,10 +64,10 @@ set(CPACK_DEBIAN_TRANSLATIONS_PACKAGE_ARCHITECTURE "all")
 set(CPACK_DEBIAN_TRANSLATIONS_PACKAGE_SECTION "localization")
 set(CPACK_DEBIAN_TRANSLATIONS_DESCRIPTION
     "Shared translations for the Framework Settings standalone GUI and KDE module.")
-# The pre-split framework-kcm package owned these catalogs. Permit upgrades
-# from that monolithic package while the new translations package takes over.
-set(CPACK_DEBIAN_TRANSLATIONS_PACKAGE_BREAKS "framework-kcm (<< 0.1.2-1)")
-set(CPACK_DEBIAN_TRANSLATIONS_PACKAGE_REPLACES "framework-kcm (<< 0.1.2-1)")
+# The pre-split framework-kcm package (up to the 0.2.0 release) owned these
+# catalogs. Permit upgrades from it while the new translations package takes over.
+set(CPACK_DEBIAN_TRANSLATIONS_PACKAGE_BREAKS "framework-kcm (<< 0.2.0-1)")
+set(CPACK_DEBIAN_TRANSLATIONS_PACKAGE_REPLACES "framework-kcm (<< 0.2.0-1)")
 
 set(CPACK_DEBIAN_FRAMEWORKD_PACKAGE_NAME "frameworkd")
 set(CPACK_DEBIAN_FRAMEWORKD_PACKAGE_SECTION "admin")
@@ -76,8 +76,8 @@ set(CPACK_DEBIAN_FRAMEWORKD_DESCRIPTION
 set(CPACK_DEBIAN_FRAMEWORKD_PACKAGE_DEPENDS "dbus, polkitd, systemd")
 set(CPACK_DEBIAN_FRAMEWORKD_PACKAGE_PROVIDES "framework-kcmd")
 set(CPACK_DEBIAN_FRAMEWORKD_PACKAGE_CONFLICTS "framework-kcmd")
-set(CPACK_DEBIAN_FRAMEWORKD_PACKAGE_BREAKS "framework-kcm (<< 0.1.2-1)")
-set(CPACK_DEBIAN_FRAMEWORKD_PACKAGE_REPLACES "framework-kcmd, framework-kcm (<< 0.1.2-1)")
+set(CPACK_DEBIAN_FRAMEWORKD_PACKAGE_BREAKS "framework-kcm (<< 0.2.0-1)")
+set(CPACK_DEBIAN_FRAMEWORKD_PACKAGE_REPLACES "framework-kcmd, framework-kcm (<< 0.2.0-1)")
 set(CPACK_DEBIAN_FRAMEWORKD_PACKAGE_CONTROL_EXTRA
     "${CMAKE_CURRENT_LIST_DIR}/debian/preinst;${CMAKE_CURRENT_LIST_DIR}/debian/postinst;${CMAKE_CURRENT_LIST_DIR}/debian/prerm;${CMAKE_CURRENT_LIST_DIR}/debian/postrm")
 

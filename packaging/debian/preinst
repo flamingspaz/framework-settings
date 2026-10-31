@@ -8,7 +8,12 @@ if [ -e /usr/lib/systemd/system/framework-kcmd.service ]; then
     if [ -d /run/systemd/system ]; then
         systemctl disable --now framework-kcmd.service || true
     fi
-    if [ -d /var/lib/framework-kcmd ] && [ ! -e /var/lib/frameworkd ]; then
+fi
+if [ -d /var/lib/framework-kcmd ]; then
+    if [ -e /var/lib/frameworkd ]; then
+        # Already migrated; the old copy is stale
+        rm -rf /var/lib/framework-kcmd
+    else
         mv /var/lib/framework-kcmd /var/lib/frameworkd
     fi
 fi
