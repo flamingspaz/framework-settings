@@ -12,7 +12,7 @@
   withKcm ? true,
 }:
 
-stdenv.mkDerivation {
+stdenv.mkDerivation (finalAttrs: {
   pname = "framework-settings";
   inherit version;
   src = ../../..;
@@ -46,9 +46,11 @@ stdenv.mkDerivation {
     (lib.cmakeBool "BUILD_GUI" withGui)
     (lib.cmakeBool "BUILD_KCM" withKcm)
     (lib.cmakeBool "BUILD_DAEMON" false)
-    (lib.cmakeFeature "DAEMON_PATH" (lib.getExe frameworkd))
+    (lib.cmakeFeature "DAEMON_PATH" (lib.getExe finalAttrs.passthru.daemon))
     (lib.cmakeBool "KDE_INSTALL_USE_QT_SYS_PATHS" true)
   ];
+
+  passthru.daemon = frameworkd;
 
   meta = {
     description = "Framework Laptop settings GUI, KDE module, and system service";
@@ -58,4 +60,4 @@ stdenv.mkDerivation {
   } // lib.optionalAttrs withGui {
     mainProgram = "framework-settings";
   };
-}
+})
