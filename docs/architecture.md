@@ -28,7 +28,7 @@ Anyone can call the read methods. Every write first checks with polkit
 |---|---|---|---|
 | `io.github.frameworkkcm.battery` | charge limit, override, charge rate | allowed | admin password |
 | `io.github.frameworkkcm.fan` | fan duty, RPM, automatic | admin password, remembered for about 5 minutes | admin password |
-| `io.github.frameworkkcm.input` | fingerprint LED, touchpad haptics and click force | allowed | admin password |
+| `io.github.frameworkkcm.input` | fingerprint LED, touchpad haptics and click force, keyboard backlight timeout | allowed | admin password |
 
 ## Remembered settings
 
@@ -41,6 +41,8 @@ That's why the systemd unit is worth enabling at boot.
 
 While an override from the current boot is active, the saved charge limit
 isn't applied, so the EC stays at 100%.
+
+The keyboard backlight timeout is saved there too.
 
 Fan mode is only kept in memory. When the daemon exits, it hands the fans
 back to automatic control.
@@ -56,6 +58,37 @@ While the override is active, `GetChargeSettings` reports the saved limit as
 `maxLimit` (not the 100% the EC is using) and sets `overrideActive`. The
 override ends early if you call `CancelChargeLimitOverride` or set a new limit
 with `SetChargeLimit`.
+
+## Keyboard backlight timeout
+
+The EC has no backlight timeout, so the daemon fakes one. While a timeout is
+set, it opens every keyboard and pointing device in `/dev/input` (anything
+with Space, a left button or touch; not power buttons, lid switches or
+sensors). Only the time of the last event is used, never which key or where.
+
+To stay cheap while the keyboard is in use, it doesn't read input as it
+arrives. Events queue in the kernel, and the daemon only reads them when the
+timeout would run out, using their timestamps to work out when the last one
+happened. That's also when it picks up newly plugged-in devices. Only while
+the backlight is off does it wait on input directly.
+
+Once nothing has happened for the timeout, it reads the backlight's current
+brightness, remembers it in memory and fades the backlight out over a second. On the next
+input it fades that brightness back in over a tenth of a second. Input during
+the fade-out reverses it straight away. The desktop and Fn+Space stay in
+charge of the brightness, so:
+
+- if the backlight is already off at the timeout, nothing changes
+- if it was turned back on while idle, that brightness is kept
+
+Brightness goes through the kernel's LED device
+(`/sys/class/leds/*::kbd_backlight`), the same one the desktop uses, rather
+than framework_lib. framework_lib rounds the level down each time it converts,
+so restoring through it would leave the backlight slightly dimmer each time.
+If the daemon stops or restarts while the backlight is off, it restores the
+remembered brightness first. The brightness isn't written to disk, so after a
+crash the backlight stays off until it's changed from the desktop or with
+Fn+Space.
 
 ## D-Bus API
 
@@ -74,7 +107,7 @@ the user's language.
 | `GetChargeSettings()` | `a{sv}`: `maxLimit`, `overrideActive`, `rateLimit`, `rateLimitSoc` |
 | `GetThermal()` | `(aa{sv} sensors, aa{sv} fans, a{sv} throttle)` |
 | `GetFanControl()` | `a{sv}`: `mode` (`auto`, `duty`, `rpm`) and `value` |
-| `GetInput()` | `a{sv}`: fingerprint LED level, last haptic intensity and click force |
+| `GetInput()` | `a{sv}`: fingerprint LED level, last haptic intensity and click force, `kbdBacklightSupported`, `kbdBacklightTimeout` (seconds, 0 = off) |
 | `GetPorts()` | `aa{sv}`: one entry per USB-C port with `position`, `role`, `chargingType`, power readings |
 
 Property `Version` (`s`) is the daemon version.
@@ -93,6 +126,7 @@ Property `Version` (`s`) is the daemon version.
 | `SetFpLedLevel(s level)` | input; `high`, `medium`, `low`, `ultra-low`, `auto` |
 | `SetHapticIntensity(i value)` | input; 0, 25, 50, 75 or 100 |
 | `SetClickForce(s force)` | input; `low`, `medium`, `high` |
+| `SetKeyboardBacklightTimeout(i seconds)` | input; 5–3600, or 0 to turn the timeout off |
 
 Errors are `io.github.frameworkkcm.Error.NotAuthorized` and
 `io.github.frameworkkcm.Error.Failed`.
