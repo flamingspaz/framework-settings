@@ -10,6 +10,7 @@ mod state;
 
 use std::future::Future;
 use std::sync::{Arc, Mutex, MutexGuard};
+use std::time::Duration;
 
 use framework_lib::chromium_ec::CrosEc;
 use zbus::message::Header;
@@ -20,6 +21,11 @@ use state::{ChargeLimitOverride, State};
 
 const BUS_NAME: &str = "io.github.frameworkkcm.Daemon1";
 const OBJECT_PATH: &str = "/io/github/frameworkkcm/Daemon1";
+
+/// Early in boot the EC can accept a charge limit and then drop it, so the
+/// re-apply checks it stuck and tries again a few times.
+const CHARGE_LIMIT_ATTEMPTS: u32 = 5;
+const CHARGE_LIMIT_SETTLE: Duration = Duration::from_secs(2);
 
 #[derive(Debug, zbus::DBusError)]
 #[zbus(prefix = "io.github.frameworkkcm.Error")]
@@ -98,13 +104,11 @@ impl Daemon {
             .as_ref()
             .filter(|o| o.boot_id != state::boot_id())
         {
-            let max = o.restore_max as i32;
+            let max = o.restore_max;
             // On failure keep the override so we try again on the next start
-            if restore(
-                "charge limit after override",
-                self.with_ec(move |ec| ec::set_charge_limit(ec, max)),
-            )
-            .await
+            if self
+                .reapply_charge_limit("charge limit after override", max)
+                .await
             {
                 log::info!("Charge limit override ended, restored limit to {max}%");
                 self.update_state(|s| {
@@ -115,12 +119,7 @@ impl Daemon {
         } else if state.charge_limit_override.is_none() {
             // An override from this boot keeps the EC at 100% until reboot
             if let Some(max) = state.charge_limit {
-                let max = max as i32;
-                restore(
-                    "charge limit",
-                    self.with_ec(move |ec| ec::set_charge_limit(ec, max)),
-                )
-                .await;
+                self.reapply_charge_limit("charge limit", max).await;
             }
         }
         if let Some(rate) = state.charge_rate_limit.filter(|r| *r < 1.0) {
@@ -141,6 +140,35 @@ impl Daemon {
         if let Some(force) = state.click_force {
             restore("click force", blocking(move || ec::set_click_force(&force))).await;
         }
+    }
+
+    /// Set the charge limit and read it back, retrying until the EC keeps it.
+    /// Returns whether it stuck.
+    async fn reapply_charge_limit(&self, what: &str, max: u8) -> bool {
+        for attempt in 1..=CHARGE_LIMIT_ATTEMPTS {
+            if restore(
+                what,
+                self.with_ec(move |ec| ec::set_charge_limit(ec, i32::from(max))),
+            )
+            .await
+            {
+                tokio::time::sleep(CHARGE_LIMIT_SETTLE).await;
+                match self.with_ec(ec::charge_limit).await {
+                    Ok((_, got)) if got == max => {
+                        log::info!("Restored {what} to {max}% (attempt {attempt})");
+                        return true;
+                    }
+                    Ok((_, got)) => log::warn!(
+                        "EC reports {what} as {got}% after setting {max}% (attempt {attempt})"
+                    ),
+                    Err(e) => log::warn!("Failed to read back {what}: {e:?}"),
+                }
+            } else {
+                tokio::time::sleep(CHARGE_LIMIT_SETTLE).await;
+            }
+        }
+        log::warn!("Gave up restoring {what} after {CHARGE_LIMIT_ATTEMPTS} attempts");
+        false
     }
 
     /// Hand fans back to the EC so we never leave them pinned when we exit.
