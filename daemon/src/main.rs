@@ -4,6 +4,7 @@
 //! Reads are unrestricted, writes are gated by polkit actions
 //! (see data/io.github.frameworkkcm.policy).
 
+mod backlight;
 mod ec;
 mod polkit;
 mod state;
@@ -12,6 +13,7 @@ use std::future::Future;
 use std::sync::{Arc, Mutex, MutexGuard};
 
 use framework_lib::chromium_ec::CrosEc;
+use tokio::sync::watch;
 use zbus::message::Header;
 use zbus::Connection;
 
@@ -42,6 +44,10 @@ struct Inner {
     ec: Mutex<CrosEc>,
     state: Mutex<State>,
     fan: Mutex<FanControl>,
+    /// Keyboard backlight timeout in seconds (0 = off), for the backlight task
+    backlight_timeout: watch::Sender<u32>,
+    /// Brightness the backlight timeout turned off, to put back on input
+    backlight_restore: Mutex<Option<u32>>,
 }
 
 #[derive(Clone)]
@@ -54,10 +60,14 @@ fn lock<T>(m: &Mutex<T>) -> MutexGuard<'_, T> {
 
 impl Daemon {
     fn new() -> Self {
+        let state = State::load();
+        let timeout = state.kbd_backlight_timeout.unwrap_or(0);
         Daemon(Arc::new(Inner {
             ec: Mutex::new(CrosEc::new()),
-            state: Mutex::new(State::load()),
+            state: Mutex::new(state),
             fan: Mutex::new(FanControl::Auto),
+            backlight_timeout: watch::Sender::new(timeout),
+            backlight_restore: Mutex::new(None),
         }))
     }
 
@@ -240,6 +250,8 @@ impl Daemon {
             "fpLedLevel" => fp_level,
             "hapticIntensity" => state.haptic_intensity.map(|v| v as i32).unwrap_or(-1),
             "clickForce" => state.click_force.unwrap_or_default(),
+            "kbdBacklightSupported" => backlight::supported(),
+            "kbdBacklightTimeout" => state.kbd_backlight_timeout.unwrap_or(0) as i32,
         })
     }
 
@@ -409,6 +421,32 @@ impl Daemon {
         self.update_state(|s| s.click_force = Some(force));
         Ok(())
     }
+
+    /// Turn the keyboard backlight off after `seconds` without input; 0 never does.
+    async fn set_keyboard_backlight_timeout(
+        &self,
+        #[zbus(header)] hdr: Header<'_>,
+        #[zbus(connection)] conn: &Connection,
+        seconds: i32,
+    ) -> Result<(), Error> {
+        self.authorize(conn, &hdr, polkit::ACTION_INPUT).await?;
+        let seconds = u32::try_from(seconds).unwrap_or(u32::MAX);
+        if seconds != 0 {
+            if !backlight::TIMEOUT_RANGE.contains(&seconds) {
+                return Err(Error::Failed(format!(
+                    "Timeout must be between {} and {} seconds",
+                    backlight::TIMEOUT_RANGE.start(),
+                    backlight::TIMEOUT_RANGE.end()
+                )));
+            }
+            if !backlight::supported() {
+                return Err(Error::Failed("No keyboard backlight found".into()));
+            }
+        }
+        self.update_state(|s| s.kbd_backlight_timeout = Some(seconds));
+        self.0.backlight_timeout.send_replace(seconds);
+        Ok(())
+    }
 }
 
 #[tokio::main]
@@ -430,6 +468,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let daemon = daemon.clone();
         async move { daemon.reapply().await }
     });
+    let backlight = tokio::spawn(backlight::run(daemon.clone()));
 
     let mut term = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())?;
     tokio::select! {
@@ -438,5 +477,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     daemon.restore_auto_fan().await;
+    // Stop a fade in progress before putting the brightness back
+    backlight.abort();
+    let _ = backlight.await;
+    backlight::wake(&daemon).await;
     Ok(())
 }

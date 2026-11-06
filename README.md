@@ -22,8 +22,8 @@ touchpad settings, and firmware and USB-C port information.
   command-line tools.
 - **Thermals:** live temperatures, fan speed and throttling status.
   Leave the fans on automatic, or fix their speed.
-- **Input:** fingerprint reader LED brightness, and haptic touchpad
-  feedback strength and click force.
+- **Input:** fingerprint reader LED brightness, a keyboard backlight timeout,
+  and haptic touchpad feedback strength and click force.
 - **System:** model, BIOS, EC and PD controller firmware versions, camera and
   microphone privacy switches, and what's connected to each USB-C port.
 
@@ -312,7 +312,11 @@ for an administrator password.
   only one place.
 - Haptic and click force settings only apply to the haptic touchpads found
   on the 13 Pro Input Cover.
-- Keyboard backlight is left to Plasma, which drives it through `cros_kbd_led_backlight`.
+- Keyboard backlight brightness is left to Plasma and Fn+Space. This module
+  only adds a timeout: it turns the backlight off after a period without
+  keyboard, touchpad or mouse input, and back on at the brightness it had. To
+  notice input, the service reads input events, but only keeps the time of
+  the last one.
 - USB-C port names follow `framework_tool --pdports`.
 
 ## Languages
