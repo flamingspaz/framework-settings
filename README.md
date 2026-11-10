@@ -93,6 +93,28 @@ $ sudo systemctl disable --now frameworkd
 $ tar -tzf framework-kcm-<version>-x86_64.tar.gz | grep -v '/$' | sed 's|^|/|' | sudo xargs rm -f
 ```
 
+### NixOS (nixpkgs)
+
+As of NixOS 26.11 or Unstable, this project is included in nixpkgs directly.
+You can enable the program by adding `programs.framework-settings.enable = true;`
+to your `configuration.nix`.
+
+To install only the standalone GUI without the KCM, override the
+`framework-settings` package in your `configuration.nix` with
+`withKcm = false`:
+
+```nix
+programs.framework-settings.package = pkgs.framework-settings.override {
+  withGui = true;
+  withKcm = false;
+};
+```
+
+If you wish to receive faster updates, or are running an older version of NixOS,
+you can use either the Flakes or nix-channel method below to install this
+program instead. Note that if you use this method, you will need to compile
+the project locally.
+
 ### NixOS (Flakes)
 
 This project can be used by adding this repository as a flakes input
@@ -116,7 +138,11 @@ release; use `main` instead for development builds. Below is a basic
         modules = [
           ./hardware-configuration.nix
           framework-settings.nixosModules.framework-settings
-          { programs.framework-settings.enable = true; }
+          {
+            programs.framework-settings.enable = true;
+            # disable the nixpkgs version if present
+            disabledModules = [ "programs/framework-settings.nix" ];
+          }
           # rest of your system configuration here.
         ];
       };
@@ -164,6 +190,8 @@ in
     framework-settings.nixosModules.framework-settings
   ];
   programs.framework-settings.enable = true;
+  # disable the nixpkgs version if present
+  disabledModules = [ "programs/framework-settings.nix" ];
   # rest of your system configuration here.
 }
 ```
