@@ -2,6 +2,7 @@
   lib,
   pkg-config,
   rustPlatform,
+  libgit2,
   udev,
 
   version,
@@ -23,7 +24,10 @@ rustPlatform.buildRustPackage {
   };
 
   nativeBuildInputs = [ pkg-config ];
-  buildInputs = [ udev ];
+  buildInputs = [
+    libgit2
+    udev
+  ];
 
   meta = {
     description = "DBus daemon for framework configuration";
