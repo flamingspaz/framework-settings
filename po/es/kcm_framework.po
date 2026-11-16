@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: framework-kcm\n"
 "Report-Msgid-Bugs-To: github-viral8565@pxdmail.com\n"
-"POT-Creation-Date: 2026-10-31 19:52+0000\n"
+"POT-Creation-Date: 2026-11-06 23:43+0000\n"
 "PO-Revision-Date: 2026-10-31 19:45+0000\n"
 "Last-Translator: Machine translation (Claude), needs review\n"
 "Language-Team: Spanish\n"
@@ -14,43 +14,44 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: gui/Main.qml:16 gui/Main.qml:48
+#: gui/Main.qml:16 gui/Main.qml:47
 #, kde-format
 msgid "Framework Settings"
 msgstr "Configuración de Framework"
 
-#: gui/Main.qml:51
+#: gui/Main.qml:50
 #, kde-format
 msgid "Manage charging, cooling, and input hardware."
 msgstr "Gestione la carga, la refrigeración y el hardware de entrada."
 
-#: gui/Main.qml:96
+#: gui/Main.qml:95
 #, kde-format
 msgid "Applying settings…"
 msgstr "Aplicando la configuración…"
 
-#: gui/Main.qml:96
+#: gui/Main.qml:95
 #, kde-format
 msgid "Changes not applied"
 msgstr "Cambios sin aplicar"
 
-#: gui/Main.qml:99
+#: gui/Main.qml:98
 #, kde-format
 msgid "Defaults"
 msgstr "Valores predeterminados"
 
-#: gui/Main.qml:104
+#: gui/Main.qml:103
 #, kde-format
 msgid "Apply"
 msgstr "Aplicar"
 
-#: gui/Main.qml:116
+#: gui/Main.qml:115
 #, kde-format
 msgid "Unsaved changes"
 msgstr "Cambios sin guardar"
 
-#: gui/Main.qml:120
+#: gui/Main.qml:119
 #, kde-format
 msgid ""
 "Settings are being applied. Wait for the operation to finish before closing."
@@ -58,201 +59,201 @@ msgstr ""
 "Se está aplicando la configuración. Espere a que termine la operación antes "
 "de cerrar."
 
-#: gui/Main.qml:121
+#: gui/Main.qml:120
 #, kde-format
 msgid "You have unsaved settings or schedule changes. Discard them and close?"
 msgstr ""
 "Hay cambios sin guardar en la configuración o en la programación. "
 "¿Descartarlos y cerrar?"
 
-#: gui/Main.qml:127
+#: gui/Main.qml:126
 #, kde-format
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: gui/Main.qml:135
+#: gui/Main.qml:134
 #, kde-format
 msgid "Discard and close"
 msgstr "Descartar y cerrar"
 
-#: kcm/frameworkkcm.cpp:232 kcm/frameworkkcm.cpp:314
+#: kcm/frameworkkcm.cpp:249 kcm/frameworkkcm.cpp:331
 #, kde-format
 msgid "Framework Laptop 12"
 msgstr "Framework Laptop 12"
 
-#: kcm/frameworkkcm.cpp:233 kcm/frameworkkcm.cpp:316
+#: kcm/frameworkkcm.cpp:250 kcm/frameworkkcm.cpp:333
 #, kde-format
 msgid "Framework Laptop 12 (2nd Gen)"
 msgstr "Framework Laptop 12 (2.ª generación)"
 
-#: kcm/frameworkkcm.cpp:234 kcm/frameworkkcm.cpp:318
+#: kcm/frameworkkcm.cpp:251 kcm/frameworkkcm.cpp:335
 #, kde-format
 msgid "Framework Laptop 13"
 msgstr "Framework Laptop 13"
 
-#: kcm/frameworkkcm.cpp:235 kcm/frameworkkcm.cpp:320
+#: kcm/frameworkkcm.cpp:252 kcm/frameworkkcm.cpp:337
 #, kde-format
 msgid "Framework Laptop 13 Pro"
 msgstr "Framework Laptop 13 Pro"
 
-#: kcm/frameworkkcm.cpp:241
+#: kcm/frameworkkcm.cpp:258
 #, kde-format
 msgctxt "temperature sensor"
 msgid "CPU"
 msgstr "CPU"
 
-#: kcm/frameworkkcm.cpp:243
+#: kcm/frameworkkcm.cpp:260
 #, kde-format
 msgctxt "temperature sensor on the mainboard next to the CPU"
 msgid "Near CPU"
 msgstr "Junto a la CPU"
 
-#: kcm/frameworkkcm.cpp:245
+#: kcm/frameworkkcm.cpp:262
 #, kde-format
 msgctxt "temperature sensor"
 msgid "Memory"
 msgstr "Memoria"
 
-#: kcm/frameworkkcm.cpp:247
+#: kcm/frameworkkcm.cpp:264
 #, kde-format
 msgctxt "temperature sensor"
 msgid "Mainboard"
 msgstr "Placa base"
 
-#: kcm/frameworkkcm.cpp:249
+#: kcm/frameworkkcm.cpp:266
 #, kde-format
 msgctxt "temperature sensor"
 msgid "Battery"
 msgstr "Batería"
 
-#: kcm/frameworkkcm.cpp:251
+#: kcm/frameworkkcm.cpp:268
 #, kde-format
 msgctxt "temperature sensor"
 msgid "Charger"
 msgstr "Cargador"
 
-#: kcm/frameworkkcm.cpp:253
+#: kcm/frameworkkcm.cpp:270
 #, kde-format
 msgctxt "temperature sensor on the case surface"
 msgid "Chassis"
 msgstr "Carcasa"
 
-#: kcm/frameworkkcm.cpp:255
+#: kcm/frameworkkcm.cpp:272
 #, kde-format
 msgctxt "temperature sensor"
 msgid "SSD"
 msgstr "SSD"
 
-#: kcm/frameworkkcm.cpp:257
+#: kcm/frameworkkcm.cpp:274
 #, kde-format
 msgctxt "temperature sensor"
 msgid "GPU"
 msgstr "GPU"
 
-#: kcm/frameworkkcm.cpp:259
+#: kcm/frameworkkcm.cpp:276
 #, kde-format
 msgctxt "temperature sensor"
 msgid "Wi-Fi"
 msgstr "Wi-Fi"
 
-#: kcm/frameworkkcm.cpp:265
+#: kcm/frameworkkcm.cpp:282
 #, kde-format
 msgctxt "temperature sensor state"
 msgid "Off"
 msgstr "Apagado"
 
-#: kcm/frameworkkcm.cpp:267
+#: kcm/frameworkkcm.cpp:284
 #, kde-format
 msgctxt "temperature sensor state"
 msgid "Not calibrated"
 msgstr "Sin calibrar"
 
-#: kcm/frameworkkcm.cpp:268
+#: kcm/frameworkkcm.cpp:285
 #, kde-format
 msgctxt "temperature sensor state"
 msgid "Error"
 msgstr "Error"
 
-#: kcm/frameworkkcm.cpp:273
+#: kcm/frameworkkcm.cpp:290
 #, kde-format
 msgctxt "fan cooling the processor"
 msgid "CPU fan"
 msgstr "Ventilador de la CPU"
 
-#: kcm/frameworkkcm.cpp:275
+#: kcm/frameworkkcm.cpp:292
 #, kde-format
 msgid "Left fan"
 msgstr "Ventilador izquierdo"
 
-#: kcm/frameworkkcm.cpp:277
+#: kcm/frameworkkcm.cpp:294
 #, kde-format
 msgid "Right fan"
 msgstr "Ventilador derecho"
 
-#: kcm/frameworkkcm.cpp:279
+#: kcm/frameworkkcm.cpp:296
 #, kde-format
 msgid "Front fan"
 msgstr "Ventilador frontal"
 
-#: kcm/frameworkkcm.cpp:281
+#: kcm/frameworkkcm.cpp:298
 #, kde-format
 msgid "Third fan"
 msgstr "Tercer ventilador"
 
-#: kcm/frameworkkcm.cpp:602
+#: kcm/frameworkkcm.cpp:633
 #, kde-format
 msgid "You are not authorized to change this setting."
 msgstr "No tiene autorización para cambiar esta opción."
 
-#: kcm/frameworkkcm.cpp:604
+#: kcm/frameworkkcm.cpp:635
 #, kde-format
 msgid "The Framework hardware service is not running."
 msgstr "El servicio de hardware de Framework no está en ejecución."
 
-#: kcm/frameworkkcm.cpp:697
+#: kcm/frameworkkcm.cpp:739
 #, kde-format
 msgid "Add at least one schedule."
 msgstr "Añada al menos una programación."
 
-#: kcm/frameworkkcm.cpp:705
+#: kcm/frameworkkcm.cpp:747
 #, kde-format
 msgid "Each schedule needs at least one day and a valid time in HH:MM format."
 msgstr ""
 "Cada programación necesita al menos un día y una hora válida en formato "
 "HH:MM."
 
-#: kcm/frameworkkcm.cpp:712
+#: kcm/frameworkkcm.cpp:754
 #, kde-format
 msgid "Each schedule must use unique weekdays."
 msgstr "Cada programación debe usar días de la semana distintos."
 
-#: kcm/frameworkkcm.cpp:718
+#: kcm/frameworkkcm.cpp:760
 #, kde-format
 msgid "The same weekday and time cannot be scheduled more than once."
 msgstr "No se puede programar más de una vez el mismo día y hora."
 
-#: kcm/frameworkkcm.cpp:736 kcm/frameworkkcm.cpp:753
+#: kcm/frameworkkcm.cpp:778 kcm/frameworkkcm.cpp:795
 #, kde-format
 msgid "Could not save the charge schedule configuration."
 msgstr "No se pudo guardar la configuración de la programación de carga."
 
-#: kcm/frameworkkcm.cpp:766
+#: kcm/frameworkkcm.cpp:808
 #, kde-format
 msgid "Could not create the user systemd configuration directory."
 msgstr ""
 "No se pudo crear el directorio de configuración de systemd del usuario."
 
-#: kcm/frameworkkcm.cpp:776
+#: kcm/frameworkkcm.cpp:818
 #, kde-format
 msgid "The user systemd manager did not respond."
 msgstr "El gestor de systemd del usuario no respondió."
 
-#: kcm/frameworkkcm.cpp:784
+#: kcm/frameworkkcm.cpp:826
 #, kde-format
 msgid "Could not update the user systemd schedule."
 msgstr "No se pudo actualizar la programación de systemd del usuario."
 
-#: kcm/frameworkkcm.cpp:799
+#: kcm/frameworkkcm.cpp:841
 #, kde-format
 msgid ""
 "The Framework System command-line tools were not found. Install framework-"
@@ -261,7 +262,7 @@ msgstr ""
 "No se encontraron las herramientas de línea de órdenes de Framework System. "
 "Instale framework-system para usar las programaciones de carga."
 
-#: kcm/frameworkkcm.cpp:832 kcm/frameworkkcm.cpp:846
+#: kcm/frameworkkcm.cpp:874 kcm/frameworkkcm.cpp:888
 #, kde-format
 msgid "Could not write the user systemd schedule."
 msgstr "No se pudo escribir la programación de systemd del usuario."
@@ -272,8 +273,8 @@ msgid "Battery:"
 msgstr "Batería:"
 
 #: kcm/ui/BatteryPage.qml:45 kcm/ui/BatteryPage.qml:110
-#: kcm/ui/BatteryPage.qml:188 kcm/ui/InputPage.qml:38 kcm/ui/InputPage.qml:39
-#: kcm/ui/InputPage.qml:40 kcm/ui/InputPage.qml:41 kcm/ui/SchedulePage.qml:218
+#: kcm/ui/BatteryPage.qml:188 kcm/ui/InputPage.qml:69 kcm/ui/InputPage.qml:70
+#: kcm/ui/InputPage.qml:71 kcm/ui/InputPage.qml:72 kcm/ui/SchedulePage.qml:236
 #: kcm/ui/ThermalPage.qml:112
 #, kde-format
 msgctxt "percent"
@@ -410,22 +411,22 @@ msgstr ""
 "este límite al reiniciarse, así que el servicio lo vuelve a aplicar al "
 "iniciarse."
 
-#: kcm/ui/InputPage.qml:10
+#: kcm/ui/InputPage.qml:12
 #, kde-format
 msgid "Lighting"
 msgstr "Iluminación"
 
-#: kcm/ui/InputPage.qml:14
+#: kcm/ui/InputPage.qml:16
 #, kde-format
 msgid "Fingerprint reader LED:"
 msgstr "LED del lector de huellas:"
 
-#: kcm/ui/InputPage.qml:17
+#: kcm/ui/InputPage.qml:19
 #, kde-format
 msgid "Custom"
 msgstr "Personalizado"
 
-#: kcm/ui/InputPage.qml:17 kcm/ui/OverviewPage.qml:229
+#: kcm/ui/InputPage.qml:19 kcm/ui/OverviewPage.qml:229
 #: kcm/ui/OverviewPage.qml:238 kcm/ui/OverviewPage.qml:247
 #: kcm/ui/SystemPage.qml:13 kcm/ui/SystemPage.qml:84 kcm/ui/SystemPage.qml:89
 #: kcm/ui/SystemPage.qml:112 kcm/ui/SystemPage.qml:117
@@ -434,79 +435,102 @@ msgstr "Personalizado"
 msgid "Unknown"
 msgstr "Desconocido"
 
-#: kcm/ui/InputPage.qml:19 kcm/ui/ThermalPage.qml:93
+#: kcm/ui/InputPage.qml:21 kcm/ui/ThermalPage.qml:93
 #, kde-format
 msgid "Automatic"
 msgstr "Automático"
 
-#: kcm/ui/InputPage.qml:20
+#: kcm/ui/InputPage.qml:22
 #, kde-format
 msgctxt "fingerprint LED brightness"
 msgid "High"
 msgstr "Alto"
 
-#: kcm/ui/InputPage.qml:21
+#: kcm/ui/InputPage.qml:23
 #, kde-format
 msgctxt "fingerprint LED brightness"
 msgid "Medium"
 msgstr "Medio"
 
-#: kcm/ui/InputPage.qml:22
+#: kcm/ui/InputPage.qml:24
 #, kde-format
 msgctxt "fingerprint LED brightness"
 msgid "Low"
 msgstr "Bajo"
 
-#: kcm/ui/InputPage.qml:23
+#: kcm/ui/InputPage.qml:25
 #, kde-format
 msgctxt "fingerprint LED brightness"
 msgid "Ultra low"
 msgstr "Muy bajo"
 
-#: kcm/ui/InputPage.qml:29
+#: kcm/ui/InputPage.qml:34
+#, kde-format
+msgid "Keyboard backlight:"
+msgstr "Retroiluminación del teclado:"
+
+#: kcm/ui/InputPage.qml:38
+#, kde-format
+msgid "Turn off after:"
+msgstr "Apagar tras:"
+
+#: kcm/ui/InputPage.qml:49
+#, kde-format
+msgctxt "keyboard backlight timeout"
+msgid "%1 second"
+msgid_plural "%1 seconds"
+msgstr[0] "%1 segundo"
+msgstr[1] "%1 segundos"
+
+#: kcm/ui/InputPage.qml:55
+#, kde-format
+msgid "Set the brightness as usual from the desktop or with Fn+Space."
+msgstr "El brillo se ajusta como siempre desde el escritorio o con Fn+Espacio."
+
+#: kcm/ui/InputPage.qml:60
 #, kde-format
 msgid "Haptic Touchpad"
 msgstr "Panel táctil háptico"
 
-#: kcm/ui/InputPage.qml:33
+#: kcm/ui/InputPage.qml:64
 #, kde-format
 msgid "Haptic feedback:"
 msgstr "Respuesta háptica:"
 
-#: kcm/ui/InputPage.qml:35 kcm/ui/InputPage.qml:48
+#: kcm/ui/InputPage.qml:66 kcm/ui/InputPage.qml:79
 #, kde-format
 msgid "Not set"
 msgstr "Sin establecer"
 
-#: kcm/ui/InputPage.qml:37
+#: kcm/ui/InputPage.qml:68
 #, kde-format
 msgid "Off"
 msgstr "Desactivada"
 
-#: kcm/ui/InputPage.qml:46
+#: kcm/ui/InputPage.qml:77
 #, kde-format
 msgid "Click force:"
 msgstr "Fuerza de clic:"
 
-#: kcm/ui/InputPage.qml:50
+#: kcm/ui/InputPage.qml:81
 #, kde-format
 msgctxt "touchpad click force"
 msgid "Light"
 msgstr "Ligera"
 
-#: kcm/ui/InputPage.qml:51
+#: kcm/ui/InputPage.qml:82
 #, kde-format
 msgctxt "touchpad click force"
 msgid "Medium"
 msgstr "Media"
 
-#: kcm/ui/InputPage.qml:52
+#: kcm/ui/InputPage.qml:83
 #, kde-format
 msgctxt "touchpad click force"
 msgid "Firm"
 msgstr "Firme"
 
-#: kcm/ui/InputPage.qml:57
+#: kcm/ui/InputPage.qml:88
 #, kde-format
 msgid ""
 "Only for haptic touchpads. The touchpad can't report these settings back, so "
@@ -710,47 +734,47 @@ msgstr "Entrada"
 msgid "System"
 msgstr "Sistema"
 
-#: kcm/ui/SchedulePage.qml:24
+#: kcm/ui/SchedulePage.qml:25
 #, kde-format
 msgid "Monday"
 msgstr "Lunes"
 
-#: kcm/ui/SchedulePage.qml:24
+#: kcm/ui/SchedulePage.qml:25
 #, kde-format
 msgid "Tuesday"
 msgstr "Martes"
 
-#: kcm/ui/SchedulePage.qml:24
+#: kcm/ui/SchedulePage.qml:25
 #, kde-format
 msgid "Wednesday"
 msgstr "Miércoles"
 
-#: kcm/ui/SchedulePage.qml:24
+#: kcm/ui/SchedulePage.qml:25
 #, kde-format
 msgid "Thursday"
 msgstr "Jueves"
 
-#: kcm/ui/SchedulePage.qml:24
+#: kcm/ui/SchedulePage.qml:25
 #, kde-format
 msgid "Friday"
 msgstr "Viernes"
 
-#: kcm/ui/SchedulePage.qml:24
+#: kcm/ui/SchedulePage.qml:25
 #, kde-format
 msgid "Saturday"
 msgstr "Sábado"
 
-#: kcm/ui/SchedulePage.qml:24
+#: kcm/ui/SchedulePage.qml:25
 #, kde-format
 msgid "Sunday"
 msgstr "Domingo"
 
-#: kcm/ui/SchedulePage.qml:108
+#: kcm/ui/SchedulePage.qml:126
 #, kde-format
 msgid "Charge schedule"
 msgstr "Programación de carga"
 
-#: kcm/ui/SchedulePage.qml:113
+#: kcm/ui/SchedulePage.qml:131
 #, kde-format
 msgid ""
 "Create entries that automatically apply a charge limit on selected weekdays."
@@ -758,12 +782,12 @@ msgstr ""
 "Cree entradas que apliquen automáticamente un límite de carga en los días de "
 "la semana elegidos."
 
-#: kcm/ui/SchedulePage.qml:122
+#: kcm/ui/SchedulePage.qml:140
 #, kde-format
 msgid "Schedule saved."
 msgstr "Programación guardada."
 
-#: kcm/ui/SchedulePage.qml:129
+#: kcm/ui/SchedulePage.qml:147
 #, kde-format
 msgid ""
 "Fixture mode only previews schedule settings. No systemd timers are created."
@@ -771,52 +795,52 @@ msgstr ""
 "El modo de prueba solo previsualiza la programación. No se crean "
 "temporizadores de systemd."
 
-#: kcm/ui/SchedulePage.qml:134
+#: kcm/ui/SchedulePage.qml:152
 #, kde-format
 msgid "Enable charge schedules"
 msgstr "Activar las programaciones de carga"
 
-#: kcm/ui/SchedulePage.qml:162
+#: kcm/ui/SchedulePage.qml:180
 #, kde-format
 msgid "Schedule %1"
 msgstr "Programación %1"
 
-#: kcm/ui/SchedulePage.qml:170
+#: kcm/ui/SchedulePage.qml:188
 #, kde-format
 msgid "Remove schedule"
 msgstr "Quitar la programación"
 
-#: kcm/ui/SchedulePage.qml:176
+#: kcm/ui/SchedulePage.qml:194
 #, kde-format
 msgid "Days"
 msgstr "Días"
 
-#: kcm/ui/SchedulePage.qml:198
+#: kcm/ui/SchedulePage.qml:216
 #, kde-format
 msgid "Time"
 msgstr "Hora"
 
-#: kcm/ui/SchedulePage.qml:210
+#: kcm/ui/SchedulePage.qml:228
 #, kde-format
 msgid "Charge limit"
 msgstr "Límite de carga"
 
-#: kcm/ui/SchedulePage.qml:231
+#: kcm/ui/SchedulePage.qml:249
 #, kde-format
 msgid "Add schedule"
 msgstr "Añadir programación"
 
-#: kcm/ui/SchedulePage.qml:238
+#: kcm/ui/SchedulePage.qml:256
 #, kde-format
 msgid "Schedule changes need saving"
 msgstr "Hay cambios de programación sin guardar"
 
-#: kcm/ui/SchedulePage.qml:249
+#: kcm/ui/SchedulePage.qml:267
 #, kde-format
 msgid "Save schedule"
 msgstr "Guardar la programación"
 
-#: kcm/ui/SchedulePage.qml:257
+#: kcm/ui/SchedulePage.qml:275
 #, kde-format
 msgid ""
 "Schedules run through your user systemd manager and require the Framework "
@@ -1112,6 +1136,17 @@ msgstr ""
 "fija del ventilador puede calentarse y reducir su rendimiento. Los "
 "ventiladores vuelven al modo automático cuando el servicio se detiene o el "
 "portátil se reinicia."
+
+#, kde-format
+#~ msgid ""
+#~ "Counts from the last keyboard, touchpad or mouse input, and turns the "
+#~ "backlight back on at its previous brightness when you use one. Set the "
+#~ "brightness as usual from the desktop or with Fn+Space."
+#~ msgstr ""
+#~ "Cuenta desde la última entrada del teclado, el panel táctil o el ratón, y "
+#~ "vuelve a encender la retroiluminación con su brillo anterior al usar "
+#~ "cualquiera de ellos. El brillo se ajusta como siempre desde el escritorio "
+#~ "o con Fn+Espacio."
 
 #, kde-format
 #~ msgid "Charging"

@@ -27,6 +27,7 @@ struct FrameworkSettings {
     QString fpLedLevel;
     int hapticIntensity = -1; // -1: never set, the touchpad can't report it
     QString clickForce;
+    int kbdBacklightTimeout = 0; // seconds without input before the keyboard backlight turns off; 0: never
 
     bool operator==(const FrameworkSettings &) const = default;
 };
@@ -48,7 +49,7 @@ class FrameworkKcm : public KQuickConfigModule {
     Q_PROPERTY(bool fixtureMode READ fixtureMode CONSTANT)
     Q_PROPERTY(QString fixtureModel READ fixtureModel NOTIFY fixtureChanged)
     Q_PROPERTY(QVariantList fixtureModels READ fixtureModels CONSTANT)
-    Q_PROPERTY(bool supportsKeyboardBacklight READ supportsKeyboardBacklight NOTIFY fixtureChanged)
+    Q_PROPERTY(bool supportsKeyboardBacklight READ supportsKeyboardBacklight NOTIFY supportChanged)
     Q_PROPERTY(bool supportsInputDeck READ supportsInputDeck NOTIFY fixtureChanged)
     Q_PROPERTY(bool supportsTabletMode READ supportsTabletMode NOTIFY fixtureChanged)
     Q_PROPERTY(bool supportsTouchscreen READ supportsTouchscreen NOTIFY fixtureChanged)
@@ -82,6 +83,7 @@ class FrameworkKcm : public KQuickConfigModule {
     Q_PROPERTY(QString fpLedLevel READ fpLedLevel WRITE setFpLedLevel NOTIFY settingsChanged)
     Q_PROPERTY(int hapticIntensity READ hapticIntensity WRITE setHapticIntensity NOTIFY settingsChanged)
     Q_PROPERTY(QString clickForce READ clickForce WRITE setClickForce NOTIFY settingsChanged)
+    Q_PROPERTY(int kbdBacklightTimeout READ kbdBacklightTimeout WRITE setKbdBacklightTimeout NOTIFY settingsChanged)
 
 public:
 #ifdef FRAMEWORK_STANDALONE
@@ -139,6 +141,7 @@ public:
     [[nodiscard]] QString fpLedLevel() const { return m_current.fpLedLevel; }
     [[nodiscard]] int hapticIntensity() const { return m_current.hapticIntensity; }
     [[nodiscard]] QString clickForce() const { return m_current.clickForce; }
+    [[nodiscard]] int kbdBacklightTimeout() const { return m_current.kbdBacklightTimeout; }
 
     void setChargeLimit(int value);
 
@@ -157,6 +160,8 @@ public:
     void setHapticIntensity(int value);
 
     void setClickForce(const QString &value);
+
+    void setKbdBacklightTimeout(int value);
 
     Q_INVOKABLE void clearError();
 

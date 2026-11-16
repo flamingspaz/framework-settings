@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import QtQuick
+import QtQuick.Controls as QQC2
+import QtQuick.Layouts
 
 import org.kde.kirigami as Kirigami
 
@@ -22,6 +24,35 @@ Kirigami.FormLayout {
             {text: i18nc("fingerprint LED brightness", "Low"), value: "low"},
             {text: i18nc("fingerprint LED brightness", "Ultra low"), value: "ultra-low"},
         ]
+    }
+
+    RowLayout {
+        id: kbdTimeoutRow
+        // Seconds offered when the timeout is first turned on
+        readonly property int defaultTimeout: 30
+
+        Kirigami.FormData.label: i18n("Keyboard backlight:")
+        visible: kcm.supportsKeyboardBacklight
+        QQC2.CheckBox {
+            id: kbdTimeoutCheck
+            text: i18n("Turn off after:")
+            checked: kcm.kbdBacklightTimeout > 0
+            onToggled: kcm.kbdBacklightTimeout = checked ? kbdTimeoutRow.defaultTimeout : 0
+        }
+        QQC2.SpinBox {
+            enabled: kbdTimeoutCheck.checked
+            from: 5
+            to: 3600
+            stepSize: 5
+            value: kcm.kbdBacklightTimeout > 0 ? kcm.kbdBacklightTimeout : kbdTimeoutRow.defaultTimeout
+            onValueModified: kcm.kbdBacklightTimeout = value
+            textFromValue: (v) => i18ncp("keyboard backlight timeout", "%1 second", "%1 seconds", v)
+        }
+    }
+
+    HintLabel {
+        visible: kcm.supportsKeyboardBacklight && kbdTimeoutCheck.checked
+        text: i18n("Set the brightness as usual from the desktop or with Fn+Space.")
     }
 
     Item {

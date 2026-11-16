@@ -444,10 +444,12 @@ void FrameworkKcm::loadSettings() {
         [this](const QDBusMessage &reply) {
             const auto map = replyArg(reply, 0).toMap();
             m_fpLedSupported = map.value(u"fpLedSupported"_s).toBool();
+            m_supportsKeyboardBacklight = map.value(u"kbdBacklightSupported"_s).toBool();
             Q_EMIT supportChanged();
             syncSetting(&FrameworkSettings::fpLedLevel, map.value(u"fpLedLevel"_s).toString());
             syncSetting(&FrameworkSettings::hapticIntensity, map.value(u"hapticIntensity"_s).toInt());
             syncSetting(&FrameworkSettings::clickForce, map.value(u"clickForce"_s).toString());
+            syncSetting(&FrameworkSettings::kbdBacklightTimeout, map.value(u"kbdBacklightTimeout"_s).toInt());
             settingsEdited();
         },
         onError);
@@ -568,6 +570,9 @@ void FrameworkKcm::save() {
     if (c.clickForce != s.clickForce && !c.clickForce.isEmpty()) {
         m_writeQueue.append({u"SetClickForce"_s, {c.clickForce}});
     }
+    if (c.kbdBacklightTimeout != s.kbdBacklightTimeout) {
+        m_writeQueue.append({u"SetKeyboardBacklightTimeout"_s, {c.kbdBacklightTimeout}});
+    }
 
     clearError();
     runNextWrite();
@@ -668,6 +673,7 @@ SETTER(FanRpm, fanRpm, int)
 SETTER(FpLedLevel, fpLedLevel, const QString &)
 SETTER(HapticIntensity, hapticIntensity, int)
 SETTER(ClickForce, clickForce, const QString &)
+SETTER(KbdBacklightTimeout, kbdBacklightTimeout, int)
 
 #undef SETTER
 

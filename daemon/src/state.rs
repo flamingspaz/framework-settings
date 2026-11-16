@@ -23,6 +23,8 @@ pub struct State {
     pub click_force: Option<String>,
     /// Charge limit temporarily raised to 100% until the next boot
     pub charge_limit_override: Option<ChargeLimitOverride>,
+    /// Seconds without input before the keyboard backlight turns off (0 = never)
+    pub kbd_backlight_timeout: Option<u32>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
